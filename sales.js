@@ -606,7 +606,7 @@ async function recBegin(did,kind,title,dev,actx){let mic=null,disp=null,ctx=null
   else stream=mic;
   const mime=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'].find(m=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))||'';
   let mr;try{mr=new MediaRecorder(stream,mime?{mimeType:mime,audioBitsPerSecond:32000}:{audioBitsPerSecond:32000});}catch(e){try{mr=new MediaRecorder(stream);}catch(e2){toast('A felvétel nem indítható: '+(e2.message||e2),true);acStop();return;}}
-  const sid='r'+Date.now().toString(36);REC={sid,did,kind,title,mr,mic,disp,ctx,chunks:[],i:0,t0:Date.now(),acc:0,paused:false,mime:(mr.mimeType||mime||'audio/webm')};
+  const sid='r'+Date.now().toString(36);recHbStart(sid);REC={sid,did,kind,title,mr,mic,disp,ctx,chunks:[],i:0,t0:Date.now(),acc:0,paused:false,mime:(mr.mimeType||mime||'audio/webm')};
   try{const ac=ctx||actx||new (window.AudioContext||window.webkitAudioContext)();if(!ctx)REC.ctx=ac;const an=ac.createAnalyser();an.fftSize=1024;an.smoothingTimeConstant=0.6;ac.createMediaStreamSource(stream).connect(an);try{const g=ac.createGain();g.gain.value=0;an.connect(g);g.connect(ac.destination);}catch(e){}REC.an=an;if(ac.state==='suspended')ac.resume();}catch(e){}   /* élő hullámforma a sávon */
   await recDbDo('m','readwrite',st=>st.put({sid,did,kind,title,mime:REC.mime,start:REC.t0}));
   mr.ondataavailable=e=>{if(!e.data||!e.data.size||!REC)return;REC.chunks.push(e.data);const i=REC.i++;recDbDo('c','readwrite',st=>st.add({sid,i,b:e.data}));};
@@ -663,10 +663,10 @@ async function recUpload(m,blob){
     const st=await call('recUpStart',{dealId:m.did,size:blob.size,mime:m.mime,kind:m.kind,dur:Math.round(m.dur||0),consent:true});
     let off=0,res=null;while(off<blob.size){const part=blob.slice(off,off+st.chunk),b64=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(',')[1]||'');fr.onerror=()=>no(fr.error);fr.readAsDataURL(part);});
       setUp(blob.size<=st.chunk?'Feltöltés…':'Feltöltés… '+Math.round(off/blob.size*100)+'%');res=await call('recUpChunk',{upId:st.upId,offset:off,b64});off=res&&res.next!=null?res.next:off+part.size;if(res&&res.done)break;}
-    await recDbClear(m.sid);window.removeEventListener('beforeunload',recUnload);
+    await recDbClear(m.sid);recHbStop();window.removeEventListener('beforeunload',recUnload);
     if(res&&res.deals)S.deals=res.deals;REC=null;recBar();if(res&&res.ai&&res.rec)recStatus('✓ Feltöltve · átirat készül…');else toast('✓ A felvétel feltöltve');
     recLoadIf(m.did);if(res&&res.ai&&res.rec)recRun(m.did,res.rec.id);}
-  catch(e){window.removeEventListener('beforeunload',recUnload);REC=null;recBar();
+  catch(e){recHbStop();window.removeEventListener('beforeunload',recUnload);REC=null;recBar();
     confirmLayer('⚠️ A felvétel feltöltése nem sikerült',`<div style="margin:0 16px"><p class="bad-txt" style="margin:0 0 8px">${esc(errText(e))}</p><p class="hint" style="margin:0">A felvétel a böngészőben megmaradt – próbáld újra most, vagy később (az app induláskor is felajánlja).</p></div>`,'Újrapróbálás',(b,l)=>{l.remove();recRetry(m.sid);});}}
 function recLoadIf(did){const b=document.getElementById('rec-list');if(b&&b.dataset.did===did){delete b.dataset.loading;recLoad(did);}}
 /* átirat lépésenként (a háttér minden lépést külön kérésben végez) */
@@ -684,9 +684,15 @@ ACT['rec-proc']=b=>recRun(b.dataset.did,b.dataset.rid);
 ACT['rec-next']=b=>recApply(b.dataset.did,b.dataset.n,b.dataset.d);
 ACT['rec-del']=b=>{const did=b.dataset.did,rid=b.dataset.rid;confirmLayer('Felvétel törlése','<p style="margin:0 16px">A hangfelvétel és az átirat a Drive kukájába kerül (30 napig visszaállítható). A jegyzetben lévő összefoglaló megmarad.</p>','Törlés',async(x,l)=>{l.remove();try{const r=await call('recDel',{dealId:did,id:rid});recFill(did,r.list||[]);toast('Felvétel törölve');}catch(e){handleErr(e);}});};
 /* félbemaradt (fel nem töltött) felvétel: induláskor felajánljuk */
-async function recRetry(sid){const m=await recDbDo('m','readonly',st=>st.get(sid));if(!m){toast('A felvétel már nincs meg a böngészőben.',true);return;}const parts=await recDbChunks(sid);if(!parts.length){await recDbClear(sid);toast('A felvétel üres volt.',true);return;}
-  REC={sid,did:m.did,kind:m.kind,title:m.title,up:'Feltöltés…',done:1};recBar();await recUpload({sid,did:m.did,kind:m.kind,title:m.title,mime:m.mime,dur:m.dur||Math.round(parts.length)},new Blob(parts,{type:String(m.mime||'audio/webm').split(';')[0]}));}
-setTimeout(async()=>{try{if(!S.me||!(isAdmin()||isSales()))return;const L=await recDbDo('m','readonly',st=>st.getAll());(L||[]).filter(x=>!REC||x.sid!==REC.sid).slice(0,1).forEach(m=>{
+/* Több fül: a felvételt (és a feltöltését) végző fül 2 mp-enként jelzi, hogy él – a többi fül ezt nem ajánlja fel „félbemaradt” felvételként */
+let REC_HB=null;
+const recHb=sid=>{try{localStorage.setItem('lpm_rec_hb_'+sid,String(Date.now()));}catch(e){}};
+const recHbLive=sid=>{try{return Date.now()-Number(localStorage.getItem('lpm_rec_hb_'+sid)||0)<10000;}catch(e){return false;}};
+function recHbStart(sid){recHbStop();recHb(sid);REC_HB={sid,iv:setInterval(()=>recHb(sid),2000)};}
+function recHbStop(){if(REC_HB){clearInterval(REC_HB.iv);try{localStorage.removeItem('lpm_rec_hb_'+REC_HB.sid);}catch(e){}REC_HB=null;}}
+async function recRetry(sid){if(recHbLive(sid)&&!(REC_HB&&REC_HB.sid===sid)){toast('Ezt a felvételt egy másik böngészőfül még rögzíti / tölti fel.',true);return;}const m=await recDbDo('m','readonly',st=>st.get(sid));if(!m){toast('A felvétel már nincs meg a böngészőben.',true);return;}const parts=await recDbChunks(sid);if(!parts.length){await recDbClear(sid);toast('A felvétel üres volt.',true);return;}
+  REC={sid,did:m.did,kind:m.kind,title:m.title,up:'Feltöltés…',done:1};recHbStart(sid);recBar();await recUpload({sid,did:m.did,kind:m.kind,title:m.title,mime:m.mime,dur:m.dur||Math.round(parts.length)},new Blob(parts,{type:String(m.mime||'audio/webm').split(';')[0]}));}
+setTimeout(async()=>{try{if(!S.me||!(isAdmin()||isSales()))return;const L=await recDbDo('m','readonly',st=>st.getAll());(L||[]).filter(x=>(!REC||x.sid!==REC.sid)&&!recHbLive(x.sid)).slice(0,1).forEach(m=>{
   confirmLayer('🎙️ Fel nem töltött felvétel',`<p style="margin:0 16px">Van egy félbemaradt beszélgetés-felvétel (${esc(m.title||'')}, ${esc(new Date(m.start).toLocaleString('hu-HU'))}). Feltöltöm most?</p>`,'Feltöltés',(b,l)=>{l.remove();recRetry(m.sid);});});}catch(e){}},6000);
 
 /* Beállítások: OpenAI-kulcs (elsődleges átirat + összefoglaló) – csak az ügyvezető */
