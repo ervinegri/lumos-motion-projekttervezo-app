@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4fc1fce782",
+"at": "2026-11-26T09:13:41+01:00",
+"msg": "Panel csukásakor a fejléc a helyén marad (nem ugrik el a lap); Stáb és Pénzügyek között egyforma hézag"
+},
+{
 "id": "8990d6316b",
 "at": "2026-11-26T09:12:08+01:00",
 "msg": "Naptár: kompaktabb eszköztár és napfejléc (a betűméret változatlan)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Szakember nézet: a projekt-figyelmeztetések (mások ügyei) soha nem látszanak; az e-mail-hiány figyelmeztetés csak betöltött címeknél"
 },
 {
-"id": "41c8533f61",
-"at": "2026-11-25T16:16:51+01:00",
-"msg": "Zár ikon: kinyitva jól láthatóan nyitott lakat (saját rajzolt ikon az emoji helyett)"
-},
-{
-"id": "e6e5d6eab6",
-"at": "2026-11-25T15:14:49Z",
+"id": "9138674253",
+"at": "2026-11-25T15:17:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
