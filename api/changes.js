@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6aa337e348",
+"at": "2026-11-26T15:25:57+01:00",
+"msg": "Egyszeri takarítás az ügyvezető kérésére: a bevezetés napi próba-beszélgetésösszefoglalók törlése a lehetőségek jegyzeteiből (a nyitott ablak is frissül)"
+},
+{
 "id": "05661c923a",
 "at": "2026-11-26T15:25:05+01:00",
 "msg": "Rögzítés telefonon: amíg fut, a képernyő ébren marad (Wake Lock); ha mégis megszakadt (lezárás, appváltás, hívás, a mikrofon elengedése), visszatéréskor szól – folytatás vagy befejezés és feltöltés, nem rögzít csendet"
@@ -120,11 +125,6 @@ const ITEMS = [
 "id": "7d73aefaa9",
 "at": "2026-11-26T12:10:45+01:00",
 "msg": "Google-értékelések: a gombok a címsorban (gépen egy sor)"
-},
-{
-"id": "fcece2e370",
-"at": "2026-11-26T12:07:47+01:00",
-"msg": "Google-értékelések: értékelés kérése e-mailben projekt nélkül (✉️ Küldés); rövidebb gombok (Küldés · Link · QR)"
 }
 ];
 const allowed = require('./_auth.js');
