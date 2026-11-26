@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ac9cfb416c",
+"at": "2026-11-26T18:11:43+02:00",
+"msg": "Projekt fejléc (gép): szélesebb dátumkártya"
+},
+{
 "id": "1389d41c19",
 "at": "2026-11-26T18:10:33+02:00",
 "msg": "Projekt fejléc: a ragadós címsáv nem takarja ki a gombokat (az új elrendezésben is jól érzékeli, mikor csúszik ki a cím)"
@@ -145,11 +150,6 @@ const ITEMS = [
 "id": "373fb49ea9",
 "at": "2026-11-26T15:55:34+01:00",
 "msg": "Rejtett ajánlat-doboz / mikrofon-választó biztosan nem látszik"
-},
-{
-"id": "7c88f03295",
-"at": "2026-11-26T15:55:15+01:00",
-"msg": "Lehetőség ablaka: ha az ügyfélnek nincs ajánlata (sem mentett, sem kiküldött levél), az „Ajánlatok ennek az ügyfélnek” doboz nem jelenik meg / nem foglal helyet"
 }
 ];
 const allowed = require('./_auth.js');
