@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e31d3a754c",
+"at": "2026-11-26T11:40:04+01:00",
+"msg": "Ügyfelek: keresés a fejléc sorában; értékelési link / QR a Frissítés mellett; induláskor a Google-értékelések automatikus behúzása"
+},
+{
 "id": "e90f4fb51d",
 "at": "2026-11-26T11:35:48+01:00",
 "msg": "Sötét mód: olvasható szerepkör-választó; érintésre nincs sárga szövegkijelölés a sorokon; egyforma panelhézag a Szerződés és számlázás előtt; zárolt Alapadatok nem kattintható (tiltó kurzor); Ügyfelek fejléce egy sorban; Google-értékelési link másolása és QR-kód"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "108982d67e",
 "at": "2026-11-26T09:50:49+01:00",
 "msg": "Közeli forgatás: lakat a Stáb panelen (utolsó 3 nap / helyszíni munkától), sürgős meghívó a forgatás előtti estéig tartó határidővel; visszamondás szöveg pontosítva"
-},
-{
-"id": "7ac615cf1d",
-"at": "2026-11-26T09:44:10+01:00",
-"msg": "Szakember nézet: a (látható, tehát elfogadott) csapattársak kártyája zöld"
 }
 ];
 const allowed = require('./_auth.js');
