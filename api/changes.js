@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "636c5f0995",
+"at": "2026-11-26T21:44:15+01:00",
+"msg": "Belső jóváhagyás + ügyfélnek küldés: a vágó egyetlen levelet kap (Ügyfélnek továbbküldve: …), benne a megjegyzéssel"
+},
+{
 "id": "56caf36ba1",
 "at": "2026-11-26T22:39:45+02:00",
 "msg": "Telefon, Stáb lista: egyforma magas sorok (név+cég, szerepek+részletek egy-egy sorban, a többi …)"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "0313e6e896",
 "at": "2026-11-26T18:06:03+02:00",
 "msg": "Szolgáltatások: a magyarázó sor nem csúszik rá az alatta lévő dobozra"
-},
-{
-"id": "7c69778d58",
-"at": "2026-11-26T18:03:56+02:00",
-"msg": "Szolgáltatások: kisebb hézag a fejléc és a magyarázó sor között"
 }
 ];
 const allowed = require('./_auth.js');
