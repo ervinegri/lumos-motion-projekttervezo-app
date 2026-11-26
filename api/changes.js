@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4419dedff9",
+"at": "2026-11-26T10:14:41+02:00",
+"msg": "Naptár (teljes képernyős havi nézet): görgetéssel újra hónapot vált, de az oldal és a rács fix – nincs követés, visszarugózás, utómozgás; egy görgetés = egy hónap (a trackpad tehetetlenségi görgetése nem vált tovább), a régi hónap kicsúszik, az új becsúszik; fejléc / eszköztár nem nyomódik össze"
+},
+{
 "id": "4fc1fce782",
 "at": "2026-11-26T09:13:41+01:00",
 "msg": "Panel csukásakor a fejléc a helyén marad (nem ugrik el a lap); Stáb és Pénzügyek között egyforma hézag"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Adatvédelmi teszt és szabály: a szakember nézet nem mutathat másokra vonatkozó adatot (őrző teszt)"
 },
 {
-"id": "b86c97382d",
-"at": "2026-11-25T16:17:37+01:00",
-"msg": "Szakember nézet: a projekt-figyelmeztetések (mások ügyei) soha nem látszanak; az e-mail-hiány figyelmeztetés csak betöltött címeknél"
-},
-{
-"id": "9138674253",
-"at": "2026-11-25T15:17:01Z",
+"id": "9ab8f01135",
+"at": "2026-11-25T15:17:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
