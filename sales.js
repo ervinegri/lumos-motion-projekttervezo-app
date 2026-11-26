@@ -611,7 +611,7 @@ async function recBegin(did,kind,title,dev,actx){let mic=null,disp=null,ctx=null
   await recDbDo('m','readwrite',st=>st.put({sid,did,kind,title,mime:REC.mime,start:REC.t0}));
   mr.ondataavailable=e=>{if(!e.data||!e.data.size||!REC)return;REC.chunks.push(e.data);const i=REC.i++;recDbDo('c','readwrite',st=>st.add({sid,i,b:e.data}));};
   mr.onstop=()=>recFinish();mr.start(1000);recBar();window.addEventListener('beforeunload',recUnload);
-  REC.tick=setInterval(recBar,1000);{const rs=()=>{try{if(REC&&REC.ctx&&REC.ctx.state!=='running'&&REC.ctx.state!=='closed')REC.ctx.resume();}catch(e){}};document.addEventListener('touchend',rs,{passive:true});document.addEventListener('click',rs);}document.body.classList.add('rec-on');let mn='';try{mn=(mic.getAudioTracks()[0]||{}).label||'';}catch(e){}toast('● Rögzítés elindult'+(mn?' – mikrofon: '+mn:''));}
+  REC.tick=setInterval(recBar,1000);recGuard();{const rs=()=>{try{if(REC&&REC.ctx&&REC.ctx.state!=='running'&&REC.ctx.state!=='closed')REC.ctx.resume();}catch(e){}};document.addEventListener('touchend',rs,{passive:true});document.addEventListener('click',rs);}document.body.classList.add('rec-on');let mn='';try{mn=(mic.getAudioTracks()[0]||{}).label||'';}catch(e){}toast('● Rögzítés elindult'+(mn?' – mikrofon: '+mn:''));}
 const recUnload=e=>{if(REC){e.preventDefault();e.returnValue='Fut a beszélgetés rögzítése.';}};
 const recElapsed=()=>!REC?0:(REC.acc+(REC.paused?0:Date.now()-REC.t0))/1000;
 function recBar(){let bar=document.getElementById('rec-bar');if(!REC){if(bar)bar.remove();document.body.classList.remove('rec-on');return;}document.body.classList.add('rec-on');
@@ -632,8 +632,29 @@ function recWave(){const cv=document.querySelector('#rec-bar .rec-wave');if(!cv|
     setTimeout(()=>requestAnimationFrame(f),60);})();}
 ACT['rec-pause']=()=>{if(!REC||!REC.mr)return;if(REC.paused){REC.mr.resume();REC.t0=Date.now();REC.paused=false;}else{REC.mr.pause();REC.acc+=Date.now()-REC.t0;REC.paused=true;}recBar();};
 ACT['rec-stop']=()=>recStop();
+/* Telefonon (iPhone) lezárt képernyőnél / másik appban a böngésző nem rögzít. Ezért: 1) amíg fut a felvétel, a képernyő ébren marad (Wake Lock);
+   2) ha mégis megszakadt (lezárás, appváltás, bejövő hívás, a mikrofon elengedése), visszatéréskor szólunk, és nem rögzítünk tovább csendet. */
+async function recWakeOn(){try{if(!REC||REC.done||document.visibilityState!=='visible'||!navigator.wakeLock)return;if(REC.wl&&!REC.wl.released)return;REC.wl=await navigator.wakeLock.request('screen');}catch(e){}}
+function recWakeOff(){try{if(REC&&REC.wl){REC.wl.release();REC.wl=null;}}catch(e){}}
+const recMobile=()=>/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function recGuard(){if(!REC)return;recWakeOn();const tr=REC.mic&&REC.mic.getAudioTracks()[0];
+  if(tr){tr.addEventListener('ended',()=>recBroken('A mikrofon leállt (pl. hívás jött, vagy a rendszer elvette a mikrofont).'));tr.addEventListener('mute',()=>{if(REC&&!REC.done)REC.mutedAt=Date.now();});tr.addEventListener('unmute',()=>{if(REC)REC.mutedAt=0;});}
+  if(REC.mr)REC.mr.addEventListener('error',()=>recBroken('A felvétel hibával leállt.'));
+  REC.onVis=()=>{if(!REC||REC.done)return;if(document.visibilityState==='hidden'){REC.hidAt=Date.now();return;}
+    recWakeOn();const away=REC.hidAt?Math.round((Date.now()-REC.hidAt)/1000):0;REC.hidAt=0;const t=REC.mic&&REC.mic.getAudioTracks()[0];
+    const dead=!t||t.readyState==='ended'||(REC.mr&&REC.mr.state==='inactive'),muted=!!(t&&t.muted)||!!REC.mutedAt;
+    if(dead)recBroken('A felvétel megállt, amíg a képernyő ki volt kapcsolva / másik appban voltál.',away);
+    else if((recMobile()&&away>=3)||muted)recBroken('Kb. '+recDur(away)+' ideig valószínűleg nem rögzült hang (a képernyő ki volt kapcsolva / másik appban voltál).',away,true);};
+  document.addEventListener('visibilitychange',REC.onVis);}
+function recBroken(why,away,canGo){if(!REC||REC.done||REC.brk)return;REC.brk=1;if(REC.mr&&REC.mr.state==='recording'&&!canGo){try{REC.mr.pause();REC.acc+=Date.now()-REC.t0;REC.paused=true;}catch(e){}}recBar();
+  const L=document.querySelector('.cf-layer');if(L)L.remove();
+  confirmLayer('⚠️ A felvétel megszakadt',`<div style="margin:0 16px"><p style="margin:0 0 8px">${esc(why)}</p><p class="hint" style="margin:0">Az eddig rögzített rész (${esc(recDur(recElapsed()))}) megvan.${canGo?' Folytathatod ugyanebben a felvételben, vagy befejezheted és feltöltheted.':' Fejezd be és töltsd fel – ha a beszélgetés folytatódik, indíts új rögzítést.'} Telefonon rögzítés közben ne kapcsold ki a képernyőt, és maradj az appban.</p></div>`,
+    '⏹ Befejezés és feltöltés',(b,l)=>{l.remove();if(REC)REC.brk=0;recStop();});
+  setTimeout(()=>{const lay=document.querySelector('.cf-layer');if(!lay)return;const c=lay.querySelector('.btn:not(.primary)');
+    if(canGo){const go=document.createElement('button');go.type='button';go.className='btn';go.textContent='▶ Folytatás';go.onclick=()=>{lay.remove();if(REC){REC.brk=0;if(REC.paused&&REC.mr&&REC.mr.state==='paused'){REC.mr.resume();REC.t0=Date.now();REC.paused=false;}recBar();}};(c&&c.parentNode||lay.querySelector('.btns')||lay).insertBefore(go,c||null);if(c)c.hidden=true;}
+    if(c&&!canGo){c.onclick=()=>{lay.remove();if(REC)REC.brk=0;};}},0);}
 function recStop(){if(!REC||!REC.mr||REC.mr.state==='inactive')return;if(!REC.paused)REC.acc+=Date.now()-REC.t0;REC.paused=true;REC.dur=REC.acc/1000;try{REC.mr.stop();}catch(e){recFinish();}}
-async function recFinish(){if(!REC||REC.done)return;REC.done=1;clearInterval(REC.tick);[REC.mic,REC.disp].forEach(s=>{if(s)s.getTracks().forEach(t=>t.stop());});try{if(REC.ctx)REC.ctx.close();}catch(e){}
+async function recFinish(){if(!REC||REC.done)return;REC.done=1;clearInterval(REC.tick);recWakeOff();if(REC.onVis)document.removeEventListener('visibilitychange',REC.onVis);[REC.mic,REC.disp].forEach(s=>{if(s)s.getTracks().forEach(t=>t.stop());});try{if(REC.ctx)REC.ctx.close();}catch(e){}
   const blob=new Blob(REC.chunks,{type:REC.mime.split(';')[0]});REC.up='Feltöltés…';recBar();
   await recUpload({sid:REC.sid,did:REC.did,kind:REC.kind,title:REC.title,mime:REC.mime,dur:REC.dur||recElapsed()},blob);}
 async function recUpload(m,blob){
