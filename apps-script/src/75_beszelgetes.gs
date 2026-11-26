@@ -130,21 +130,27 @@ function gemFetch_(url, opt) {
 function gemJson_(parts, schema, maxTok) {
   const body = { contents: [{ role: 'user', parts: parts }], generationConfig: { temperature: 0.2, maxOutputTokens: maxTok || 16000, responseMimeType: 'application/json', responseSchema: schema } };
   const call = m => gemFetch_('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', { method: 'post', contentType: 'application/json', payload: JSON.stringify(body) });
-  let m = geminiModel_(), r; try { const ok = CacheService.getScriptCache().get('gem_ok'); if (ok) m = ok; } catch (e) { }   // ami legutóbb túlterheléskor is válaszolt
-  const tryCall = mm => { const wait = [0, 3000, 8000];   // átmeneti hiba (túlterhelés, keret, szerverhiba) → rövid várakozás és újrapróbálás
-    for (let i = 0; ; i++) { try { return call(mm); } catch (e) { if (!(e.gCode === 429 || e.gCode >= 500) || i >= wait.length - 1) throw e; Utilities.sleep(wait[i + 1]); } } };
-  try { r = tryCall(m); } catch (e) {
-    if ((e.gCode === 404 || e.gCode === 400) && /model/i.test(e.gMsg || '')) {   // kivezetett / nem elérhető modell → új választás (tartósan)
-      const hint = (String(e.gMsg).match(/models\/(gemini-[\w.\-]+)/g) || []).map(x => x.replace('models/', '')).filter(x => x !== m)[0];
-      m = hint || geminiModel_(true, [m]); PropertiesService.getScriptProperties().setProperty(GEMINI_MODEL_PROP, m); r = tryCall(m);
-    } else if (e.gCode === 503 || e.gCode === 500 || e.gCode === 429) {   // a választott modell túlterhelt → sorban a többi elérhető Flash modell (amelyik válaszol, azt használjuk 3 óráig)
-      const C = CacheService.getScriptCache(), tried = [m]; let last = e;
-      for (const alt of geminiCandidates_().filter(x => tried.indexOf(x) < 0).slice(0, 5)) {
-        tried.push(alt); try { r = call(alt); C.put('gem_ok', alt, 3 * 3600); break; } catch (e2) { last = e2; if (!(e2.gCode === 429 || e2.gCode >= 500 || e2.gCode === 404)) break; }
-      }
-      if (!r) { const err = new Error(String(last.message || last) + ' (kipróbált modellek: ' + tried.join(', ') + ')'); err.gCode = last.gCode; err.gMsg = last.gMsg; throw err; }
-    } else throw e;
+  /* Modell-sorrend: ami legutóbb válaszolt (gem_ok) → a választott → a többi elérhető Flash. A kimerült keretű (429 „quota”) modellt 6 órára,
+     a túlterheltet (503) 10 percre félretesszük, így nem azzal kezdünk újra és újra. Minden kísérlet egy próbálkozás – a sorrend a tartalék. */
+  const C = CacheService.getScriptCache(), main = geminiModel_(), okM = C.get('gem_ok') || '';
+  let order = [okM, main].concat(geminiCandidates_()).filter((x, i, A) => x && A.indexOf(x) === i);
+  const bad = C.getAll(order.map(x => 'gem_bad_' + x)); order = order.filter(x => !bad['gem_bad_' + x]).concat(order.filter(x => bad['gem_bad_' + x]));
+  let r = null, last = null; const tried = [], t0 = Date.now();
+  for (const m of order.slice(0, 7)) {
+    if (tried.length && Date.now() - t0 > 60000) break;   // a böngésző 90 mp-es várakozásán belül maradunk (a háttér később folytatja)
+    tried.push(m);
+    try { r = call(m); if (m !== main) C.put('gem_ok', m, 3 * 3600); else C.remove('gem_ok'); C.remove('gem_bad_' + m); break; }
+    catch (e) { last = e;
+      if (!e.gCode) { try { const L = JSON.parse(C.get('gem_errs') || '[]'); L.unshift(now_() + ' – ' + m + ': ' + String(e.message || e).slice(0, 160)); C.put('gem_errs', JSON.stringify(L.slice(0, 12)), 21600); } catch (x) { } }
+      if (e.gCode === 429 && /quota/i.test(e.gMsg || '')) C.put('gem_bad_' + m, 'quota', 6 * 3600);
+      else if (e.gCode === 503 || e.gCode === 500 || !e.gCode) C.put('gem_bad_' + m, 'busy', 600);
+      else if ((e.gCode === 404 || e.gCode === 400) && /model/i.test(e.gMsg || '')) { C.put('gem_bad_' + m, 'gone', 6 * 3600); if (m === main) try { PropertiesService.getScriptProperties().deleteProperty(GEMINI_MODEL_PROP); } catch (x) { } }
+      else if (e.gCode !== 429) throw e;   // nem modell-függő hiba (pl. rossz kérés, kulcs): nincs értelme a többit próbálni
+    }
   }
+  if (!r) { const quota = last && last.gCode === 429 && /quota/i.test(last.gMsg || '');
+    const err = new Error((quota ? 'Gemini hiba (429): elfogyott a Gemini-kulcs ingyenes kerete' : String((last && last.message) || last || 'Gemini hiba')) + ' (kipróbált modellek: ' + tried.join(', ') + ')');
+    err.gCode = last ? last.gCode || 503 : 503; err.gMsg = last ? last.gMsg : ''; throw err; }
   const j = JSON.parse(r.getContentText()), t = (((j.candidates || [])[0] || {}).content || {}).parts || [];
   const txt = t.map(x => x.text || '').join(''); try { return JSON.parse(txt); } catch (e) { throw new Error('A Gemini válasza nem értelmezhető – próbáld újra.'); }
 }
