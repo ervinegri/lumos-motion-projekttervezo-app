@@ -474,8 +474,8 @@ function dealNextDaily() {
     if (id.indexOf('crew:') === 0) { const c = crew[id.slice(5)]; em = c && c.email; nm = c && c.name; } else { const x = users.find(u => u.id === id && !u.disabled); em = x && x.email; nm = x && x.name; }
     em = String(em || '').trim().toLowerCase(); if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return; (by[em] = by[em] || { nm: nm, today: [], late: [] })[d.nextDate === T ? 'today' : 'late'].push(d); });
   const li = d => '<li style="margin:0 0 8px"><b>' + escapeHtml_(d.title || 'Lehetőség') + '</b>' + (d.client ? ' – ' + escapeHtml_(d.client) : '') + '<br><span style="color:#2f5f93">➜ ' + escapeHtml_(d.nextStep || 'Teendő') + '</span>' + (d.nextDate < T ? ' <span style="color:#a33">(lejárt: ' + d.nextDate.replace(/-/g, '.') + '.)</span>' : '') + '</li>';
-  Object.keys(by).forEach(em => { const o = by[em], first = String(o.nm || '').trim().split(/\s+/).pop() || '';
-    const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">Szia' + (first ? ' ' + escapeHtml_(first) : '') + '!<br><br>' +
+  Object.keys(by).forEach(em => { const o = by[em];
+    const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' +   /* köszönés nélkül: a tárgyból látszik, miről szól */
       (o.today.length ? '<b>Mai teendők a lehetőségeiden (' + o.today.length + '):</b><ul style="padding-left:18px">' + o.today.map(li).join('') + '</ul>' : '') +
       (o.late.length ? '<b>Lejárt teendők (' + o.late.length + '):</b><ul style="padding-left:18px">' + o.late.map(li).join('') + '</ul>' : '') +
       '<a href="' + FRONTEND_URL.replace(/[#/]*$/, '') + '/#t=ertekesites" style="display:inline-block;background:#1d2a38;color:#fff;text-decoration:none;padding:9px 16px;border-radius:999px;font-weight:600">Értékesítés megnyitása</a></div>';
