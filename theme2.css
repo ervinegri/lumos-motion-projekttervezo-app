@@ -3517,3 +3517,6 @@ html body #view tr.pt-sz3 .cal{transform:none}}
  html body #view tr.pt-row .cal{flex:0 0 40px!important;width:40px!important;min-width:40px!important;height:auto!important;padding:4px 0!important;border-radius:9px!important;gap:0!important}
  html body #view tr.pt-row .cal-m{font-size:10px!important}html body #view tr.pt-row .cal-d{font-size:17px!important;line-height:1.05}html body #view tr.pt-row .cal-w{font-size:10px!important}
  html body #view tr.pt-row .ev-sub{margin-top:1px!important}}
+/* érintőképernyőn: érintésre / hosszú nyomásra semmi ne jelölődjön ki sárgán a listákban, kártyákon, menüben (a beviteli mezők, jegyzetek, átiratok szövege továbbra is kijelölhető) */
+@media (hover:none){html body #view,html body .topbar,html body #modalRoot .mhead,html body .subtabs{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+ html body input,html body textarea,html body select,html body [contenteditable],html body .dn-t,html body .rec-res,html body .selectable{-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important}}
