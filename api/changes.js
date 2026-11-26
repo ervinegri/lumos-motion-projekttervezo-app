@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b9b5f6bceb",
+"at": "2026-11-26T11:26:00+01:00",
+"msg": "Indítóképernyő (fehér háttér, középen a logó) a fekete helyett; projektlap: minden szakasz csukva nyílik, új sorrend (Stáb → Utómunka → Pénzügyek → Szerződés és számlázás), egyforma lenyitó nyíl"
+},
+{
 "id": "a6af016938",
 "at": "2026-11-26T11:16:36+01:00",
 "msg": "Kifizetések: „Értékesítés (fix fizetés)”; értékesítési kártyán minden nézetben az értékesítő neve"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Projekt lépései: az aktuális (sötét) kártya teljesült pipája – pl. lezárt projekt „Kész” lépése – zöld körben jól látható fehér pipa (eddig üres fehér kör)"
 },
 {
-"id": "34df921929",
-"at": "2026-11-26T09:38:48+01:00",
-"msg": "Becenév a Stáb listában (pl. Nándi) – a kanbanon és a hozzászólásoknál ez látszik; Koós Nándor = Nándi"
-},
-{
-"id": "44d0d03aa8",
-"at": "2026-11-26T08:38:41Z",
+"id": "869ee19308",
+"at": "2026-11-26T08:38:57Z",
 "msg": "Változásnapló frissítése"
 }
 ];
