@@ -1128,13 +1128,14 @@ function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
       onSiteInvite ? (t => [t.lead ? '🎬 Projektvezető: ' + t.lead : '', t.others.length ? '👥 Meghívót kap: ' + t.others.join(', ') : ''].filter(Boolean).join('\n'))(teamOnSite_(p, asg, cid)) : '',
       rawUpload ? (onSiteInvite ? '📤 Nyersanyag átadása: ' : 'A nyersanyag ezen a napon kerül feltöltésre: ') + rawUpload : '',
       cutDue ? '✂️ Vágási határidő: ' + cutDue : ''].filter(Boolean).join('\n');   /* a díj nem kerül a levélbe (Ervin kérése, 2026-11-19) – az appban, a meghívás sávjában látszik */
-    const dlD = (() => { let t = new Date(Date.now() + 48 * 3600 * 1000); if (Utilities.formatDate(t, SHEET_TZ, 'u') === '7') t = new Date(t.getTime() + 24 * 3600 * 1000); return Utilities.parseDate(Utilities.formatDate(t, SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm'); })();   /* vasárnapra eső határidő → hétfő 18:00 */   // válaszadási határidő: a meghívás napja után 2 nappal, 18:00 (pl. hétfőn bármikor → szerda 18:00)
+    const dlD = inviteDue_(p, Date.now()), urgent = dlD.getTime() < inviteDue_(null, Date.now()).getTime();   /* közeli forgatásnál a határidő a forgatás előtti este (legkésőbb 1 órával a kezdés előtt) */
     const HM = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'], dlTxt = Utilities.formatDate(dlD, SHEET_TZ, 'yyyy') + ' ' + HM[+Utilities.formatDate(dlD, SHEET_TZ, 'M') - 1] + ' ' + Utilities.formatDate(dlD, SHEET_TZ, 'd, HH:mm');
-    const text = 'Kedves ' + first + '!\n\nMeghívást kaptál erre a projektre' + asTxt + ':\n' + p.name + (info ? '\n\n' + info : '') + '\n\n⏰ Válaszadási határidő: ' + dlTxt + '\n\nElfogadás: ' + url + (calUrl ? '\n\n(A Google Naptárban az „Igen” válasz is elfogadásnak számít: ' + calUrl + ')' : '');
-    const html = mailCard_(first, 'Meghívást kaptál erre a projektre' + escapeHtml_(asTxt) + ':<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', (info ? info + '\n' : '') + '⏰ Válaszadási határidő: ' + dlTxt, url, 'Válaszolok') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0;color:#5b6876">A <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” válasz is elfogadásnak számít.</p>' : '');
+    const urgTxt = urgent ? '⚡ Sürgős – a forgatás hamarosan kezdődik, kérlek, minél előbb válaszolj.' : '';
+    const text = 'Kedves ' + first + '!\n\nMeghívást kaptál erre a projektre' + asTxt + ':\n' + p.name + (urgTxt ? '\n\n' + urgTxt : '') + (info ? '\n\n' + info : '') + '\n\n⏰ Válaszadási határidő: ' + dlTxt + '\n\nElfogadás: ' + url + (calUrl ? '\n\n(A Google Naptárban az „Igen” válasz is elfogadásnak számít: ' + calUrl + ')' : '');
+    const html = mailCard_(first, 'Meghívást kaptál erre a projektre' + escapeHtml_(asTxt) + ':<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', (urgTxt ? urgTxt + '\n' : '') + (info ? info + '\n' : '') + '⏰ Válaszadási határidő: ' + dlTxt, url, 'Válaszolok') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0;color:#5b6876">A <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” válasz is elfogadásnak számít.</p>' : '');
   let htmlOut = html;
   if (onSiteInvite && p.venue) { const ev0 = escapeHtml_('📍 ' + p.venue); htmlOut = htmlOut.replace(ev0, '📍 <a href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(p.venue) + '" style="color:#1a56db;text-decoration:underline">' + escapeHtml_(p.venue) + '</a>'); }   // a helyszín kattintható (Google Térkép)
-  return { to: em, subject: ((parseInvites_(p.invites)[cid] || {}).prev || []).length ? 'Új szerepkör: ' + p.name : (projTent_(p) ? 'Előzetes foglalás: ' : 'Meghívás: ') + p.name, text: text, html: htmlOut, dlTxt: dlTxt };
+  return { to: em, subject: ((parseInvites_(p.invites)[cid] || {}).prev || []).length ? 'Új szerepkör: ' + p.name : (projTent_(p) ? 'Előzetes foglalás: ' : (urgent ? '⚡ Sürgős meghívás: ' : 'Meghívás: ')) + p.name, text: text, html: htmlOut, dlTxt: dlTxt };
 }
 /** Megtekintés küldés előtt: kizárólag olvasás, meghívóállapot-módosítás nélkül. */
 function crewInvitePreview_(u, a) {
@@ -1308,9 +1309,18 @@ function preDealNotify_(pid, won) {
 }
 
 /** A meghívó válaszadási határideje: a kiküldés + 48 óra napján 18:00 (vasárnap helyett hétfő) – ugyanaz, mint a levélben. */
-function inviteDeadline_(at) { const t0 = new Date(at); if (isNaN(t0)) return null; let t = new Date(t0.getTime() + 48 * 3600 * 1000);
-  if (Utilities.formatDate(t, SHEET_TZ, 'u') === '7') t = new Date(t.getTime() + 24 * 3600 * 1000);
-  return Utilities.parseDate(Utilities.formatDate(t, SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm'); }
+function inviteDeadline_(at, p) { let t0 = null; try { t0 = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(String(at)) ? Utilities.parseDate(String(at).slice(0, 19), SHEET_TZ, 'yyyy-MM-dd HH:mm:ss') : new Date(at); } catch (e) { t0 = new Date(at); } if (!t0 || isNaN(t0)) return null; return inviteDue_(p || null, t0.getTime()); }
+/** Válaszadási határidő: a meghívás után 2 nappal 18:00 (vasárnap → hétfő). Ha a forgatás közelebb van: a forgatás előtti este 20:00,
+    de legkésőbb 1 órával a kezdés előtt (és legalább 30 perc a válaszra). */
+function inviteDue_(p, atMs) {
+  let t = new Date(atMs + 48 * 3600 * 1000); if (Utilities.formatDate(t, SHEET_TZ, 'u') === '7') t = new Date(t.getTime() + 24 * 3600 * 1000);
+  let due = Utilities.parseDate(Utilities.formatDate(t, SHEET_TZ, 'yyyy-MM-dd') + ' 18:00', SHEET_TZ, 'yyyy-MM-dd HH:mm');
+  if (p && /^\d{4}-\d{2}-\d{2}$/.test(String(p.date || '')) && p.eventType !== 'Videóvágás') { try {
+    const st = /^\d{1,2}:\d{2}$/.test(String(p.startTime || '')) ? ('0' + p.startTime).slice(-5) : '08:00', shoot = Utilities.parseDate(p.date + ' ' + st, SHEET_TZ, 'yyyy-MM-dd HH:mm');
+    const eve = Utilities.parseDate(Utilities.formatDate(new Date(shoot.getTime() - 24 * 3600 * 1000), SHEET_TZ, 'yyyy-MM-dd') + ' 20:00', SHEET_TZ, 'yyyy-MM-dd HH:mm');
+    let cap = new Date(Math.min(eve.getTime(), shoot.getTime() - 3600 * 1000)); if (cap.getTime() < atMs + 30 * 60 * 1000) cap = new Date(Math.max(atMs + 30 * 60 * 1000, Math.min(shoot.getTime() - 3600 * 1000, atMs + 3 * 3600 * 1000)));
+    if (shoot.getTime() > atMs && cap.getTime() < due.getTime()) due = cap; } catch (e) {} }
+  return due; }
 /** Elfogadott meghívású szakember szerepkörének levétele: a meghívás frissül, és a szakember rövid e-mailt kap.
     all: az utolsó szerepkör is lekerült (a Megrendelő lemondása – keretszerződés 2.7.; fee: a 7 napon belül járó díjrész). */
 function crewPosNotify_(u, a) {
@@ -1407,11 +1417,11 @@ function preSweep_(projects) {
 /** Lejárt, megválaszolatlan meghívó = elutasítás (st: 'no', via: 'lejart'). A betöltött projektlistát is frissíti. */
 function invitesExpire_(projects) {
   const now = new Date(), hit = [];
-  projects.forEach(p => { const inv = parseInvites_(p.invites); if (Object.keys(inv).some(k => inv[k] && inv[k].st === 'invited' && inv[k].at && (d => d && d < now)(inviteDeadline_(inv[k].at)))) hit.push(p.id); });
+  projects.forEach(p => { const inv = parseInvites_(p.invites); if (Object.keys(inv).some(k => inv[k] && inv[k].st === 'invited' && inv[k].at && (d => d && d < now)(inviteDeadline_(inv[k].at, p)))) hit.push(p.id); });
   if (!hit.length) return false;
   withLock_(() => { const sh = sheetFor_('projects');
     hit.forEach(pid => { const row = findRow_(sh, pid); if (!row) return; const q = readRow_('projects', sh, row), inv = parseInvites_(q.invites); let ch = false;
-      Object.keys(inv).forEach(k => { const iv = inv[k]; if (iv && iv.st === 'invited' && iv.at) { const d = inviteDeadline_(iv.at); if (d && d < now) { iv.st = 'no'; iv.via = 'lejart'; iv.ans = now_(); ch = true; } } });
+      Object.keys(inv).forEach(k => { const iv = inv[k]; if (iv && iv.st === 'invited' && iv.at) { const d = inviteDeadline_(iv.at, q); if (d && d < now) { iv.st = 'no'; iv.via = 'lejart'; iv.ans = now_(); ch = true; } } });
       if (!ch) return; q.invites = JSON.stringify(inv); putRow_('projects', sh, q, row); const lp = projects.find(x => x.id === pid); if (lp) lp.invites = q.invites; });
     dataBump_(); dbFlush_(); });
   return true;
