@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9c86f5a685",
+"at": "2026-11-26T21:51:07+02:00",
+"msg": "Táblák: a rögzített első oszlop fejléce is a helyén marad, a többsoros fejlécnél is jó oszlop rögzül (Értékesítők teljesítménytáblája nem csúszik szét); keskenyebb név-oszlop"
+},
+{
 "id": "75c90da55a",
 "at": "2026-11-26T21:46:11+02:00",
 "msg": "iOS: menet közben a cím sem változik (elhomályosodó menü elleni második próba); telefonon fele olyan széles utómunka-oszlopok"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Fekvő telefon, projektlista: az állapot-oszlop minden sorban egy vonalban"
 },
 {
-"id": "b2cb96fc01",
-"at": "2026-11-26T17:37:38+02:00",
-"msg": "Telefon, projekt Pénzügyek: Szerződés és Termelés egy sorban, alatta tömör értékesítő-kártya (nem lóg ki)"
-},
-{
-"id": "d12ed59b0c",
-"at": "2026-11-26T15:37:04Z",
+"id": "febd0bb93f",
+"at": "2026-11-26T15:37:51Z",
 "msg": "Változásnapló frissítése"
 }
 ];
