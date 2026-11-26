@@ -3330,3 +3330,7 @@ html body details.panel.fold section:has(>.sec-lock)>.sec-lock{right:0!important
   html.cal-lock body .cal-wrap{max-height:calc(100dvh - var(--cal-top,180px) - 12px)!important;overflow-y:auto!important;overscroll-behavior:contain}
   html.cal-lock body .cal-wrap .cal-wd{position:sticky;top:0;z-index:2}
 }
+/* lakatos összecsukható panel: a fejléc jobb oldali felirata (pl. „2 kiválasztva”) a lakat elé kerül, nem alá */
+html body details.panel.fold:has(.sec-lock)>summary .aside{margin-right:48px}
+html body details.panel.fold:has(.sec-lock) .sec-lock{top:21px!important}   /* függőlegesen a panel címével egy vonalban */
+html body details.panel.fold section:has(>.sec-lock)>.sec-lock{top:-4px!important}
