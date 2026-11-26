@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9e0292ebd1",
+"at": "2026-11-26T21:12:45+02:00",
+"msg": "Instrukciók: ugyanaz a bejegyzés / hozzászólás nem kerül be kétszer (dupla koppintás, hálózati újrapróbálás), a levél sem megy ki újra"
+},
+{
 "id": "fdd52899d5",
 "at": "2026-11-26T21:11:22+02:00",
 "msg": "Stáb- / utómunka-instrukció: a beírt, el nem küldött szöveg nem vész el (újrarajzolás és frissítés után visszatöltődik, küldés után törlődik)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Munkatársi dokumentumok: azonnal nyílnak (a Drive előnézetében, nem kell megvárni, amíg a szerver letölti és átküldi); ahol mégis a szerver hozza, a lapon „betöltés…” látszik"
 },
 {
-"id": "42fb3de629",
-"at": "2026-11-26T17:17:01+02:00",
-"msg": "Kifizetések: a banki utalás magától kifizetettnek jelöli a szakember számláját (egyező összeg + számlaszám a közleményben vagy bankszámla / név; utólag érkező NAV-számlánál is); a kimenő utalás összege negatív – ezért nem párosított eddig. Felület: kellemesebb zöld az egész appban, vékonyabb állapotsorok, Fizetések fejléce görgetéskor fent marad, egységes kis hézag a menüsáv alatt, Projektek fejléce egy sorban"
-},
-{
-"id": "8f6b25771f",
-"at": "2026-11-26T15:08:41Z",
+"id": "9244df8b83",
+"at": "2026-11-26T15:17:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
