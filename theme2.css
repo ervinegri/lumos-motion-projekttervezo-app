@@ -3710,3 +3710,10 @@ html body #view details.svc>summary+p.hint{margin-top:-20px!important;margin-bot
 html body .sheet-wrap .sheet thead th[data-stk],html body .pay-wrap .pay-sheet thead th[data-stk]{position:sticky!important}
 /* telefon: a teljesítménytábla név-oszlopa keskeny (a „· ajánló · nincs HubSpot” megjegyzés tördelődik), így a számok is beférnek */
 @media (max-width:1180px){html body .perf-tbl tbody td:first-child,html body .perf-tbl tfoot td:first-child{white-space:normal!important;min-width:110px;max-width:150px;line-height:1.25}html body .perf-tbl tbody td:first-child .muted{font-size:11.5px}}
+/* Stáb: a kereső és a szerep-szűrő egy sorban */
+html body #view .toolbar.crew-tools{display:flex!important;flex-wrap:nowrap!important;gap:8px!important;align-items:center}
+html body #view .toolbar.crew-tools>#q-crew{flex:1 1 auto;min-width:0;width:auto!important}
+html body #view .toolbar.crew-tools>.cmb,html body #view .toolbar.crew-tools>select{flex:0 0 auto;width:clamp(120px,34%,220px)!important}
+html body #view .toolbar.crew-tools .cmb-in,html body #view .toolbar.crew-tools .cmb-inp{width:100%!important;min-width:0!important}
+html body #view .toolbar.crew-tools .cmb-in,html body #view .toolbar.crew-tools .cmb-inp{font-size:inherit!important;height:auto!important;align-self:stretch}
+html body #view .toolbar.crew-tools>.cmb{align-self:stretch;display:flex}
