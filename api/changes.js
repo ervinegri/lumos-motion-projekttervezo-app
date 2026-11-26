@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0dc5c3e08e",
+"at": "2026-11-26T09:21:41+01:00",
+"msg": "Új projekt: a jegyzet nem marad meg félbehagyott szövegként (a beragadt példányok törlése)"
+},
+{
 "id": "2ed8665875",
 "at": "2026-11-26T10:20:50+02:00",
 "msg": "Naptár (havi nézet): görgetéskor nem ugrik több hónapot – a trackpad lendületét az események átlagából ismeri fel (a remegés nem számít új mozdulatnak), egy mozdulat = egy hónap"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt lépései: utómunka nélküli projektnél a Helyszíni munka áthúzható a Készre (a következő látható lépés a cél)"
 },
 {
-"id": "0d7d55de68",
-"at": "2026-11-25T16:57:20+01:00",
-"msg": "Projektlista: megnyitáskor a mai nap (piros jelölő) a képernyő közepére gördül"
-},
-{
-"id": "cb6e5b8e95",
-"at": "2026-11-25T15:56:25Z",
+"id": "696069d465",
+"at": "2026-11-25T15:57:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
