@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d1cb165537",
+"at": "2026-11-26T14:54:36+01:00",
+"msg": "Beszélgetés-átirat OpenAI-jal (elsődleges, ha meg van adva a kulcs): gpt-transcribe beszélők szerint (ha a modell tudja, különben egyszerűsít), összefoglaló a legújabb gpt-mini modellel kötött JSON-szerkezettel; Beállítások → OpenAI-kulcs; a Gemini tartalék"
+},
+{
 "id": "4a691d2b88",
 "at": "2026-11-26T14:45:07+01:00",
 "msg": "Gemini: modell-sorrend kimerült keretű / túlterhelt modellek félretételével (nem kezd újra és újra a 429-es modellel), időkereten belül több modell, érthető kerethiány-üzenet"
@@ -122,14 +127,9 @@ const ITEMS = [
 "msg": "Google-értékelések: az alsó „Értékelési link ↗” gomb törölve (fent ott a másolás és a QR)"
 },
 {
-"id": "ccb1dd49ae",
-"at": "2026-11-26T11:48:18+01:00",
-"msg": "Google-értékelések: megnyitáskor nem frissít újra, ha az elmúlt 10 percben (induláskor) már frissült"
-},
-{
-"id": "e4db7bc39d",
-"at": "2026-11-26T11:47:43+01:00",
-"msg": "Google-értékelések: alapból 12 értékelés látszik (6 helyett)"
+"id": "cdba649558",
+"at": "2026-11-26T10:48:27Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
