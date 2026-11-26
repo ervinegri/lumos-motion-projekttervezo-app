@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "35c4a3c0c1",
+"at": "2026-11-26T13:31:51+01:00",
+"msg": "Hibakeresés: az utolsó Neon-hibák szövege (titok nélkül) a /api/dbstatus-ban"
+},
+{
 "id": "fa9f3e5a96",
 "at": "2026-11-26T13:26:47+01:00",
 "msg": "Felvétel: a hozzájárulás jelölőnégyzete alapból bepipálva"
@@ -130,11 +135,6 @@ const ITEMS = [
 "id": "a6af016938",
 "at": "2026-11-26T11:16:36+01:00",
 "msg": "Kifizetések: „Értékesítés (fix fizetés)”; értékesítési kártyán minden nézetben az értékesítő neve"
-},
-{
-"id": "b1caea9986",
-"at": "2026-11-26T11:14:07+01:00",
-"msg": "Napló: változás nélküli mentés nem kerül az Előzményekbe (nincs több üres „Beosztás módosítva”)"
 }
 ];
 const allowed = require('./_auth.js');
