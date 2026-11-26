@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "50b96ccd94",
+"at": "2026-11-26T10:33:56+02:00",
+"msg": "Naptár (havi nézet): finom trackpad-húzásra is hónapot vált (kisebb küszöb)"
+},
+{
 "id": "3cc8985901",
 "at": "2026-11-26T10:32:47+02:00",
 "msg": "Naptár (szakember, havi nézet): az utómunka csak a leadási határidő napján jelenik meg, nem a teljes vágási időszakban (az idővonalon marad az időszak)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Belső ellenőrzés jóváhagyása: a beírt szöveg tájékoztató megjegyzésként megy a vágónak (✅ Jóváhagyva – megjegyzés)"
 },
 {
-"id": "19884ddd74",
-"at": "2026-11-25T17:16:28+01:00",
-"msg": "Belső ellenőrzés: nincs külön hozzászólás – csak Visszadobás (a beírt észrevételekkel) vagy Jóváhagyás"
-},
-{
-"id": "d70c2bface",
-"at": "2026-11-25T16:10:46Z",
+"id": "d3424f5327",
+"at": "2026-11-25T16:16:39Z",
 "msg": "Változásnapló frissítése"
 }
 ];
