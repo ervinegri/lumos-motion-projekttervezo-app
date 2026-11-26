@@ -3587,3 +3587,18 @@ html body .ro-lock .inp,html body .ro-lock input:not([type=checkbox]):not([type=
 html:where(.ax-stone) body .ro-lock .inp,html:where(.ax-stone) body .ro-lock input:not([type=checkbox]):not([type=radio]),html:where(.ax-stone) body .ro-lock .cmb-inp,html:where(.ax-stone) body .ro-lock .ph-cc{background:rgba(30,30,40,.045)!important}
 html body .ro-lock .cmb-caret,html body .ro-lock .b-day-add,html body .ro-lock .day-del,html body .ro-lock [data-action="day-del"]{display:none!important}
 html body .ro-lock input::placeholder,html body .ro-lock textarea::placeholder{color:transparent!important}
+/* álló telefon: fele olyan széles Értékesítés-oszlopok (egyszerre 3 is látszik), a kártyák ehhez igazítva tömörebbek */
+@media (max-width:760px){
+html.th2 body .dl-board.dl-board,html body .dl-board.dl-board{grid-template-columns:repeat(5,112px)!important;gap:6px!important}
+html.th2 body .dl-board.dl-board.lost-closed{grid-template-columns:repeat(4,112px) 36px!important}
+html.th2 body .dl-board.dl-board.paid-closed{grid-template-columns:repeat(3,112px) 36px 112px!important}
+html.th2 body .dl-board.dl-board.paid-closed.lost-closed{grid-template-columns:repeat(3,112px) 36px 36px!important}
+html body .dl-board .dl-col{padding:4px!important}
+html body .dl-board .dl-colh{font-size:11px!important;margin:2px 2px 4px!important;flex-wrap:wrap;line-height:1.2}
+html body .dl-board .dl-colh small,html body .dl-board .dl-colc{font-size:10px!important}
+html body .dl-board .dl-add{font-size:11px!important;min-height:26px!important;padding:2px!important}
+html body .dl-board .dl-card{padding:5px 6px!important;border-radius:8px}
+html body .dl-board .dl-card .dl-t{font-size:12px!important;line-height:1.2;overflow-wrap:anywhere}
+html body .dl-board .dl-card .dl-c,html body .dl-board .dl-card .dl-m,html body .dl-board .dl-card .dl-f{font-size:10.5px!important;overflow-wrap:anywhere}
+html body .dl-board .dl-card .dl-next,html body .dl-board .dl-card .dl-won,html body .dl-board .dl-card .dl-lost{font-size:10px!important;padding:3px 4px!important}
+}
