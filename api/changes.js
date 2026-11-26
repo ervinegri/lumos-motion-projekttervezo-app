@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7b0e5475a9",
+"at": "2026-11-26T13:08:24+01:00",
+"msg": "Beszélgetésrögzítés: a feltöltés / átirat mindig az Apps Scripten fut (a gyors út nem érte el a feltöltési munkamenetet → „lejárt”)"
+},
+{
 "id": "b17e8ebbf3",
 "at": "2026-11-26T13:07:24+01:00",
 "msg": "Rögzítő sáv: élő hullámforma, jól látható Szünet gomb, a sáv fent (nem takarja az ablak gombjait)"
@@ -132,13 +137,8 @@ const ITEMS = [
 "msg": "Stáb: zárt lakatnál a „Szerepkör hozzáadása” szürke és nem használható (jelzi, hogy a lakattal nyitható)"
 },
 {
-"id": "dfe7a656da",
-"at": "2026-11-26T11:55:24+02:00",
-"msg": "Gyors út: nézetváltás és kilépés után a munkamenet tükre azonnal frissül; jogosultsági tiltásnál mindig az Apps Script dönt (nem jön téves „nincs jogosultságod” profilváltáskor)"
-},
-{
-"id": "7d6b4a0625",
-"at": "2026-11-26T09:49:40Z",
+"id": "e60687f309",
+"at": "2026-11-26T09:55:36Z",
 "msg": "Változásnapló frissítése"
 }
 ];
