@@ -249,3 +249,12 @@ ACT['pre-deal-link']=()=>{const p=S.draft||projById(S.projectId);if(!p)return;co
       try{await call('projPreDeal',{projectId:p.id,dealId:id});[projById(p.id),S.draft].forEach(x=>{if(x&&x.id===p.id)x.preDeal=id;});if(S.draftBase&&S.draftBase.id===p.id)S.draftBase.preDeal=id;closeModal();render(true);toast('Összekötve – előfoglalásként kezeljük a szerződésig');}catch(e){handleErr(e);}}});};
 ACT['pre-deal-unlink']=async()=>{const p=S.draft||projById(S.projectId);if(!p)return;try{await call('projPreDeal',{projectId:p.id,dealId:''});[projById(p.id),S.draft,S.draftBase].forEach(x=>{if(x&&x.id===p.id){x.preDeal='';x.preStage='';}});render(true);toast('Kapcsolat bontva');}catch(e){handleErr(e);}};
 ACT['pre-deal-open']=b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(d&&typeof dealModal==='function')dealModal(d);};
+
+/* projekt fejléc (gép): a gombok csak akkor kerülnek külön sorba, ha mellettük már nem férne ki a projekt teljes neve */
+(()=>{const fit=()=>{const d=document.querySelector('#view .dhead');if(!d||!matchMedia('(min-width:701px)').matches){if(d)d.classList.remove('dh-wrap');return;}
+  const h=d.querySelector('.dtitle h2'),b=d.querySelector(':scope>.btns'),bk=d.querySelector('.dtitle>.back-ic'),c=d.querySelector('.dtitle>.cal');if(!h||!b)return;
+  const nm=h.querySelector('.pname'),ed=h.querySelector('.title-edit');const need=(nm?nm.scrollWidth:h.scrollWidth)+(ed?ed.offsetWidth+8:0)+4;
+  const bw=b.scrollWidth,side=(bk?bk.offsetWidth:0)+(c?c.offsetWidth:0)+36;   /* 3 oszlopköz (12 px) */
+  d.classList.toggle('dh-wrap',d.clientWidth-side-bw<need);};
+  let raf=0;const q=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;try{fit();}catch(e){}});};
+  window.addEventListener('resize',q);try{new MutationObserver(q).observe(document.getElementById('view')||document.body,{childList:true,subtree:true});}catch(e){}setInterval(q,2000);})();
