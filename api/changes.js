@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "64a054b33b",
+"at": "2026-11-26T17:23:35+02:00",
+"msg": "Egységes fejsor minden menüpontban (a Naptár eszköztára a minta): 30 px magas gombok, keresők, fülek, 13,5 px betű"
+},
+{
 "id": "cc59ac2949",
 "at": "2026-11-26T17:17:34+02:00",
 "msg": "Munkatársi dokumentumok: azonnal nyílnak (a Drive előnézetében, nem kell megvárni, amíg a szerver letölti és átküldi); ahol mégis a szerver hozza, a lapon „betöltés…” látszik"
@@ -132,9 +137,9 @@ const ITEMS = [
 "msg": "Rögzítés: mikrofon-választó (alapból a gép beépített mikrofonja, nem a közeli iPhone; a választás megmarad), a sáv a képernyő alján – amíg fut, az ablakok gombsora feljebb kerül"
 },
 {
-"id": "d1cb165537",
-"at": "2026-11-26T14:54:36+01:00",
-"msg": "Beszélgetés-átirat OpenAI-jal (elsődleges, ha meg van adva a kulcs): gpt-transcribe beszélők szerint (ha a modell tudja, különben egyszerűsít), összefoglaló a legújabb gpt-mini modellel kötött JSON-szerkezettel; Beállítások → OpenAI-kulcs; a Gemini tartalék"
+"id": "c3ce307e3d",
+"at": "2026-11-26T13:54:48Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
