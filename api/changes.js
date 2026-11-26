@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "130152a89e",
+"at": "2026-11-26T08:21:36+01:00",
+"msg": "Helyszíni csapat: a meghívóban „👥 Veled lesz” sor, a szakember projektsorában a csapattársak (projektvezető + elfogadott helyszíni kollégák, utómunkások nélkül)"
+},
+{
 "id": "175a2dabd4",
 "at": "2026-11-26T08:03:38+01:00",
 "msg": "Mai teendők levél: köszönés nélkül"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Piros hiba: lezajlott forgatás után a projekt még a Helyszíni munkánál (nyersanyag nincs feltöltve, a vágó nem tud kezdeni); szövegek: „húzd át” a „pipáld ki” helyett"
 },
 {
-"id": "24a0f27dde",
-"at": "2026-11-25T15:36:45+01:00",
-"msg": "Ablakok: az előre kitöltött szövegdoboz megnyitáskor a tartalmához nő (nem vágódik le)"
-},
-{
-"id": "b2da28698c",
-"at": "2026-11-25T14:35:25Z",
+"id": "a39e24003e",
+"at": "2026-11-25T14:36:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
