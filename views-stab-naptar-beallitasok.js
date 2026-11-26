@@ -181,8 +181,10 @@ function calChip(it,day){
 }
 /* Idővonal nézet: soronként egy projekt / esemény, oszloponként a hónap napjai, függőleges vonal a mai napon */
 /* Az idővonal bal felső sarkában a látható rész hónapja */
-function tlCorner(w){const b=w&&w.querySelector('.tl-cm');if(!b)return;const lw=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,n=Number(b.dataset.n),cw=(w.scrollWidth-lw)/n;
+function tlCorner(w,scrolling){const b=w&&w.querySelector('.tl-cm');if(!b)return;const lw=(w.querySelector('.tl-lbl')||{}).offsetWidth||0,n=Number(b.dataset.n),cw=(w.scrollWidth-lw)/n;
   const d=addDays(b.dataset.first,Math.min(n-1,Math.max(0,Math.round(w.scrollLeft/cw)+3)));const t=d.slice(0,4)+'. '+F_MONTH.format(toDate(d)).replace(/^\d{4}\.\s*/,'').toLowerCase();if(b.textContent!==t)b.textContent=t;
+  /* görgetés közben csak a sarokfelirat frissül – a sorok szűrése, a fenti hónapválasztó és az újrarajzolás a görgetés megállása után (különben akad) */
+  if(scrolling){clearTimeout(w._tlHv);w._tlHv=setTimeout(()=>{if(w.isConnected)tlCorner(w,false);},260);return;}
   /* csak azok a sorok látszanak, amelyeknek a sávja a látható időszakba esik – így nincs üres sor */
   const v0=Math.floor(w.scrollLeft/cw)+1,v1=Math.ceil((w.scrollLeft+w.clientWidth-lw)/cw);let k=0;
   w.querySelectorAll('.tl-it').forEach(r=>{const on=Number(r.dataset.b)>=v0&&Number(r.dataset.a)<=v1;if(on)k++;r.classList.toggle('tl-out',!on);r.toggleAttribute('aria-hidden',!on);});   // animáltan tűnik el / jön vissza
@@ -196,7 +198,7 @@ const e=w.querySelector('.tl-none');if(e)e.hidden=k>0;
   clearTimeout(window._tlRc);const pos0=w.scrollLeft/cw,near=pos0<12||pos0+(w.clientWidth-lw)/cw>n-12;   /* csak a betöltött időszak széle közelében rendezzük át (különben a görgetés közbeni újrarajzolás megakasztaná) */
   const tgt=!near?'':vm!==S.cal.month?vm:shiftMonth(vm,pos0<12?-1:1);   // a szélén mindig tovább tölt (akkor is, ha a látható hónap még a régi)
   if(tgt){const pos=pos0,idx=Math.floor(pos);const keep={d:addDays(b.dataset.first,idx),f:pos-idx,t:w.scrollTop};
-    window._tlRc=setTimeout(function go(){if(!w.isConnected)return;if(w.classList.contains('panning')){window._tlRc=setTimeout(go,200);return;}S.cal.month=tgt;S.cal.tlKeep=keep;S.cal.tlPos=null;render(true);},150);}}
+    window._tlRc=setTimeout(function go(){if(!w.isConnected)return;if(w.classList.contains('panning')||(w._tlLast&&Date.now()-w._tlLast<500)){window._tlRc=setTimeout(go,250);return;}S.cal.month=tgt;S.cal.tlKeep=keep;S.cal.tlPos=null;render(true);},400);}}
 /* Idővonal sávjának felirata: a távozás (végzés) ideje; ha nincs megadva, az érkezésé */
 function tlTimes(it,p){const ok=t=>/^\d{2}:\d{2}$/.test(t||'');const en=p?(it.endDate>it.date&&p.lastEndTime?p.lastEndTime:p.endTime):'';return ok(en)?en:(ok(it.time)?it.time:'');}
 const tlGrpClosed=()=>{try{return JSON.parse(localStorage.getItem('lpm_tl_grp_closed')||'[]')||[];}catch(e){return [];}};   // idővonal: lecsukott vágó-csoportok
