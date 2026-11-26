@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9e49a9245d",
+"at": "2026-11-26T14:40:28+01:00",
+"msg": "Hibakeresés: utolsó Gemini-hibák és a választott modell a /api/dbstatus-ban (kulcs nélkül)"
+},
+{
 "id": "957ba86834",
 "at": "2026-11-26T14:34:02+01:00",
 "msg": "Gemini túlterhelés: sorban a többi elérhető Flash modell is (stabil → latest → előzetes → lite), a válaszoló modell 3 óráig elsőként; a hibában a kipróbált modellek"
@@ -127,14 +132,9 @@ const ITEMS = [
 "msg": "Google-értékelések: link másolása és QR-kód betöltés közben is"
 },
 {
-"id": "135a455c3c",
-"at": "2026-11-26T11:43:30+01:00",
-"msg": "Google-értékelések, telefon: cím és értékelés egy sorban"
-},
-{
-"id": "cf11442efa",
-"at": "2026-11-26T11:43:17+01:00",
-"msg": "Google-értékelések ablak: az átlag és a darabszám a címsorban (kompaktabb)"
+"id": "017a2ad535",
+"at": "2026-11-26T10:43:38Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
