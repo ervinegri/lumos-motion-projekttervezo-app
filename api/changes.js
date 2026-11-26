@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fd47a2f98f",
+"at": "2026-11-26T10:38:28+02:00",
+"msg": "Naptár (havi nézet): a görgetéses hónapváltást nem akasztja meg a nyitva maradt esemény-súgó – görgetéskor a súgó eltűnik, és a súgó fölött görgetve is vált (görgethető hosszú súgóban a súgó görget)"
+},
+{
 "id": "50b96ccd94",
 "at": "2026-11-26T10:33:56+02:00",
 "msg": "Naptár (havi nézet): finom trackpad-húzásra is hónapot vált (kisebb küszöb)"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Saját beosztás (termelési vezető / ügyvezető): mentéskor azonnal elfogadott meghívás, e-mail nélkül; egyszeri átállítás a futó projekteken"
 },
 {
-"id": "ab13e8c6ca",
-"at": "2026-11-25T17:21:58+01:00",
-"msg": "Belső ellenőrzés jóváhagyása: a beírt szöveg tájékoztató megjegyzésként megy a vágónak (✅ Jóváhagyva – megjegyzés)"
-},
-{
-"id": "d3424f5327",
-"at": "2026-11-25T16:16:39Z",
+"id": "1386b3456c",
+"at": "2026-11-25T16:22:08Z",
 "msg": "Változásnapló frissítése"
 }
 ];
