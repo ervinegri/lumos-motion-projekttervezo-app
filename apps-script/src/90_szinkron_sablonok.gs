@@ -325,12 +325,11 @@ function szDailyEnsure_() {
   const P = PropertiesService.getScriptProperties(); if (P.getProperty('SZ_DAILY_INSTALLED')) return;
   try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'szDailySync')) ScriptApp.newTrigger('szDailySync').timeBased().atHour(6).everyDays(1).inTimezone(SHEET_TZ).create(); P.setProperty('SZ_DAILY_INSTALLED', now_()); } catch (e) { Logger.log('Napi kifizetés-ellenőrzés időzítő: ' + e); }
 }
-function hsPullHourly() { try { hsDealQueueRun(); } catch (e) {} try { hsPull_(null, { force: true }); } catch (e) {} }   // óránkénti HubSpot → app ügyfélfrissítés
-function gbpHourly() { try { const r = gbpSync_(null); gbpPushMissed_(r && r.added); } catch (e) {} }   // óránként: új Google-értékelések behúzása (értesítés az appban, a csengőben)
-function gbpHourlyEnsure_() {
-  const P = PropertiesService.getScriptProperties(); if (P.getProperty('GBP_HOURLY_INSTALLED')) return;
-  try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'gbpHourly')) ScriptApp.newTrigger('gbpHourly').timeBased().everyHours(1).create(); P.setProperty('GBP_HOURLY_INSTALLED', '1'); } catch (e) {}
-}
+function hsPullHourlyRun_() { try { hsDealQueueRun(); } catch (e) {} try { hsPull_(null, { force: true }); } catch (e) {} }
+function hsPullHourly() { }   // régi időzítő neve (a jobsTick ütemezi: hsPullHourlyRun_)   // óránkénti HubSpot → app ügyfélfrissítés
+function gbpHourlyRun_() { try { const r = gbpSync_(null); gbpPushMissed_(r && r.added); } catch (e) {} }
+function gbpHourly() { }   // régi időzítő neve (a jobsTick ütemezi: gbpHourlyRun_)   // óránként: új Google-értékelések behúzása (értesítés az appban, a csengőben)
+function gbpHourlyEnsure_() { }   // 2026-11-26: nincs külön óránkénti időzítő – a jobsTick ütemezi (forgalom-takarékos)
 /** Egyszeri adatjavítás: átnevezett szerepkörök (ROLE_ALIAS_) a stáb-profilokban, a beosztásokban és a meghívókban. */
 function roleRenameOnce_() {
   const P = PropertiesService.getScriptProperties(), key = 'ROLE_RENAME_V1'; if (P.getProperty(key)) return;
@@ -340,10 +339,7 @@ function roleRenameOnce_() {
         if (ch && o.id) putRow_(tb, sh, o, findRow_(sh, o.id) || null); }); });
     dataBump_(); dbFlush_(); }); P.setProperty(key, now_()); } catch (e) { Logger.log('roleRenameOnce: ' + e); }
 }
-function hsPullEnsure_() {
-  const P = PropertiesService.getScriptProperties(); if (P.getProperty('HS_PULL_INSTALLED')) return;
-  try { if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'hsPullHourly')) ScriptApp.newTrigger('hsPullHourly').timeBased().everyHours(1).create(); P.setProperty('HS_PULL_INSTALLED', '1'); } catch (e) {}
-}
+function hsPullEnsure_() { }   // 2026-11-26: nincs külön óránkénti időzítő – a jobsTick ütemezi (forgalom-takarékos)
 function salesSyncEnsure_() {
   const P = PropertiesService.getScriptProperties();
   P.setProperty('SALES_SYNC_INSTALLED', P.getProperty('SALES_SYNC_INSTALLED') || now_());   // nincs ötperces időzítő: a Sales App ritkán változik, az ügyvezetői belépés futtatja a szinkront (salesSyncNow)

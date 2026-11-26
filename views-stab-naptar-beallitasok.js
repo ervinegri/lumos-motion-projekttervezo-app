@@ -21,7 +21,9 @@ function crewDocKv(c){if(!isAdmin()||!Array.isArray(S.crewDocs))return '';const 
 function crewDocIcon(c){if(!isAdmin())return '';const L=crewDocsOf(c.id);return L.length?`<button class="cdoc-ic" type="button" data-action="crew-doc-open" data-id="${esc(L[0].id)}" data-tip="Szerződés: ${esc(L[0].title||'')}" aria-label="${esc(c.name)} szerződése">📄</button>`:'';}
 /* Naponta egyszer, a háttérben: a külsősök egyértelműen aláírt szerződései (fájlnévben „aláírt” + szerződés) bekerülnek a Gmailből */
 /* Belépéskor egyszer a háttérben: Sales App szinkron (új megrendelések, értékesítő a csapatban) – ha változott valami, frissül a nézet */
-function salesSyncBg(){if(!isAdmin()||S._ssBg)return;S._ssBg=1;setTimeout(async()=>{try{const r=await call('salesSyncNow');if(r&&(r.created||r.updated||r.deals||r.sellers||r.cancelled||r.orderForms||r.proformas))load(true);}catch(e){}},6000);}
+/* háttér-szinkron legfeljebb N percenként, az összes nyitott lapra és újratöltésre együtt (a böngésző tárolja) – az újratöltések ne ébresszék fölöslegesen az adatbázist */
+function bgThrottle(k,ms){try{const t=Number(localStorage.getItem('lpm_bg_'+k)||0);if(Date.now()-t<ms)return false;localStorage.setItem('lpm_bg_'+k,String(Date.now()));}catch(e){}return true;}
+function salesSyncBg(){if(!isAdmin()||S._ssBg)return;S._ssBg=1;if(!bgThrottle('salessync',5*60000))return;setTimeout(async()=>{try{const r=await call('salesSyncNow');if(r&&(r.created||r.updated||r.deals||r.sellers||r.cancelled||r.orderForms||r.proformas))load(true);}catch(e){}},6000);}
 function crewDocsAutoBg(){if(!isAdmin()||S._cdAuto)return;S._cdAuto=1;const k='lpm_cdauto',d=todayISO();let last='';try{last=localStorage.getItem(k)||'';}catch(e){}if(last===d)return;
   setTimeout(async()=>{try{const r=await call('crewDocsImport',{strict:true});try{localStorage.setItem(k,d);}catch(e){}const L=r.plan||[];if(r.crewDocs)S.crewDocs=r.crewDocs;
     if(L.length){toast('📥 '+L.length+' aláírt szerződés bekerült a Gmailből: '+L.map(x=>x.crew+' – '+x.title).join(', '));if(!$('modalRoot').innerHTML)render(true);}}catch(e){S._cdAuto=0;}},4000);}
@@ -545,7 +547,8 @@ function gbpBtn(){if(!gbpCan())return '';if(!S.gbp)gbpLoad(false);const g=S.gbp|
   return `<button class="btn outline w" type="button" data-action="gbp-open" title="Google-értékelések">⭐ <span class="mlg">${g.connected&&g.avg?(Math.round(g.avg*10)/10).toFixed(1).replace('.',',')+' · '+(g.total||R.length)+' értékelés':'Értékelések'}</span><span class="msm">${g.connected&&g.avg?(Math.round(g.avg*10)/10).toFixed(1).replace('.',','):''}</span>${noRep?` <span class="gbp-badge">${noRep}</span>`:''}</button>`;}
 /* a nyitott értékelés-ablak frissítése (újrarajzolás nélkül) */
 /* háttérfrissítés (percenként, csak ügyvezető): a Google azonnal szól a háttérnek (Pub/Sub), az behúzza az új értékelést, a csengő innen tudja meg */
-function gbpPoll(){if(!isAdmin()||S._gbpL||(S._gbpAt&&Date.now()-S._gbpAt<60000))return;S._gbpAt=Date.now();call('gbpList',{}).then(r=>{S.gbp=r;const b=$('gbp-modal');if(b){b.innerHTML=gbpBody();if(typeof cmbAuto==='function')cmbAuto();}}).catch(()=>{});}
+/* a csengő értékelés-jelzése: csak éppen használt, látható lapon, legfeljebb 10 percenként (az új értékeléseket a háttér óránként behúzza) – a nyitva hagyott fül ne tartsa ébren az adatbázist */
+function gbpPoll(){if(!isAdmin()||S._gbpL||document.visibilityState!=='visible'||(typeof userActive==='function'&&!userActive())||(S._gbpAt&&Date.now()-S._gbpAt<600000))return;S._gbpAt=Date.now();call('gbpList',{}).then(r=>{S.gbp=r;const b=$('gbp-modal');if(b){b.innerHTML=gbpBody();if(typeof cmbAuto==='function')cmbAuto();}}).catch(()=>{});}
 function gbpRefresh(){const b=$('gbp-modal');if(b){b.innerHTML=gbpBody();if(typeof cmbAuto==='function')cmbAuto();}else if(S.tab==='ugyfelek'&&!$('modalRoot').innerHTML)render(true);}
 
 document.addEventListener('toggle',e=>{const d=e.target;if(!d||!d.classList||!d.classList.contains('perf-panel'))return;S.perfOpen=d.open;if(d.open&&!S.perfSrv&&ACT['perf-load'])ACT['perf-load']();},true);   /* a Sebesség panel megnyitásakor tölti be a háttér mérését */

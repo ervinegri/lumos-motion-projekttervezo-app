@@ -186,7 +186,7 @@ function api_(raw) {
     else if (fn === 'clientQuoteDecide') return clientQuoteDecide_(args[0], args[1], args[2]);
     else if (fn === 'dbStatus') return dbStatus_(args[0] === 'sizes');   // nyilvános, titok nélkül: melyik adatbázis aktív, és óránként mi kérdezte a Neont (a Vercel /api/dbstatus mutatja)
     else if (fn === 'szBank' || fn === 'szData') return szDataIn_(args[0], args[1]);   // nyilvános (a Vercel /api/szbank továbbítja): a számlázz.hu banki tranzakciója, azonosító kulccsal
-    else if (fn === 'jobsRun') return jobsRun_();   // nyilvános, titok nélkül: a gyors út által sorba tett levelek / szinkronok elvégzése (csak a sorban lévőket végzi el)
+    else if (fn === 'jobsRun') { const r = jobsRun_(); try { if (r && (r.failed || r.of >= 25 || r.error)) CacheService.getScriptCache().put('jobs_hot', '1', 1800); } catch (e) { } return r; }   // nyilvános, titok nélkül: a gyors út által sorba tett levelek / szinkronok elvégzése (csak a sorban lévőket végzi el)
     else if (fn === 'arkPrices') return arkPrices_();   // nyilvános: az árkalkulátorok (kalkulator.lumosmotion.hu) árai
     else throw new Error('Ismeretlen művelet.');
     };
@@ -258,7 +258,7 @@ function perfEnd_(ok) {
     let q = {}, f = {}; try { q = JSON.parse(m[kq] || '{}'); } catch (e) {} try { f = JSON.parse(m[kp] || '{}'); } catch (e) {}
     Object.keys(P.nq).forEach(c => { q[c] = (q[c] || 0) + P.nq[c]; });
     const r = f[P.op] || (f[P.op] = [0, 0, 0, 0, 0, 0, 0, 0, 0]); r[8] = (r[8] || 0) + P.neon; r[0]++; r[1] += ms; r[2] += P.db; r[3] += P.dbN; r[4] += P.lock; r[5] += P.load; r[6] = Math.max(r[6], ms); if (!ok) r[7]++;
-    const o = {}; if (Object.keys(P.nq).length) o[kq] = JSON.stringify(q); o[kp] = JSON.stringify(f); C.putAll(o, 21600); } catch (e) {}
+    const o = {}; if (Object.keys(P.nq).length) o[kq] = JSON.stringify(q); o[kp] = JSON.stringify(f); if (P.dbN > 0) o.neon_at = String(Date.now()); C.putAll(o, 21600); } catch (e) {}   // neon_at: az adatbázis most ébren van (a háttérmunka ehhez igazodik)
   return pf; }
 function perfStats_() {   // az elmúlt 6 óra műveletenként: [db, összidő, adatbázis-idő, lekérdezések, zárra várás, betöltés, max, hiba]
   const C = CacheService.getScriptCache(), now = Date.now(), keys = [];
@@ -371,15 +371,36 @@ function jobsRun_() {
   let rows = [];
   try { rows = (neonSql_([{ query: JOBS_DDL_ }, { query: "UPDATE lpm_jobs SET claimed = now(), tries = tries + 1 WHERE id IN (SELECT id FROM lpm_jobs WHERE done_at IS NULL AND tries < 5 AND (claimed IS NULL OR claimed < now() - interval '5 minutes') ORDER BY id LIMIT 25) RETURNING id::text, fn, args::text" }])[1].rows || []); }
   catch (e) { Logger.log('jobsRun: ' + e); return { done: 0, error: String(e && e.message).slice(0, 200) }; }
-  let n = 0;
+  let n = 0, fails = 0;
   rows.forEach(r => { let err = '';
     try { if (!JOB_FNS_[r[1]]) throw new Error('Nem engedélyezett feladat: ' + r[1]); const fnx = { sendAs_: sendAs_, hsDealQueue_: hsDealQueue_, bootMaint_: bootMaint_ }[r[1]]; fnx.apply(null, JSON.parse(r[2] || '[]')); n++; }
-    catch (e) { err = String(e && e.message || e).slice(0, 500); Logger.log('Háttérfeladat hiba (' + r[1] + '): ' + err); }
+    catch (e) { err = String(e && e.message || e).slice(0, 500); Logger.log('Háttérfeladat hiba (' + r[1] + '): ' + err); fails++; }
     try { neonSql_([{ query: 'UPDATE lpm_jobs SET done_at = CASE WHEN $2 = \'\' OR tries >= 5 OR $2 LIKE \'Ugyanez a levél%\' THEN now() ELSE NULL END, err = NULLIF($2, \'\'), claimed = NULL WHERE id = $1::bigint', params: [r[0], err] }]); } catch (e) { } });
   try { neonSql_([{ query: "DELETE FROM lpm_jobs WHERE done_at < now() - interval '14 days'" }]); } catch (e) { }
-  return { done: n, of: rows.length };
+  return { done: n, of: rows.length, failed: fails };
 }
-function jobsTick() { jobsRun_(); }
+/* Ötpercenkénti időzítő (2026-11-26, forgalom-takarékos): a Neon számítási ideje akkor fogy, amikor bármi lekérdez – 5 perc csend után elalszik.
+   Ezért a háttérmunka (háttérfeladatok, Google-értékelések, HubSpot-frissítés) csak akkor nyúl az adatbázishoz, ha
+   – az adatbázis épp ébren van (valaki most használja az appot → neon_at), vagy
+   – egy sorba tett feladat hibázott / maradt (jobs_hot), vagy
+   – lejárt a csendes időszak: napközben óránként, éjjel (22–6) háromóránként egyszer – ilyenkor minden egy ébresztésben fut le.
+   Az app megnyitásakor a böngésző amúgy is azonnal lefuttatja a sorba tett feladatokat és a szinkronokat, így a felhasználó nem vár többet. */
+function jobsTick() {
+  const C = CacheService.getScriptCache(), P = PropertiesService.getScriptProperties(), now = Date.now();
+  bgMergeOnce_(P);
+  const awake = now - Number(C.get('neon_at') || 0) < 4 * 60e3, hot = !!C.get('jobs_hot');
+  const h = Number(Utilities.formatDate(new Date(), SHEET_TZ, 'H')), gap = (h >= 22 || h < 6) ? 3 * 3600e3 : 3600e3;
+  const last = Number(P.getProperty('BG_AT') || 0), runBg = (awake && now - last >= 55 * 60e3) || now - last >= gap;
+  if (!awake && !hot && !runBg) return;
+  try { const r = jobsRun_(); if (r && (r.failed || r.of >= 25 || r.error)) C.put('jobs_hot', '1', 1800); else if (hot) C.remove('jobs_hot'); } catch (e) { Logger.log('jobsTick: ' + e); }
+  if (!runBg) return;
+  P.setProperty('BG_AT', String(now));
+  try { gbpHourlyRun_(); } catch (e) { Logger.log('gbpHourly: ' + e); }
+  try { hsPullHourlyRun_(); } catch (e) { Logger.log('hsPullHourly: ' + e); }
+}
+/* egyszer: a külön óránkénti időzítők (gbpHourly, hsPullHourly) helyett az ötperces időzítő ütemez – egy ébresztésben, csendes időben ritkábban */
+function bgMergeOnce_(P) { if (P.getProperty('BG_MERGE_V1')) return;
+  try { ScriptApp.getProjectTriggers().filter(t => /^(gbpHourly|hsPullHourly)$/.test(t.getHandlerFunction())).forEach(t => ScriptApp.deleteTrigger(t)); P.setProperty('GBP_HOURLY_INSTALLED', '1'); P.setProperty('HS_PULL_INSTALLED', '1'); P.setProperty('BG_MERGE_V1', now_()); } catch (e) { Logger.log('bgMerge: ' + e); } }
 /* Kulcs–érték tár a Neonban (2026-11-26): a gyors út (Vercel) ebből látja a felhasználókat, munkameneteket, beállításokat (titkok nélkül) és a változásjelzőt */
 const KV_DDL_ = 'CREATE TABLE IF NOT EXISTS lpm_kv (k text PRIMARY KEY, v text, at timestamptz NOT NULL DEFAULT now())';
 const KV_SECRET_RE_ = /(SECRET|PASS|TOKEN|KEY|REFRESH|LOGIN|NEON_URL|AGENT|CRED|PRIVATE)/i;

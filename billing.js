@@ -644,7 +644,7 @@ ACT['cdrop-pick']=b=>{const pid=b.dataset.id,i=document.createElement('input');i
     if(document.querySelector('.cf-layer,.flatpickr-calendar.open,#bellPop.open'))return false;if(S&&(S._mutLive||S.loading))return false;return true;}catch(e){return false;}}
   function autoReload(){if(!shown||!idle())return;try{if(typeof mdSave==='function')mdSave();}catch(e){}try{sessionStorage.setItem('lpm_autoreload',String(Date.now()));}catch(e){}location.reload();}
   setTimeout(check,4000);setInterval(check,180000);let lastAct=Date.now();['pointerdown','keydown','wheel','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{lastAct=Date.now();},{passive:true,capture:true}));
-  setInterval(()=>{if(!document.hidden&&Date.now()-lastAct>90000)autoReload();},60000);   /* éppen használt lapot nem töltünk újra alóla */
+  setInterval(()=>{if(!document.hidden&&Date.now()-lastAct>90000&&Date.now()-lastAct<10*60000)autoReload();},60000);   /* rég nem használt (nyitva hagyott) lapot sem töltünk újra: az új verzió a visszatéréskor a sávról tölthető – így a telepítések nem ébresztik fel az adatbázist */   /* éppen használt lapot nem töltünk újra alóla */
   document.addEventListener('visibilitychange',()=>{if(document.hidden)return;if(shown)autoReload();else check();});})();
 
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='bill-month'){const f=S.blf||(S.blf={v:'honap',q:''});setMonthAll(e.target.value);f.v='honap';render(true);}});

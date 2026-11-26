@@ -224,11 +224,24 @@ async function selfTestWrite() {
   const v = await neonAsync({ query: "SELECT ver::text, rows::text FROM lpm_sheet WHERE tab = '_gyorsut_proba'", params: [] }); out.final = (v.rows || [])[0] || null;
   return out;
 }
+/* A tükör (beállítások, munkamenetek – ~200 kulcs) példányonként memóriában (2026-11-26, forgalom-takarékos): egyetlen lekérdezés,
+   amely csak az aláírást (darabszám + utolsó módosítás) adja vissza, ha a tükör nem változott – a teljes tartalmat csak változáskor tölti le.
+   Az Apps Script a tükröt mindig upsert-tel írja (at = now()), a törlés a darabszámot változtatja – így az aláírás minden változást jelez. */
+let KVC = null;
+const KV_Q = "WITH s AS (SELECT count(*)::text || '|' || coalesce(max(at)::text, '') AS sig FROM lpm_kv WHERE k LIKE 'p:%' OR k LIKE 'm:%') "
+  + "SELECT '#sig', sig FROM s UNION ALL SELECT k, v FROM lpm_kv, s WHERE (k LIKE 'p:%' OR k LIKE 'm:%') AND s.sig <> $1";
+async function kvMirrorGet() {
+  const r = await neonAsync({ query: KV_Q, params: [KVC ? KVC.sig : ''] }), rows = r.rows || [];
+  const sigRow = rows.find(x => x[0] === '#sig'), sig = sigRow ? String(sigRow[1]) : '';
+  if (KVC && sig && sig === KVC.sig && rows.length === 1) return Object.assign({}, KVC.kv);
+  const kv = {}; rows.forEach(x => { if (x[0] !== '#sig') kv[x[0]] = x[1]; });
+  if (sig) KVC = { sig, kv }; return Object.assign({}, kv);
+}
 /** Egy kérés a gyors úton. Vissza: { text } (kész válasz) vagy { fallback: ok } (nem írt semmit – az Apps Script dolgozza fel). */
 async function runFast(raw) {
   if (!DBHOST) return { fallback: 'nincs DATABASE_URL' };
   let kv;
-  try { const r = await neonAsync({ query: "SELECT k, v FROM lpm_kv WHERE k LIKE 'p:%' OR k LIKE 'm:%'", params: [] }); kv = {}; (r.rows || []).forEach(x => { kv[x[0]] = x[1]; }); }
+  try { kv = await kvMirrorGet(); }
   catch (e) { return { fallback: 'nincs tükör' }; }
   if (kv['p:DB_MODE'] !== 'neon') return { fallback: 'nem Neon-mód' };
   if (kv['m:build'] !== BUNDLE.build) return { fallback: 'eltérő kódváltozat (' + (kv['m:build'] || '–') + ' ≠ ' + BUNDLE.build + ')' };   // csak ha pontosan ugyanaz a kód fut az Apps Scriptben is
@@ -250,4 +263,4 @@ async function runFast(raw) {
   }
   return { fallback: 'ütközés' };
 }
-module.exports = { BUILD: BUNDLE.build, runFast, selfTest, selfTestWrite, neonAsync, formatDate, parseDate, GS_FILES, _runOnce: runOnce, _mock(m, url) { MOCK = m; DBURL = url; DBHOST = (/^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(DBURL) || [])[1] || ''; MEMC.clear(); } };
+module.exports = { BUILD: BUNDLE.build, runFast, selfTest, selfTestWrite, neonAsync, formatDate, parseDate, GS_FILES, _runOnce: runOnce, _mock(m, url) { MOCK = m; DBURL = url; DBHOST = (/^postgres(?:ql)?:\/\/[^@]+@([^/:?]+)/.exec(DBURL) || [])[1] || ''; MEMC.clear(); KVC = null; } };

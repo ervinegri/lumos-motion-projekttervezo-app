@@ -11,6 +11,8 @@ function fakeNeon() {
   function one(q, p) {
     p = p || []; const Q = String(q).replace(/\s+/g, ' ').trim();
     if (/^SELECT k, v FROM lpm_kv WHERE k LIKE/.test(Q)) return [...db.kv].filter(([k]) => /^(p|m):/.test(k)).map(([k, v]) => [k, v]);
+    if (/^WITH s AS \(SELECT count\(\*\)::text \|\| '\|' \|\| coalesce\(max\(at\)/.test(Q)) { const L = [...db.kv].filter(([k]) => /^(p|m):/.test(k)), sig = L.length + '|' + require('crypto').createHash('md5').update(JSON.stringify(L)).digest('hex');
+      return [['#sig', sig]].concat(sig !== p[0] ? L.map(([k, v]) => [k, v]) : []); }   // a tükör aláírással: változatlannál csak az aláírás jön
     if (/^SELECT v FROM lpm_kv WHERE k = \$1/.test(Q)) return db.kv.has(p[0]) ? [[db.kv.get(p[0])]] : [];
     if (/^SELECT ver::text, rows::text FROM lpm_sheet WHERE tab = '_gyorsut_proba'/.test(Q)) { const x = db.sheet.get('_gyorsut_proba'); return x ? [[String(x.ver), x.rows]] : []; }
     if (/^SELECT tab, ver::text FROM lpm_sheet$/.test(Q)) return [...db.sheet].map(([k, s]) => [k, String(s.ver)]);
