@@ -781,7 +781,7 @@ function notesHtml(v){const s=String(v||'');if(!s)return '';return RT_HTML_RE.te
 
 /* Megszólítás: a (magyar sorrendű) név első keresztneve – „Gál Norbert Sándor” → Norbert, „Dr. Kiss Anna” → Anna */
 /* rövid név a felületen (Dávid, Kata, Ervin): keresztnév – ha két ismert embernek ugyanaz, a teljes név marad */
-function nmShort(n){const full=String(n||'').trim(),f=huFirst(full);if(!f||f===full)return full;
+function nmShort(n){const full=String(n||'').trim(),nk=((S.crew||[]).find(c=>String(c.name||'').trim()===full)||{}).nick;if(nk)return nk;const f=huFirst(full);if(!f||f===full)return full;
   const all=[...(S.crew||[]).map(c=>c.name),...Object.keys(S.leads||{}),(S.me&&S.me.name)||''].filter(Boolean),same=new Set(all.filter(x=>huFirst(x)===f).map(x=>String(x).trim()));
   if(!all.some(x=>String(x).trim()===full))return full;   // csak a csapat tagjait rövidítjük (az ügyfél neve teljes marad)
   return same.size>1?full:f;}

@@ -120,7 +120,8 @@ function saveCrew_(u, a) {
     priority: (a.priority === '' || a.priority == null) ? null : int_(a.priority, 1, 3, null), company: str_(a.company, 120),
     skills: (Array.isArray(a.skills) ? a.skills : []).filter(s => CREW_SKILLS.indexOf(s) >= 0),
     vat: a.vat === 'afa' ? 'afa' : 'aam',   // alapból alanyi adómentes
-    tax: str_(a.tax, 20).replace(/[^\d-]/g, '')   // a NAV-os számlapárosításhoz
+    tax: str_(a.tax, 20).replace(/[^\d-]/g, ''),   // a NAV-os számlapárosításhoz
+    nick: str_(a.nick, 40).trim()   // becenév a felületen (pl. Nándi)
   };
   if (c.name.length < 2) throw new Error('Add meg a nevet.');
   if (c.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)) throw new Error('Érvénytelen e-mail-cím.');
@@ -130,7 +131,7 @@ function saveCrew_(u, a) {
     if (row) {
       old = readRow_('crew', sh, row);
       if (old.updatedAt !== str_(a.baseUpdatedAt, 30)) throw new Error('CONFLICT: Közben valaki más is módosította ezt a munkatársat.');
-      c.createdAt = old.createdAt;
+      c.createdAt = old.createdAt; if (a.nick === undefined) c.nick = old.nick || ''; if (c.notify == null && old.notify != null) c.notify = old.notify;
     } else c.createdAt = now_();
     c.updatedAt = now_();
     putRow_('crew', sh, c, row);

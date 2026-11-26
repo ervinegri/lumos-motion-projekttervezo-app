@@ -163,13 +163,14 @@ function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lé
     // a szakember csak a saját projektjein szereplő munkatársakat és eszközöket kapja meg (Stáb és Leltár fület nem lát)
     const onIds = {}, itemIds = {};
     out.projects.forEach(p => { if (p.lead) onIds[p.lead] = 1; p.crew.forEach(a => { onIds[a.crewId] = 1; }); p.equipment.forEach(e => { itemIds[e.itemId] = 1; }); });
-    out.crew = crew.filter(c => onIds[c.id]).map(c => ({ id: c.id, name: c.name, phone: c.phone, roles: c.roles }));
+    out.crew = crew.filter(c => onIds[c.id]).map(c => ({ id: c.id, name: c.name, nick: c.nick || '', phone: c.phone, roles: c.roles }));
     out.inventory = inventory.filter(i => itemIds[i.id]).map(i => ({ id: i.id, name: i.name, category: i.category, serial: i.serial, location: i.location, qty: i.qty, condition: i.condition }));
     delete out.links.sheet;
   }
   try { out.leads = {}; loadUsers_().forEach(x => { if (x && (x.role === 'admin' || x.role === 'editor') && x.name) out.leads[String(x.name).trim()] = x.role; }); } catch (e) { }   // a hozzászólásoknál: ki ügyvezető / termelési vezető (ikon a név előtt)
   if (u.role === 'admin' || u.role === 'editor') { const live = {}; crew.forEach(c => { live[c.id] = 1; }); const ar = crewArchive_(); out.crewNames = {}; Object.keys(ar).forEach(k => { if (!live[k]) out.crewNames[k] = ar[k]; }); }
   if (u.role === 'admin') { try { dealOrphansClean_(); } catch (e) {} out.deals = dealsFor_(u); out.salesPeople = salesPeople_(u); try { out.crewDocs = crewDocsList_(); const P2 = PropertiesService.getScriptProperties(), cr = P2.getProperty('CREWDOCS_AUTO2_RES'); if (cr) { out.crewDocsAuto = JSON.parse(cr); P2.deleteProperty('CREWDOCS_AUTO2_RES'); } } catch (e) { out.crewDocs = []; } }   // az Értékesítés fül (a termelési vezető és a szakember nem kapja meg)
+  if (u.role === 'admin') { try { migNickNandi_(); } catch (e) { Logger.log('migNick: ' + e); } }
   if (u.role === 'admin') { try { const r = migSelfAccept_(); if (r && r.fresh) MIG_NOTE_ = r.msg; } catch (e) { Logger.log('migSelfAccept: ' + e); } }
   if (MIG_NOTE_ && u.role === 'admin') out.migNote = MIG_NOTE_;
   return viewAsPick_(out, u);
@@ -505,3 +506,9 @@ function migSelfAccept_() { const P = PropertiesService.getScriptProperties(), K
       msg = done.length ? '✓ Saját beosztás elfogadottra állítva (' + done.length + '): ' + done.join('; ') : '✓ Saját beosztás: nem volt függő saját meghívás.'; }); }
   catch (e) { msg = 'Saját beosztás átállítás hiba: ' + (e && e.message || e); return { fresh: true, msg: msg }; }   // hibánál nem jegyezzük meg: a következő betöltéskor újra próbálja
   P.setProperty(K, msg.slice(0, 8000)); try { logEvent_({ name: 'Rendszer', email: '' }, 'Saját beosztás átállítás', '', msg.slice(0, 400)); } catch (e) {} return { fresh: true, msg: msg }; }
+
+/* Egyszeri: Koós Nándor beceneve „Nándi” (Ervin kérése, 2026-11-26) – a felületen így jelenik meg. */
+function migNickNandi_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_NICK_NANDI_1'; if (P.getProperty(K)) return;
+  withLock_(() => { const sh = sheetFor_('crew'), c = readAll_('crew').find(x => /^ko[oó]s\s+n[aá]ndor$/i.test(String(x.name || '').trim())); if (!c) return; const row = findRow_(sh, c.id); if (!row) return;
+    const r = readRow_('crew', sh, row); if (!r.nick) { r.nick = 'Nándi'; r.updatedAt = now_(); putRow_('crew', sh, r, row); dataBump_(); dbFlush_(); } });
+  P.setProperty(K, '1'); }

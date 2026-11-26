@@ -267,6 +267,7 @@ function crewModal(c){
   const uses=c?S.projects.filter(p=>crewIds(p).has(c.id)).length:0;
   openModal(c?'Munkatárs szerkesztése':'Új munkatárs',`<div class="fields">
     ${mf('name','Név',{full:true,v:v.name,max:100})}
+    ${mf('nick','Becenév (nem kötelező)',{v:v.nick||'',max:40,ph:'pl. Nándi – a felületen így látszik'})}
     ${mselField('roles','Szerepek',CREW_ROLES,[...roles],'Válassz szerepet…')}
     ${mselField('skills','Részletek',CREW_SKILLS,v.skills||[],'Válassz részleteket…')}
     ${ms('type','Jogviszony',CREW_TYPES,isEmployee(v)?CREW_TYPES[3]:v.type||'Belsős')}
@@ -283,7 +284,7 @@ function crewModal(c){
   submit:async(fd,form)=>{
     if(!needName(form))return;
     {const em=String(fd.get('email')||'').trim(),inp=form.querySelector('[name=email]');if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){toast('Az e-mail-cím kötelező a Stáb listában – erre mennek a meghívók, a nyersanyag-levél és a csatolt fájlok.',true);if(inp){inp.focus();inp.classList.add('bad');}return;}}   /* szabály (Ervin, 2026-11-25): minden stábtagnak legyen e-mail-címe */
-    const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:moneyVal(fd.get('dayRate')),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:'',company:fd.get('company').trim(),skills:fd.getAll('skills'),vat:fd.get('vat')==='afa'?'afa':'aam',tax:String(fd.get('tax')||'').trim()};
+    const data={id:c?c.id:uuid(),baseUpdatedAt:c?c.updatedAt:'',name:fd.get('name').trim(),roles:fd.getAll('roles'),type:fd.get('type'),dayRate:moneyVal(fd.get('dayRate')),phone:fd.get('phone').trim(),email:fd.get('email').trim(),note:fd.get('note').trim(),priority:'',company:fd.get('company').trim(),skills:fd.getAll('skills'),vat:fd.get('vat')==='afa'?'afa':'aam',tax:String(fd.get('tax')||'').trim(),nick:String(fd.get('nick')||'').trim()};
     try{let saved;try{saved=await call('saveCrew',data);}catch(e1){if(!c||!/CONFLICT/.test(errText(e1)))throw e1;   // közben máshol (pl. másik lapon) mentették: a friss adatra írjuk rá a mostani módosítást
         const b=await call('bootstrap',{});const fresh=(b.crew||[]).find(x=>x.id===c.id);if(!fresh)throw e1;data.baseUpdatedAt=fresh.updatedAt||'';saved=await call('saveCrew',data);}
       const i=S.crew.findIndex(x=>x.id===saved.id);if(i>=0)S.crew[i]=saved;else S.crew.push(saved);entRec('crew',(c?'munkatárs módosítása: ':'munkatárs felvétele: ')+saved.name,saved.id,c?clone(c):null,clone(saved));closeModal();render(true);toast(c?'Mentve':'Munkatárs felvéve');}
