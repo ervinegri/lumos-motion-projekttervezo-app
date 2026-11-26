@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "55bb269f53",
+"at": "2026-11-26T17:55:57+02:00",
+"msg": "Projektlista: a mai projekt piros kerete körben egyforma vastag"
+},
+{
 "id": "f4f06cb451",
 "at": "2026-11-26T17:54:46+02:00",
 "msg": "Projektlista: a hónap-elválasztó sorok kikerültek"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "1a302b4fa3",
 "at": "2026-11-26T15:31:25+01:00",
 "msg": "Felvétel: valódi feltöltési százalék (XHR), a befejező darab ismétlése nem vesz fel kétszer; a jegyzetben rövidebb sor: „🎙️ Személyes megbeszélés rögzítve (3:15)” (a meglévők is)"
-},
-{
-"id": "c9d152fcb8",
-"at": "2026-11-26T15:29:01+01:00",
-"msg": "Rögzítés több fülön: a felvételt / feltöltést végző fül jelzi, hogy él – a másik fül nem ajánlja fel félbemaradtként (és nem tölti fel kétszer)"
 }
 ];
 const allowed = require('./_auth.js');
