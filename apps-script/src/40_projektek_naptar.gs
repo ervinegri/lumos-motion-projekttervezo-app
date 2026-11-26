@@ -53,10 +53,10 @@ function taskNotice_(u, tn, dry) {
     const c = crewRows.find(r => r.id === cid); if (!c || !c.email || (u && u.email && String(u.email).toLowerCase() === String(c.email).toLowerCase())) return;
     const gone = before.filter(x => after.indexOf(x) < 0), added = after.filter(x => before.indexOf(x) < 0), first = String(c.name || '').split(' ').slice(-1)[0] || c.name;
     const box = (bz.length ? 'Változás a projektben:\n' + bz.map(x => '• ' + x).join('\n') + '\n\n' : '') + (!tChg ? '' : (added.length ? 'Új / módosult:\n' + added.map(x => '• ' + x).join('\n') + '\n\n' : '') + (gone.length ? 'Lekerült:\n' + gone.map(x => '• ' + x).join('\n') + '\n\n' : '') + 'A teljes, aktuális listád:\n' + (after.length ? after.map(x => '• ' + x).join('\n') : '– jelenleg nincs feladatod ezen a projekten'));
-    const what = bz.length && !tChg ? 'Módosult a(z) <b>' + escapeHtml_(p.name) + '</b> projekt ' + (bz.length > 1 ? 'időpontja és helyszíne' : /^Időpont/.test(bz[0]) ? 'időpontja' : 'helyszíne') : '';
-    const line = what ? what + '. ' + escapeHtml_((u && u.name) || 'A projektvezetés') + ' módosította:' : 'Módosultak a feladataid a(z) <b>' + escapeHtml_(p.name) + '</b> projekten (' + escapeHtml_(fmtHuDate_(p.date) || p.date || '') + '). ' + escapeHtml_((u && u.name) || 'A projektvezetés') + ' módosította:';
+    const what = bz.length && !tChg ? 'Módosult a projekt ' + (bz.length > 1 ? 'időpontja és helyszíne' : /^Időpont/.test(bz[0]) ? 'időpontja' : 'helyszíne') : '';
+    const line = what ? what + '. ' + escapeHtml_((u && u.name) || 'A projektvezetés') + ' módosította:' : 'Módosultak a feladataid a projekten (' + escapeHtml_(fmtHuDate_(p.date) || p.date || '') + '). ' + escapeHtml_((u && u.name) || 'A projektvezetés') + ' módosította:';
     const html = mailCard_(first, line, box, link, 'Megnyitom a projektet');
-    const text = 'Kedves ' + first + '!\n\n' + (tChg ? 'Módosultak a feladataid' : 'Változás történt') + ' a(z) „' + p.name + '” projekten.\n\n' + box + '\n\n' + link;
+    const text = 'Kedves ' + first + '!\n\n' + (tChg ? 'Módosultak a feladataid' : 'Változás történt') + ' a projekten.\n\n' + box + '\n\n' + link;
     const subject = (tChg ? 'Módosult a feladatod' : 'Változás a projektben') + ' – ' + p.name;
     outMsgs.push({ to: c.email, name: c.name, subject: subject, html: html });
     if (dry) return;
@@ -1132,8 +1132,8 @@ function crewInviteMessage_(p, c, cid, asg, dueInput, ev) {
     const dlD = inviteDue_(p, Date.now()), urgent = dlD.getTime() < inviteDue_(null, Date.now()).getTime();   /* közeli forgatásnál a határidő a forgatás előtti este (legkésőbb 1 órával a kezdés előtt) */
     const HM = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'], dlTxt = Utilities.formatDate(dlD, SHEET_TZ, 'yyyy') + ' ' + HM[+Utilities.formatDate(dlD, SHEET_TZ, 'M') - 1] + ' ' + Utilities.formatDate(dlD, SHEET_TZ, 'd, HH:mm');
     const urgTxt = urgent ? '⚡ Sürgős – a forgatás hamarosan kezdődik, kérlek, minél előbb válaszolj.' : '';
-    const text = 'Kedves ' + first + '!\n\nMeghívást kaptál erre a projektre' + asTxt + ':\n' + p.name + (urgTxt ? '\n\n' + urgTxt : '') + (info ? '\n\n' + info : '') + '\n\n⏰ Válaszadási határidő: ' + dlTxt + '\n\nElfogadás: ' + url + (calUrl ? '\n\n(A Google Naptárban az „Igen” válasz is elfogadásnak számít: ' + calUrl + ')' : '');
-    const html = mailCard_(first, 'Meghívást kaptál erre a projektre' + escapeHtml_(asTxt) + ':<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', (urgTxt ? urgTxt + '\n' : '') + (info ? info + '\n' : '') + '⏰ Válaszadási határidő: ' + dlTxt, url, 'Válaszolok') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0;color:#5b6876">A <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” válasz is elfogadásnak számít.</p>' : '');
+    const text = 'Kedves ' + first + '!\n\nMeghívást kaptál erre a projektre' + asTxt + '.' + (urgTxt ? '\n\n' + urgTxt : '') + (info ? '\n\n' + info : '') + '\n\n⏰ Válaszadási határidő: ' + dlTxt + '\n\nElfogadás: ' + url + (calUrl ? '\n\n(A Google Naptárban az „Igen” válasz is elfogadásnak számít: ' + calUrl + ')' : '');
+    const html = mailCard_(first, 'Meghívást kaptál erre a projektre' + escapeHtml_(asTxt) + '.', (urgTxt ? urgTxt + '\n' : '') + (info ? info + '\n' : '') + '⏰ Válaszadási határidő: ' + dlTxt, url, 'Válaszolok') + (calUrl ? '<p style="font-size:13px;margin:10px 0 0;color:#5b6876">A <a href="' + escapeHtml_(calUrl) + '">Google Naptárban</a> az „Igen” válasz is elfogadásnak számít.</p>' : '');
   let htmlOut = html;
   if (onSiteInvite && p.venue) { const ev0 = escapeHtml_('📍 ' + p.venue); htmlOut = htmlOut.replace(ev0, '📍 <a href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(p.venue) + '" style="color:#1a56db;text-decoration:underline">' + escapeHtml_(p.venue) + '</a>'); }   // a helyszín kattintható (Google Térkép)
   return { to: em, subject: ((parseInvites_(p.invites)[cid] || {}).prev || []).length ? 'Új szerepkör: ' + p.name : (projTent_(p) ? 'Előzetes foglalás: ' : (urgent ? '⚡ Sürgős meghívás: ' : 'Meghívás: ')) + p.name, text: text, html: htmlOut, dlTxt: dlTxt };
@@ -1222,11 +1222,10 @@ function inviteCancel_(u, a) {
   try { const iv = parseInvites_(p.invites)[cid] || {}, cr = readAll_('crew').find(x => x.id === cid) || {}, who = cr.name || u.name, url = appUrl_() + '#p=' + pid;
     const to = [iv.bye || ((loadUsers_().find(x => x.name === iv.by) || {}).email || '')].concat(loadUsers_().filter(x => x.role === 'admin').map(x => x.email)).filter((e, i, A) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e || '') && A.indexOf(e) === i);
     if (to.length) { const subj = '⚠️ ' + who + ' visszamondta · ' + p.name + ' · ' + terms.days + ' nappal előtte' + (terms.pct ? ' · kötbér: ' + terms.pct + '%' : '');
-      const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#202124;max-width:560px"><p style="margin:0 0 10px"><b>' + escapeHtml_(who) + '</b> <b style="color:#a33">visszamondta</b> a már elfogadott projektet: <b>' + escapeHtml_(p.name) + '</b></p>'
-        + '<p style="margin:0 0 10px">A projekt kezdetéig: <b>' + terms.days + ' nap</b><br>Feltétel: <b>' + escapeHtml_(TL) + '</b>' + (terms.pct ? '<br><span style="color:#5f6368">Ledolgozás vagy kifizetés – a szakember választ (keretszerződés 2.5.5.). Igazolt, elháríthatatlan ok esetén nem jár kötbér.</span>' : '') + '</p>'
+      const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#202124;max-width:560px"><p style="margin:0 0 10px">Feltétel: <b>' + escapeHtml_(TL) + '</b>' + (terms.pct ? '<br><span style="color:#5f6368">Ledolgozás vagy kifizetés – a szakember választ (keretszerződés 2.5.5.). Igazolt, elháríthatatlan ok esetén nem jár kötbér.</span>' : '') + '</p>'
         + '<div style="background:#fff4f2;border-left:4px solid #d93025;padding:10px 14px;border-radius:0 8px 8px 0;margin:0 0 14px">' + escapeHtml_(why).replace(/\n/g, '<br>') + '</div>'
         + '<p style="margin:0"><a href="' + escapeHtml_(url) + '" style="display:inline-block;background:#1f2933;color:#fff;text-decoration:none;font-weight:bold;padding:8px 16px;border-radius:8px">Projekt megnyitása – helyettes keresése</a></p></div>';
-      gmailSend_(to.join(','), subj, who + ' visszamondta: ' + p.name + '\n' + terms.days + ' nap · ' + TL + '\n\nIndok: ' + why + '\n\n' + url, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Visszamondás-értesítés hiba: ' + e); }
+      gmailSend_(to.join(','), subj, 'Feltétel: ' + TL + '\n\nIndok: ' + why + '\n\n' + url, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Visszamondás-értesítés hiba: ' + e); }
   return terms;
 }
 function inviteRespond_(u, a) {
@@ -1251,10 +1250,8 @@ function inviteRespond_(u, a) {
       const HM = ['jan.', 'febr.', 'márc.', 'ápr.', 'máj.', 'jún.', 'júl.', 'aug.', 'szept.', 'okt.', 'nov.', 'dec.'], md = v => { const m = /^\d{4}-(\d{2})-(\d{2})/.exec(String(v || '')); return m ? HM[+m[1] - 1] + ' ' + (+m[2]) + '.' : ''; };
       const when = md(p.date) + (p.endDate && p.endDate !== p.date ? '–' + md(p.endDate) : '');
       const subj = (yes ? '✅ ' : '❌ ') + who + (isPre ? (yes ? ' szabadon tartja (előfoglalás)' : ' nem tudja szabadon tartani (előfoglalás)') : yes ? ' vállalta' : ' nem vállalta') + ' · ' + p.name + (rl ? ' · ' + rl : '') + (when ? ' · ' + when : '');
-      const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#202124;max-width:520px"><p style="margin:0 0 12px"><b>' + escapeHtml_(who) + '</b> ' + (yes ? '<b style="color:#1f7a44">vállalta</b>' : '<b style="color:#a33">nem vállalta</b>') + ': <b>' + escapeHtml_(p.name) + '</b>'
-        + (rl ? '<br>Szerep: <b>' + escapeHtml_(rl) + '</b>' : '') + (when ? '<br>Időpont: ' + escapeHtml_(when) : '') + '</p>'
-        + '<p style="margin:0"><a href="' + escapeHtml_(url) + '" style="display:inline-block;background:#1f2933;color:#fff;text-decoration:none;font-weight:bold;padding:8px 16px;border-radius:8px">Projekt megnyitása</a></p></div>';
-      gmailSend_(to, subj, who + (yes ? ' vállalta' : ' nem vállalta') + ': ' + p.name + (rl ? '\nSzerep: ' + rl : '') + (when ? '\nIdőpont: ' + when : '') + '\n\n' + url, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); }
+      const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#202124;max-width:520px"><p style="margin:0"><a href="' + escapeHtml_(url) + '" style="display:inline-block;background:#1f2933;color:#fff;text-decoration:none;font-weight:bold;padding:8px 16px;border-radius:8px">Projekt megnyitása</a></p></div>';
+      gmailSend_(to, subj, url, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); }
   } catch (e) { Logger.log('Meghívás-visszajelzés hiba: ' + e); }
   if (yes) { try { const ev = calEvent_(p.calEventId), cr = readAll_('crew').find(x => x.id === cid) || {}, em = String(cr.email || '').trim().toLowerCase();   // elfogadás: a naptárában is ott legyen (vendégként, elfogadott válasszal)
     if (ev && em && typeof Calendar !== 'undefined' && Calendar.Events) { const eid = String(ev.getId()).replace(/@google\.com$/, ''), CID = evCalId_(ev), cur = Calendar.Events.get(CID, eid), att = cur.attendees || []; let f = att.find(x => String(x.email || '').toLowerCase() === em);
@@ -1276,9 +1273,9 @@ function invitesSync_(projects, onlyCid) {
         Object.keys(upd).forEach(k => { if (iv[k] && iv[k].st === 'invited' && iv[k].calSt !== upd[k]) { iv[k].calSt = upd[k]; sent.push([k, upd[k], iv[k]]); } });
         q.invites = JSON.stringify(iv); putRow_('projects', sh, q, r); p.invites = q.invites; changed = true; });
       sent.forEach(([k, r0, iv]) => { try { const cr = readAll_('crew').find(x => x.id === k) || {}, who = cr.name || 'A munkatárs', url = appUrl_() + '#inv=' + encodeURIComponent(p.id), yes = r0 === 'accepted';
-        if (yes && /@/.test(crewEm[k] || '')) gmailSend_(crewEm[k], 'Fogadd el a meghívást az appban: ' + p.name, 'Kedves ' + (huFirst_(cr.name) || '') + '!\n\nA Google Naptárban jelezted, hogy ott leszel – köszönjük! A meghívást a Projekttervezőben kell elfogadnod.\n\nElfogadás: ' + url, { htmlBody: mailCard_(huFirst_(cr.name) || '', 'A Google Naptárban jelezted, hogy ott leszel – köszönjük!<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', 'A meghívást a Projekttervezőben kell elfogadnod.', url, 'Elfogadom az appban'), name: 'Lumos Motion Projekttervező' }, 'assign');
+        if (yes && /@/.test(crewEm[k] || '')) gmailSend_(crewEm[k], 'Fogadd el a meghívást az appban: ' + p.name, 'Kedves ' + (huFirst_(cr.name) || '') + '!\n\nA Google Naptárban jelezted, hogy ott leszel – köszönjük! A meghívást a Projekttervezőben kell elfogadnod.\n\nElfogadás: ' + url, { htmlBody: mailCard_(huFirst_(cr.name) || '', 'A Google Naptárban jelezted, hogy ott leszel – köszönjük!', 'A meghívást a Projekttervezőben kell elfogadnod.', url, 'Elfogadom az appban'), name: 'Lumos Motion Projekttervező' }, 'assign');
         const to = iv.bye || ((loadUsers_().find(x => x.name === iv.by) || {}).email || '');
-        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) gmailSend_(to, (yes ? '📅 ' : '📅❌ ') + who + ' a naptárban ' + (yes ? '„Igen”-t' : '„Nem”-et') + ' jelzett · ' + p.name, who + ' a Google Naptárban ' + (yes ? '„Igen”' : '„Nem”') + ' választ adott, de a Projekttervezőben még nem válaszolt' + (yes ? ' (emlékeztetőt kapott, hogy ott fogadja el).' : '. A meghívás még válaszra vár – érdemes rákérdezni.') + '\n\n' + appUrl_() + '#p=' + p.id, { name: 'Lumos Motion Projekttervező' });
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) gmailSend_(to, (yes ? '📅 ' : '📅❌ ') + who + ' a naptárban ' + (yes ? '„Igen”-t' : '„Nem”-et') + ' jelzett · ' + p.name, 'A Projekttervezőben még nem válaszolt' + (yes ? ' (emlékeztetőt kapott, hogy ott fogadja el).' : '. A meghívás még válaszra vár – érdemes rákérdezni.') + '\n\n' + appUrl_() + '#p=' + p.id, { name: 'Lumos Motion Projekttervező' });
       } catch (e) { Logger.log('Naptárválasz-jelzés hiba: ' + e); } });
     } catch (e) { Logger.log('Meghívás-szinkron hiba (' + p.name + '): ' + e); } });
   if (changed) { try { dbFlush_(); dataBump_(); } catch (e) {} }
@@ -1304,7 +1301,7 @@ function preDealNotify_(pid, won) {
   try { const p = readAll_('projects').find(x => x.id === pid); if (!p || !p.preDeal) return; const inv = parseInvites_(p.invites), crew = byId_(readAll_('crew'));
     Object.keys(inv).forEach(cid => { const iv = inv[cid]; if (!iv || ['invited', 'yes'].indexOf(iv.st) < 0 || iv.via === 'self') return; const c = crew[cid], em = String((c && c.email) || '').trim(); if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return;
       const first = String(c.name || '').trim().split(/\s+/).slice(-1)[0] || '', when = p.date ? String(p.date).replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1. $2. $3.') : '';
-      const subj = (won ? 'Véglegesítve: ' : 'Elmarad: ') + p.name, text = 'Kedves ' + first + '!\n\n' + (won ? 'Jó hír: a(z) „' + p.name + '” projekt' + (when ? ' (' + when + ')' : '') + ' véglegessé vált, biztosan megvalósul.' + (iv.st === 'invited' ? ' Kérlek, válaszolj a meghívásra az appban.' : '') : 'A(z) „' + p.name + '” projekt' + (when ? ' (' + when + ')' : '') + ' mégis elmarad – a nap felszabadult.') + '\n\nKöszönjük!\nLumos Motion';
+      const subj = (won ? 'Véglegesítve: ' : 'Elmarad: ') + p.name, text = 'Kedves ' + first + '!\n\n' + (won ? 'Jó hír: a projekt' + (when ? ' (' + when + ')' : '') + ' véglegessé vált, biztosan megvalósul.' + (iv.st === 'invited' ? ' Kérlek, válaszolj a meghívásra az appban.' : '') : 'A projekt' + (when ? ' (' + when + ')' : '') + ' mégis elmarad – a nap felszabadult.') + '\n\nKöszönjük!\nLumos Motion';
       try { gmailSend_(em, subj, text, { name: 'Lumos Motion Projekttervező' }, 'assign'); } catch (e) { Logger.log('Előfoglalás értesítés hiba: ' + e); } });
   } catch (e) { Logger.log('preDealNotify_: ' + e); }
 }
@@ -1336,8 +1333,8 @@ function crewPosNotify_(u, a) {
   const line = all ? 'Mégsem lesz szükség a közreműködésedre ezen a projekten.' + (fee ? ' A keretszerződés 2.7. pontja szerint a díjad 50%-át (' + fee.toLocaleString('hu-HU') + ' Ft) kifizetjük.' : '')
     : 'Módosult a beosztásod: ' + art(lc(removed)) + ' ' + lc(removed) + ' szerepkör lekerült, ' + art(lc(kept)) + ' ' + lc(kept) + ' marad.';
   let mail = false;
-  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { try { mail = gmailSend_(em, (all ? 'Lekerültél a projektről: ' : 'Módosult a beosztásod: ') + p.name, 'Kedves ' + first + '!\n\n' + line + '\n\n' + p.name + (p.date ? ' – ' + preHuDate_(p.date) : '') + '\n\n' + appUrl_() + '#p=' + pid,
-      { htmlBody: mailCard_(first, escapeHtml_(line) + '<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', p.date ? '📅 ' + preHuDate_(p.date) : '', appUrl_() + (all ? '' : '#p=' + pid), all ? 'Projekttervező' : 'Projekt megnyitása'), name: 'Lumos Motion Projekttervező' }, 'assign'); } catch (e) { Logger.log('Szerepkör-értesítés hiba: ' + e); } }
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { try { mail = gmailSend_(em, (all ? 'Lekerültél a projektről: ' : 'Módosult a beosztásod: ') + p.name, 'Kedves ' + first + '!\n\n' + line + (p.date ? '\n\n📅 ' + preHuDate_(p.date) : '') + '\n\n' + appUrl_() + '#p=' + pid,
+      { htmlBody: mailCard_(first, escapeHtml_(line), p.date ? '📅 ' + preHuDate_(p.date) : '', appUrl_() + (all ? '' : '#p=' + pid), all ? 'Projekttervező' : 'Projekt megnyitása'), name: 'Lumos Motion Projekttervező' }, 'assign'); } catch (e) { Logger.log('Szerepkör-értesítés hiba: ' + e); } }
   logEvent_(u, all ? 'Szakember levéve a projektről' : 'Szerepkör levéve', p.name, (c.name || cid) + ' · ' + removed.join(', ') + (fee ? ' · lemondási díj: ' + fee : ''));
   return { mail: mail };
 }
@@ -1366,8 +1363,8 @@ function crewPreMessage_(p, c, cid, asg) {
   const info = ['📅 ' + when, p.venue ? '📍 ' + p.venue : '', '',
     'Kérjük, tartsd szabadon ezt a napot. A részleteket (feladat, időbeosztás, díj) legkésőbb ' + preHuDate_(pd) + '-ig küldjük el, vagy addig szólunk, ha mégsem lesz rád szükség.',
     'Ha közben más ajánlatot kapsz erre a napra, jelezd az appban („Más ajánlatot kaptam”). Az előfoglalás szabályai a keretszerződésünk 2.8. pontjában olvashatók.'].filter((x, i) => x || i === 2).join('\n');
-  const text = 'Kedves ' + first + '!\n\nSzeretnénk előre lefoglalni téged erre a projektre' + asTxt + ':\n' + p.name + '\n\n' + info + '\n\n⏰ Kérjük, ' + dlTxt + '-ig jelezd, hogy szabadon tudod-e tartani: ' + url;
-  let html = mailCard_(first, 'Szeretnénk előre lefoglalni téged erre a projektre' + escapeHtml_(asTxt) + ':<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', info + '\n\n⏰ Válaszadási határidő: ' + dlTxt, url, 'Válaszolok');
+  const text = 'Kedves ' + first + '!\n\nSzeretnénk előre lefoglalni téged erre a projektre' + asTxt + '.\n\n' + info + '\n\n⏰ Kérjük, ' + dlTxt + '-ig jelezd, hogy szabadon tudod-e tartani: ' + url;
+  let html = mailCard_(first, 'Szeretnénk előre lefoglalni téged erre a projektre' + escapeHtml_(asTxt) + '.', info + '\n\n⏰ Válaszadási határidő: ' + dlTxt, url, 'Válaszolok');
   if (p.venue) { const ev0 = escapeHtml_('📍 ' + p.venue); html = html.replace(ev0, '📍 <a href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(p.venue) + '" style="color:#1a56db;text-decoration:underline">' + escapeHtml_(p.venue) + '</a>'); }
   return { to: em, subject: 'Előfoglalás: ' + p.name, text: text, html: html, dlTxt: dlTxt, pre: true };
 }
@@ -1381,10 +1378,10 @@ function preOffer_(u, a) {
   const due = new Date(new Date(iv.off).getTime() + PRE_OFFER_H_ * 3600 * 1000), cr = readAll_('crew').find(x => x.id === cid) || {}, who = cr.name || u.name;
   logEvent_(u, 'Előfoglalás – más ajánlat', p.name, who);
   try { const to = preStaffTo_(iv), url = appUrl_() + '#p=' + pid; if (to.length) { const subj = '⚠️ ' + who + ' más ajánlatot kapott · ' + p.name + ' · döntés: ' + preHuTime_(due);
-      const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#202124;max-width:560px"><p style="margin:0 0 10px"><b>' + escapeHtml_(who) + '</b> más ajánlatot kapott az előfoglalt napra: <b>' + escapeHtml_(p.name) + '</b> (' + escapeHtml_(preHuDate_(p.date)) + ')</p>'
+      const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#202124;max-width:560px"><p style="margin:0 0 10px">Más ajánlatot kapott az előfoglalt napra (' + escapeHtml_(preHuDate_(p.date)) + ').</p>'
         + '<p style="margin:0 0 12px">Döntsetek <b>' + escapeHtml_(preHuTime_(due)) + '</b>-ig: véglegesítitek (rendes meghívó) vagy elengeditek. Ha addig nem történik semmi, az előfoglalás megszűnik.</p>'
         + '<p style="margin:0"><a href="' + escapeHtml_(url) + '" style="display:inline-block;background:#1f2933;color:#fff;text-decoration:none;font-weight:bold;padding:8px 16px;border-radius:8px">Projekt megnyitása</a></p></div>';
-      gmailSend_(to.join(','), subj, who + ' más ajánlatot kapott: ' + p.name + '\nDöntés: ' + preHuTime_(due) + '-ig (véglegesítés vagy elengedés).\n\n' + url, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Előfoglalás-ajánlat értesítés hiba: ' + e); }
+      gmailSend_(to.join(','), subj, 'Más ajánlatot kapott az előfoglalt napra (' + preHuDate_(p.date) + ').\nDöntés: ' + preHuTime_(due) + '-ig (véglegesítés vagy elengedés).\n\n' + url, { htmlBody: html, name: 'Lumos Motion Projekttervező' }); } } catch (e) { Logger.log('Előfoglalás-ajánlat értesítés hiba: ' + e); }
   return { project: projectView_(fullProject_(p), u), due: preHuTime_(due) };
 }
 /** Előfoglalás megszüntetése (elengedés / lejárat / meg nem válaszolt ajánlat) + levél a szakembernek. why: 'rel' | 'exp' | 'off' */
@@ -1395,8 +1392,8 @@ function preEnd_(pid, cid, why, byName) {
   if (!iv) return null; const wasYes = !!iv.ans;
   try { const cr = readAll_('crew').find(x => x.id === cid) || {}, em = String(cr.email || '').trim().toLowerCase(), first = huFirst_(cr.name) || '';
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { const line = why === 'off' ? 'A jelzésedre ' + PRE_OFFER_H_ + ' órán belül nem tudtunk véglegesíteni, ezért az előfoglalás megszűnt – nyugodtan elfogadhatod a másik ajánlatot.' : 'Az előfoglalás megszűnt – a(z) ' + preHuDate_(p.date) + (p.endDate && p.endDate !== p.date ? ' – ' + preHuDate_(p.endDate) : '') + ' napot már nem kell szabadon tartanod.';
-      gmailSend_(em, 'Előfoglalás megszűnt: ' + p.name, 'Kedves ' + first + '!\n\n' + line + '\n\n' + p.name + '\n\nKöszönjük, hogy számíthattunk rád!', { htmlBody: mailCard_(first, escapeHtml_(line) + '<br><b style="font-size:17px">' + escapeHtml_(p.name) + '</b>', 'Köszönjük, hogy számíthattunk rád!', appUrl_(), 'Projekttervező'), name: 'Lumos Motion Projekttervező' }, 'assign'); } } catch (e) { Logger.log('Előfoglalás-megszűnés levél hiba: ' + e); }
-  if (why !== 'rel') { try { const cr = readAll_('crew').find(x => x.id === cid) || {}, to = preStaffTo_(iv); if (to.length) gmailSend_(to.join(','), '⌛ Előfoglalás megszűnt · ' + (cr.name || '') + ' · ' + p.name, (cr.name || 'A munkatárs') + ' előfoglalása megszűnt (' + (why === 'off' ? 'más ajánlatot kapott, és ' + PRE_OFFER_H_ + ' órán belül nem döntöttetek' : 'a ' + PRE_DAYS_ + ' napos véglegesítési határidő lejárt') + ').\n\n' + appUrl_() + '#p=' + pid, { name: 'Lumos Motion Projekttervező' }); } catch (e) {} }
+      gmailSend_(em, 'Előfoglalás megszűnt: ' + p.name, 'Kedves ' + first + '!\n\n' + line + '\n\nKöszönjük, hogy számíthattunk rád!', { htmlBody: mailCard_(first, escapeHtml_(line), 'Köszönjük, hogy számíthattunk rád!', appUrl_(), 'Projekttervező'), name: 'Lumos Motion Projekttervező' }, 'assign'); } } catch (e) { Logger.log('Előfoglalás-megszűnés levél hiba: ' + e); }
+  if (why !== 'rel') { try { const cr = readAll_('crew').find(x => x.id === cid) || {}, to = preStaffTo_(iv); if (to.length) gmailSend_(to.join(','), '⌛ Előfoglalás megszűnt · ' + (cr.name || '') + ' · ' + p.name, 'Az előfoglalás megszűnt (' + (why === 'off' ? 'más ajánlatot kapott, és ' + PRE_OFFER_H_ + ' órán belül nem döntöttetek' : 'a ' + PRE_DAYS_ + ' napos véglegesítési határidő lejárt') + ').\n\n' + appUrl_() + '#p=' + pid, { name: 'Lumos Motion Projekttervező' }); } catch (e) {} }
   return p;
 }
 function preRelease_(u, a) {
@@ -1412,7 +1409,7 @@ function preSweep_(projects) {
       if (iv.off && now.getTime() > new Date(iv.off).getTime() + PRE_OFFER_H_ * 3600 * 1000) { const q = preEnd_(p.id, k, 'off'); if (q) { p.invites = q.invites; ch = true; } return; }
       if (iv.pd && t >= iv.pd) { const q = preEnd_(p.id, k, 'exp'); if (q) { p.invites = q.invites; ch = true; } return; }
       if (iv.pd && !iv.rem && soon >= iv.pd) { try { withLock_(() => { const sh = sheetFor_('projects'), r = findRow_(sh, p.id); if (!r) return; const q = readRow_('projects', sh, r), iq = parseInvites_(q.invites); if (!iq[k] || iq[k].rem) return; iq[k].rem = 1; q.invites = JSON.stringify(iq); putRow_('projects', sh, q, r); p.invites = q.invites; dbFlush_(); });
-          const cr = readAll_('crew').find(x => x.id === k) || {}, to = preStaffTo_(iv); if (to.length) gmailSend_(to.join(','), '⏳ ' + preHuDate_(iv.pd) + '-ig véglegesítsd · ' + (cr.name || '') + ' előfoglalása · ' + p.name, (cr.name || 'A munkatárs') + ' előfoglalása ' + preHuDate_(iv.pd) + '-ig érvényes. Addig küldj neki rendes meghívót (Véglegesítés), vagy engedd el – különben magától megszűnik.\n\n' + appUrl_() + '#p=' + p.id, { name: 'Lumos Motion Projekttervező' }); ch = true; } catch (e) { Logger.log('Előfoglalás-emlékeztető hiba: ' + e); } } }); });
+          const cr = readAll_('crew').find(x => x.id === k) || {}, to = preStaffTo_(iv); if (to.length) gmailSend_(to.join(','), '⏳ ' + preHuDate_(iv.pd) + '-ig véglegesítsd · ' + (cr.name || '') + ' előfoglalása · ' + p.name, 'Addig küldj neki rendes meghívót (Véglegesítés), vagy engedd el – különben magától megszűnik.\n\n' + appUrl_() + '#p=' + p.id, { name: 'Lumos Motion Projekttervező' }); ch = true; } catch (e) { Logger.log('Előfoglalás-emlékeztető hiba: ' + e); } } }); });
   return ch;
 }
 /** Lejárt, megválaszolatlan meghívó = elutasítás (st: 'no', via: 'lejart'). A betöltött projektlistát is frissíti. */

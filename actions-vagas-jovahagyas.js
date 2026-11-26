@@ -704,7 +704,7 @@ function pnInner(pid){const d=S._pn[pid]||{notes:[]},L=d.notes||[],lead=pnLead()
   const CR=pnK(pid).kind==='crew',TTL=CR?'📋 Stáb-instrukciók':'📝 Utómunka-instrukciók';
   if(d.err)return `<summary class="pn-h">${TTL}</summary><p class="hint" style="margin:0">${esc(d.err)}</p>`;
   const openN=L.filter(n=>!n.done).length;
-  const items=L.map(n=>`<div class="pn-item${n.done?' done':''}" data-id="${esc(n.id)}"><div class="pn-meta"><b>${esc(n.by)}</b> · ${fd(n.at)}${n.done?` <span class="pn-ok">✓ kész – ${esc(n.done.by)}</span>`:''}<span class="pn-acts">${lead?`<button type="button" class="linkbtn danger" data-action="pn-del" data-pid="${esc(pid)}" data-id="${esc(n.id)}" title="Törlés">✕</button>`:''}</span></div>
+  const items=L.map(n=>`<div class="pn-item${n.done?' done':''}" data-id="${esc(n.id)}"><div class="pn-meta"><b>${esc(n.by)}</b> · ${fd(n.at)}${n.done?` <span class="pn-ok">✓ kész – ${esc(n.done.by)}</span>`:''}</div>
       <div class="pn-t">${notesHtml(n.t)}</div>
       ${(n.cm||[]).map(c=>`<div class="pn-cm"><b>${esc(c.by)}</b> <span class="muted">${fd(c.at)}</span> ${esc(c.t).replace(/\n/g,'<br>')}</div>`).join('')}
       <div class="pn-reply"><textarea class="inp" rows="1" maxlength="1000" placeholder="Hozzászólás… (Enter: új sor · Ctrl/⌘+Enter: küldés)" data-pn-cm="${esc(n.id)}"></textarea><button type="button" class="btn outline small" data-action="pn-cm" data-pid="${esc(pid)}" data-id="${esc(n.id)}">Küldés</button></div></div>`).join('');
@@ -717,7 +717,7 @@ ACT['pn-add']=b=>{if(PN_BUSY[b.dataset.pid])return;const pid=b.dataset.pid,ta=do
   const nt=document.querySelector(`[data-pn-notify="${CSS.escape(pid)}"]`);PN_BUSY[pid]=1;pnAct(pid,{act:'add',text:t,notify:!nt||nt.checked},b).then(()=>toast('Instrukció mentve')).finally(()=>{delete PN_BUSY[pid];});};
 ACT['pn-cm']=b=>{const pid=b.dataset.pid,id=b.dataset.id,inp=b.parentElement.querySelector('[data-pn-cm]'),t=(inp&&inp.value||'').trim();if(!t)return;pnAct(pid,{act:'comment',id,text:t},b);};
 ACT['pn-done']=b=>pnAct(b.dataset.pid,{act:'done',id:b.dataset.id,done:!!b.dataset.on},b);
-ACT['pn-del']=b=>confirmModal('Instrukció törlése','Biztosan törlöd ezt az instrukciót a hozzászólásaival együtt?','Törlés',()=>pnAct(b.dataset.pid,{act:'del',id:b.dataset.id}));
+/* az instrukciók nem törölhetők (a stáb már megkapta e-mailben – a nyom megmarad) */
 document.addEventListener('keydown',e=>{const t=e.target;if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&t&&t.dataset&&t.dataset.pnCm){e.preventDefault();const b=t.parentElement.querySelector('[data-action="pn-cm"]');if(b)b.click();}});
 document.addEventListener('paste',e=>{const t=e.target&&e.target.closest&&e.target.closest('[data-pn-new]');if(!t)return;const cd=e.clipboardData;if(!cd)return;e.preventDefault();
   const h=cd.getData('text/html'),tx=cd.getData('text/plain');document.execCommand('insertHTML',false,h?rtClean(h):esc(tx).replace(/\r?\n/g,'<br>'));});   // formázott beillesztés (félkövér, lista, sortörés)
