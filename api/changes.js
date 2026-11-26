@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0e7ef88477",
+"at": "2026-11-26T11:35:31+02:00",
+"msg": "Gyors út: a mindig Google-t igénylő lekérések (naptár, beállítások) egyből az Apps Scripthez mennek; ami kétszer a Google-ra szorult, a munkamenetben kihagyja a gyors utat"
+},
+{
 "id": "396031ed44",
 "at": "2026-11-26T11:35:10+02:00",
 "msg": "Gyors út: a betöltés (bootstrap) is gyors – a karbantartó lépései (naptár-visszajelzések, időzítők) háttérfeladatként az Apps Scriptben futnak, legfeljebb 5 percenként; a beállítások listázása a tükörből"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Naptár (havi nézet): a görgetéses hónapváltás nem akad be – váltás után csak a trackpad lendülete van kiszűrve, új mozdulatra (szünet vagy újra gyorsuló görgetés) azonnal vált; egérgörgővel kattanásonként"
 },
 {
-"id": "e61918a208",
-"at": "2026-11-26T09:15:42+01:00",
-"msg": "Saját beosztás: a súgóban nincs „Meghívó kiküldve” sor"
-},
-{
-"id": "aafbb8fcc0",
-"at": "2026-11-26T08:14:50Z",
+"id": "69a7fef528",
+"at": "2026-11-26T08:15:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
