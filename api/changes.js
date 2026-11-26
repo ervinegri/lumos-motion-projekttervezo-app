@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5ed744b90b",
+"at": "2026-11-26T18:06:16+02:00",
+"msg": "Szolgáltatások: 10 px a magyarázó sor alatt"
+},
+{
 "id": "0313e6e896",
 "at": "2026-11-26T18:06:03+02:00",
 "msg": "Szolgáltatások: a magyarázó sor nem csúszik rá az alatta lévő dobozra"
@@ -145,11 +150,6 @@ const ITEMS = [
 "id": "dbd4373627",
 "at": "2026-11-26T15:53:52+01:00",
 "msg": "Telefon: a projektlista dátumkártyája és a mellette lévő hézag keskenyebb"
-},
-{
-"id": "785c77cf63",
-"at": "2026-11-26T15:52:17+01:00",
-"msg": "Telefon: a görgethető ablak (lehetőség) a képernyő magasságában – fejléc fent, gombsor lent rögzítve, csak a tartalom görög (nincs üres rész a gombsor alatt); Pénzügyek panel nyila a jobb szélen"
 }
 ];
 const allowed = require('./_auth.js');
