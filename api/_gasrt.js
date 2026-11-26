@@ -237,7 +237,7 @@ async function runFast(raw) {
     try { r = runOnce(raw, kv); } catch (e) { return { fallback: 'hiba: ' + String(e && e.message).slice(0, 120) }; }
     if (r.gas) return { fallback: r.gas, gas: 1 };
     let j = null; try { j = JSON.parse(r.text); } catch (e) { }
-    if (j && j.ok === false && /AUTH_REQUIRED/.test(String(j.error))) return { fallback: 'munkamenet nincs a tükörben' };
+    if (j && j.ok === false && /AUTH_REQUIRED|^FORBIDDEN/.test(String(j.error))) return { fallback: 'jogosultság – az Apps Script dönt (a tükör lehet, hogy épp frissül)' };   // tiltásnál / ismeretlen munkamenetnél mindig a hiteles forrás dönt
     if (r.RT.writes.length) {
       try { await neonAsync({ queries: r.RT.writes.map(x => ({ query: x.query, params: x.params || [] })) }); }
       catch (e) { if (/division by zero/i.test(String(e && e.message))) { await new Promise(res => setTimeout(res, 40 + Math.random() * 120)); continue; }
