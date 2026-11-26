@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c4a7f2f987",
+"at": "2026-11-26T15:19:38+01:00",
+"msg": "Rögzítés iPhone-on: a hangkörnyezet a kattintáskor indul (különben a Safari felfüggeszti, és a hullámforma áll), érintésre újraindul"
+},
+{
 "id": "348c37cba9",
 "at": "2026-11-26T15:15:52+01:00",
 "msg": "Rögzítés: feltöltés után a sáv helyén feldolgozás-jelző (átirat / összefoglaló készül), egyetlen darabnál nincs félrevezető 0%; az összefoglaló ablaka mellett nincs külön értesítés; OpenAI: a felesleges beszélő-szerinti próbálkozás kimarad"
@@ -120,11 +125,6 @@ const ITEMS = [
 "id": "2cc8360dcd",
 "at": "2026-11-26T12:04:20+01:00",
 "msg": "Értékelés-párosítás: a „Nem párosítható (egyéb)” kategória kivéve"
-},
-{
-"id": "dbb4b351f0",
-"at": "2026-11-26T12:02:48+01:00",
-"msg": "Idővonal: görgetés közben nem vált hónapot / nem szűr sorokat / nem rajzol újra – csak a görgetés megállása után (nem akad)"
 }
 ];
 const allowed = require('./_auth.js');
