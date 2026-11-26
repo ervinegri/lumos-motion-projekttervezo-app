@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b87c83bfc0",
+"at": "2026-11-26T11:10:36+02:00",
+"msg": "Mentés a háttérben: ha egy ablak mentése a szerverre vár, az ablak eltűnik és lehet tovább dolgozni (⏳ Mentés folyamatban jelző); hibánál az ablak a beírt adatokkal visszajön; közben nyitott új ablak a mentés után nyílik"
+},
+{
 "id": "822e215e0e",
 "at": "2026-11-26T11:07:48+02:00",
 "msg": "Sebesség: a műveletenkénti időtartamok a /api/dbstatus-ban is (titok nélkül), a hibakereséshez"
@@ -147,13 +152,8 @@ const ITEMS = [
 "msg": "Projekt fejléce: a betűméret marad, csak a hézagok kisebbek (a nagyítás visszavonva)"
 },
 {
-"id": "b9bab9b78e",
-"at": "2026-11-26T09:04:46+01:00",
-"msg": "Projekt fejléce 20%-kal kompaktabb (asztali nézet)"
-},
-{
-"id": "d076d9469c",
-"at": "2026-11-26T08:03:57Z",
+"id": "e369eabcda",
+"at": "2026-11-26T08:04:56Z",
 "msg": "Változásnapló frissítése"
 }
 ];
