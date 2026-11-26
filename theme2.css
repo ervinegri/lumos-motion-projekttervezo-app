@@ -3582,3 +3582,8 @@ html.pay-lock body .pay-wrap{overscroll-behavior:none!important}
  html body .dhead .btns .btn,html body .dhead .btns .mini{height:28px!important;min-height:28px!important;padding-top:0!important;padding-bottom:0!important;font-size:12px!important;display:inline-flex;align-items:center;box-sizing:border-box}
  html body .dhead .stages{margin-top:2px!important}
 }
+/* lezárt Alapadatok: a mezők csak olvashatónak látszanak (keret és lenyíló nyíl nélkül, halvány háttérrel); a hozzáadó / törlő gombok rejtve */
+html body .ro-lock .inp,html body .ro-lock input:not([type=checkbox]):not([type=radio]),html body .ro-lock textarea,html body .ro-lock .cmb-inp,html body .ro-lock .cmb-in,html body .ro-lock .ph-cc{border-color:transparent!important;background:rgba(20,30,40,.045)!important;box-shadow:none!important;color:var(--fg)!important;-webkit-text-fill-color:var(--fg)!important;opacity:1!important}
+html:where(.ax-stone) body .ro-lock .inp,html:where(.ax-stone) body .ro-lock input:not([type=checkbox]):not([type=radio]),html:where(.ax-stone) body .ro-lock .cmb-inp,html:where(.ax-stone) body .ro-lock .ph-cc{background:rgba(30,30,40,.045)!important}
+html body .ro-lock .cmb-caret,html body .ro-lock .b-day-add,html body .ro-lock .day-del,html body .ro-lock [data-action="day-del"]{display:none!important}
+html body .ro-lock input::placeholder,html body .ro-lock textarea::placeholder{color:transparent!important}
