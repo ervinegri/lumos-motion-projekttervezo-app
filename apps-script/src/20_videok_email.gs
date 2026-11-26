@@ -1314,9 +1314,11 @@ function postNoteAct_(u, a) {
   let note = null;
   withLock_(() => {
     const l = pnLoad_(pid, kind);
-    if (act === 'add') { if (plain(t).length < 2) throw new Error('Írd be az instrukciót.'); note = { id: Utilities.getUuid().slice(0, 8), at: now_(), by: u.name, t: t, done: null, cm: [] }; l.unshift(note); }
+    if (act === 'add') { if (plain(t).length < 2) throw new Error('Írd be az instrukciót.');
+      { const dup = l.find(n => n.by === u.name && n.t === t && String(n.at) >= Utilities.formatDate(new Date(Date.now() - 600000), SHEET_TZ, 'yyyy-MM-dd HH:mm:ss')); if (dup) { note = dup; a.notify = false; return; } }   /* ugyanaz a bejegyzés másodszor (dupla koppintás / hálózati újrapróbálás): nem kerül be újra, levél sem megy ki kétszer */
+      note = { id: Utilities.getUuid().slice(0, 8), at: now_(), by: u.name, t: t, done: null, cm: [] }; l.unshift(note); }
     else { note = l.find(n => n.id === str_(a.id, 20)); if (!note) throw new Error('A bejegyzés nem található.');
-      if (act === 'comment') { if (t.length < 1) throw new Error('Írj valamit.'); note.cm = (note.cm || []).concat([{ at: now_(), by: u.name, t: t }]).slice(-30); }
+      if (act === 'comment') { if (t.length < 1) throw new Error('Írj valamit.'); { const lc = (note.cm || [])[(note.cm || []).length - 1]; if (lc && lc.by === u.name && lc.t === t && String(lc.at) >= Utilities.formatDate(new Date(Date.now() - 600000), SHEET_TZ, 'yyyy-MM-dd HH:mm:ss')) { a.__dup = 1; return; } } note.cm = (note.cm || []).concat([{ at: now_(), by: u.name, t: t }]).slice(-30); }
       else if (act === 'done') note.done = a.done ? { by: u.name, at: now_() } : null;
       else if (act === 'del') l.splice(l.indexOf(note), 1);
       else throw new Error('Ismeretlen művelet.'); }
@@ -1327,7 +1329,7 @@ function postNoteAct_(u, a) {
     const url = appUrl_() + '#p=' + pid, pn = x.p.name, me = String(u.email || '').toLowerCase();
     let to = [];
     if (act === 'add' && a.notify !== false) to = x.crew.map(c => String(c.email || '').trim());
-    if (act === 'comment') { const names = [note.by].concat((note.cm || []).map(c => c.by)); const users = loadUsers_(); to = names.map(n => { const us = users.find(z => z.name === n), cr = readAll_('crew').find(c => c.name === n); return String((us && us.email) || (cr && cr.email) || '').trim(); }); }
+    if (act === 'comment' && !a.__dup) { const names = [note.by].concat((note.cm || []).map(c => c.by)); const users = loadUsers_(); to = names.map(n => { const us = users.find(z => z.name === n), cr = readAll_('crew').find(c => c.name === n); return String((us && us.email) || (cr && cr.email) || '').trim(); }); }
     to = to.filter((m, i) => m && /@/.test(m) && m.toLowerCase() !== me && to.indexOf(m) === i);
     if (to.length) {
       const head = act === 'add' ? u.name + ' új ' + LBL + '-instrukciót írt' : u.name + ' hozzászólt egy ' + LBL + '-instrukcióhoz', tt = act === 'add' ? plain(t) : t, nt = plain(note.t), body = act === 'add' ? tt : tt + '\n\n(Az instrukció: ' + nt + ')';
