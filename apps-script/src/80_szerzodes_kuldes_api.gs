@@ -530,6 +530,7 @@ function rpcInner_(token, name, arg) {
     case 'recProcess': return recProcess_(u, arg);
     case 'recApplyNext': return recApplyNext_(u, arg);
     case 'recDel': return recDel_(u, arg);
+    case 'dealNoteDel': return dealNoteDel_(u, arg);
     case 'geminiSet': adminOnly(); return geminiSet_(u, arg);
     case 'openaiSet': adminOnly(); return openaiSet_(u, arg);
     case 'vidUpStart': return vidUpStart_(u, arg);   // fájl csatolása a videó hozzászólásához

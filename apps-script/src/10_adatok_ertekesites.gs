@@ -538,6 +538,19 @@ function migRecSumPurge_() { const P = PropertiesService.getScriptProperties(), 
     readAll_('deals').forEach(d => { const t = String(d.note || ''); if (recSumPurge_(t) === t) return; const row = findRow_(sh, d.id); if (!row) return; const x = readRow_('deals', sh, row); x.note = recSumPurge_(String(x.note || '')); putRow_('deals', sh, x, row); n++; });
     if (n) { dataBump_(); dbFlush_(); } Logger.log('migRecSumPurge: ' + n); });
   P.setProperty(K, now_()); }
+/** Egy jegyzet-bejegyzés törlése a lehetőségből (ügyvezető vagy a lehetőség értékesítője): a: {dealId, at: 'ÉÉÉÉ-HH-NN ÓÓ:PP', head: a bejegyzés első sora} */
+function dealNoteDel_(u, a) {
+  const did = str_(a && a.dealId, 64), at = String(a && a.at || '').slice(0, 16), head = String(a && a.head || '').trim().slice(0, 80);
+  if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(at)) throw new Error('Hibás bejegyzés.');
+  let note = null;
+  withLock_(() => { const sh = sheetFor_('deals'), row = findRow_(sh, did); if (!row) throw new Error('A lehetőség nem található.'); const x = readRow_('deals', sh, row); dealCan_(u, x);
+    const L = String(x.note || '').split('\n'), out = []; let skip = false, done = false;
+    L.forEach(l => { if (DNOTE_HEAD_RE_.test(l)) { const m = /^\[([^\]·]+?)(?: · [^\]]*)?\] ?(.*)$/.exec(l); skip = !done && !!m && m[1].trim() === at && (!head || String(m[2] || '').trim().slice(0, 80) === head || String(m[2] || '').trim().startsWith(head.slice(0, 40))); if (skip) done = true; } if (!skip) out.push(l); });
+    if (!done) throw new Error('A bejegyzés nem található (lehet, hogy közben már törölték) – frissítsd az oldalt.');
+    x.note = out.join('\n').trim(); x.updatedAt = now_(); x.updatedBy = u.name; putRow_('deals', sh, x, row); dbFlush_(); note = x.note; });
+  logEvent_(u, 'Jegyzet-bejegyzés törölve', did, at);
+  return { note: note, deals: dealsFor_(u) };
+}
 function migNoteHead_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_NOTE_HEAD_1'; if (P.getProperty(K)) return;
   withLock_(() => { const sh = sheetFor_('deals'); let n = 0;
     readAll_('deals').forEach(d => { const t = String(d.note || ''), f = noteHeadFix_(t, dealNoteFb_(d)); if (f === t) return;
