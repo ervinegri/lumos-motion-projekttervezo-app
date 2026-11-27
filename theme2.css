@@ -3766,3 +3766,5 @@ html body .b-grid.svc-locked.ro-lock :is(a[href],.map-link,.cp-btn,.copy-btn,[da
   html body #modalRoot #mform:not(.m-video) .mfoot:has(>.left):has(>button[type=submit])>[data-action=modal-cancel]{grid-column:2!important;grid-row:1!important;width:auto!important;min-width:0!important;margin:0!important;min-height:48px}
   html body #modalRoot #mform:not(.m-video) .mfoot:has(>.left):has(>button[type=submit])>button[type=submit]{grid-column:1/-1!important;grid-row:2!important;width:100%!important;margin:0!important;min-height:50px}
 }
+.bd-ghost1{height:auto;padding:0;background:transparent}
+.bd-ghost1>.bd-card{position:static!important;opacity:1!important;background:#fff!important;box-shadow:0 10px 26px rgba(16,25,35,.22)!important;transform:none!important;margin:0!important;filter:none!important}
