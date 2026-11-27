@@ -109,7 +109,9 @@
     const big=it=>[thumb(g,it,'2048x1024',0),thumb(g,it,'1024x1024',0),thumb(g,it,'640x640',0)];
     const preload=k=>{const it=g.items[(k+N)%N];if(!it||pre[it.id])return;pre[it.id]=new Image();pre[it.id].referrerPolicy='no-referrer';pre[it.id].src=big(it)[0];};
     const fit=()=>{const fr=box.querySelector('.pcg-lb-fr');if(!fr||!fr._nw)return;const W=lb.clientWidth,H=lb.clientHeight,k=Math.min(W/fr._nw,H/fr._nh);fr.style.width=Math.round(fr._nw*k)+'px';fr.style.height=Math.round(fr._nh*k)+'px';};   // a kép a képernyő széléig ér (felnagyítva is)
-    const rs=()=>{if(!lb.isConnected){removeEventListener('resize',rs);return;}fit();};addEventListener('resize',rs);
+    const rs=()=>{if(!lb.isConnected){removeEventListener('resize',rs);removeEventListener('orientationchange',rs);if(window.visualViewport)visualViewport.removeEventListener('resize',rs);return;}
+      const go=()=>{if(!lb.isConnected)return;fit();if(lb._zreset){const fr=box.querySelector('.pcg-lb-fr');lb._zreset();if(fr){fr.style.transition='none';fr.style.transform='';}}};go();[120,350,700].forEach(t=>setTimeout(go,t));};   // elforgatáskor (iOS a méretet késve adja) újra illesztjük, és a nagyítás alaphelyzetbe áll
+    addEventListener('resize',rs);addEventListener('orientationchange',rs);if(window.visualViewport)visualViewport.addEventListener('resize',rs);
     const show=k=>{i=(k+N)%N;const it=g.items[i];if(lb._zreset)lb._zreset();cap.innerHTML=`${esc(it.name)}<small>${i+1} / ${N}${it.folder?' · '+esc(it.folder):''}</small>`;
       box.innerHTML=`<div class="pcg-lb-fr ld"><img alt="${esc(it.name)}" referrerpolicy="no-referrer" draggable="false" src="${esc(thumb(g,it,'320x320',0))}"><span class="pcg-spin"></span>${opts.wm?wmHtml(opts.wm,40):''}</div>`;
       const fr=box.firstChild,im=fr.querySelector('img'),U=big(it);im.addEventListener('load',()=>{if(!fr._nw&&im.naturalWidth){fr._nw=im.naturalWidth;fr._nh=im.naturalHeight;fit();}},{once:true});let u=0;const hi=new Image();hi.referrerPolicy='no-referrer';

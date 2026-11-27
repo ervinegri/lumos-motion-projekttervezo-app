@@ -3756,3 +3756,5 @@ html body .b-grid.svc-locked.ro-lock :is(a[href],.map-link,.cp-btn,.copy-btn,[da
   html body #modalRoot #mform.m-video .mfoot>button[type=submit]{order:1!important}
   html body #modalRoot #mform.m-video .mfoot>.vv-tcw{order:-2!important;flex:1 1 100%!important}
 }
+/* fekvő telefonon (alacsony képernyő) a fotógaléria nem saját görgetősávban van, hanem az ablakkal együtt görög – így nagyobb területen látszik */
+@media (max-height:560px){html body .vv-pcg{max-height:none!important;overflow:visible!important;min-height:0}html body .vv-pcg .pcg-head{position:static;padding:0;background:none}}
