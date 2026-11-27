@@ -3733,3 +3733,6 @@ html body .pt-vbar{height:8px!important;border-radius:5px!important}
  html body #view .crew-tbl tbody tr.crew-row>td:nth-child(3) .crw-l1{max-width:calc(26vw - 16px)}
  html body #view .crew-tbl .crw-l1{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
+/* lezajlott / lezárt projektek a listában: egy fokkal olvashatóbbak (halványak, de jól kivehetők) */
+html body tr.pt-row.pt-dim{opacity:.78!important}
+html body tr.pt-row.pt-dim:hover{opacity:.95!important}
