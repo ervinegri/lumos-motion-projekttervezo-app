@@ -3736,3 +3736,9 @@ html body .pt-vbar{height:8px!important;border-radius:5px!important}
 /* lezajlott / lezárt projektek a listában: egy fokkal olvashatóbbak (halványak, de jól kivehetők) */
 html body tr.pt-row.pt-dim{opacity:.78!important}
 html body tr.pt-row.pt-dim:hover{opacity:.95!important}
+/* Fotógaléria az appon belül (2026-11-27) */
+html body .vv-pcg{min-height:220px;max-height:calc(100dvh - 210px);overflow:auto;padding:2px 4px 2px 2px;overscroll-behavior:contain}
+html body .vv-pcg .pcg-head{position:sticky;top:0;z-index:2;background:var(--bg-card,#fff);padding:4px 0 8px;margin:0 0 4px}
+html.th2 .vv-cm button.vv-ts.vv-pref{min-width:0;font-variant-numeric:normal;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+html.th2 .vv-cm button.vv-ts.vv-pref::before{content:'📷 ';font-size:.9em}
+@media (max-width:860px){html body .vv-pcg{max-height:none;overflow:visible;min-height:0}}

@@ -254,6 +254,13 @@ html,body{overflow-x:clip}
   </section>
   <p class="err" id="err" hidden></p>
 </main>
+<script src="pcgallery.js"></script>
+<style>/* fotógaléria (2026-11-27) */
+.player.foto{aspect-ratio:auto!important;background:transparent!important;overflow:visible!important;border-radius:0!important;max-width:none!important;height:auto!important;max-height:none!important}
+.player.foto .pcg-host{max-height:calc(100dvh - 170px - var(--pvb,0px));overflow:auto;overscroll-behavior:contain;padding:0 4px 4px 0}
+.player.foto .pcg-head{position:sticky;top:0;z-index:2;background:#fff;padding:2px 0 8px;margin:0}
+@media(max-width:860px){.player.foto .pcg-host{max-height:none;overflow:visible}}
+</style>
 <script src="config.js"></script>
 <script src="jovahagyas.js"></script>
 </body>
