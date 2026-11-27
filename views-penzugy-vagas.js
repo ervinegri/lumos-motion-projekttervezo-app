@@ -422,7 +422,7 @@ const boardMe=()=>ro()?((S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId):'';
 /* Ki mozgathatja a kártyát: az első oszlopok (Utómunkára vár, Utómunka alatt, Belső ellenőrzés, Módosítás) között csak a videóhoz rendelt vágó;
    a Belső ellenőrzésből a Jóváhagyásra vár / Jóváhagyva oszlopba (és onnan tovább) csak az ügyvezető és a termelési vezető. */
 const BD_PRE=['vagasra','vagas','ellen','modositas'];
-function bdAllowed(p,v,to){if(v&&(v.pq==='wait'||v.pq==='sent'))return false;   /* fizetős javítás: az árajánlat elfogadásáig zárolva */if(!p||!v||p.status==='atadva'||p.status==='lemondva'||v.st==='jovahagyva')return false;if(v.st==='vagasra'&&typeof rawWait==='function'&&rawWait(p))return false;
+function bdAllowed(p,v,to){if(v&&(v.pq==='wait'||v.pq==='sent'))return false;   /* fizetős javítás: az árajánlat elfogadásáig zárolva */if(!p||!v||p.status==='atadva'||p.status==='lemondva'||v.st==='jovahagyva')return false;if(v.st==='vagasra'&&typeof rawWait==='function'&&rawWait(p,v))return false;
   const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),me=ro()?boardMe():String(S.me&&S.me.crewId||''),ow=vidOwner(p,v),mine=!ow||(!!me&&ow===me);
   if(['vagasra','vagas','modositas'].includes(v.st)&&to==='leadva'&&mgr&&!!me&&ow===me)return true;   /* a saját utómunkáját az ügyvezető / termelési vezető belső ellenőrzés nélkül, egyenesen az ügyfélnek adhatja */
   if(BD_PRE.includes(v.st)&&BD_PRE.includes(to)){if(!mine)return false;if(mgr)return true;
@@ -439,7 +439,9 @@ const vidOwner=(p,v)=>{
   return cutters.length===1?cutters[0]:'';
 };
 /* Utómunkára vár: a kártya addig szürke és nem mozdítható, amíg nincs fent a nyersanyag (vagy még nem volt a forgatás) */
-function rawWait(p){const r=pr(p);if(!r||editOnly(p))return '';if(r.start>todayISO())return '⏳ Még nem volt a forgatás – a nyersanyag feltöltése után indulhat az utómunka';if(typeof rawPending==='function'&&rawPending(p))return '⏳ A nyersanyag még nincs feltöltve – amint a termelési vezető a projektet az Utómunka lépésbe teszi, indulhat a vágás';return '';}
+function rawWait(p,v){const r=pr(p);if(!r||editOnly(p))return '';if(r.start>todayISO())return '⏳ Még nem volt a forgatás – a nyersanyag feltöltése után indulhat az utómunka';
+  if(v&&v.k==='foto')return '';   /* a fotók utómunkája: a fotós a saját képeit dolgozza fel – nem kell a nyersanyag-feltöltésre várni */
+  if(typeof rawPending==='function'&&rawPending(p))return '⏳ A nyersanyag még nincs feltöltve – amint a termelési vezető a projektet az Utómunka lépésbe teszi, indulhat a vágás';return '';}
 function boardCards(only){const me=boardMe(),f=S.boardCut||'';const out=[];   // only: egy projekt videói (a lezárt / Kész projekté is – pl. a naptárból megnyitva)
   S.projects.forEach(p=>{if(only&&p.id!==only)return;if(p.status==='lemondva'||(p.status==='atadva'&&!only)||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const ow=vidOwner(p,v);if(me&&ow!==me)return;if(!me&&f&&ow!==f)return;out.push({p,v,ow});});});
   return out;}
@@ -449,7 +451,7 @@ function boardLanes(cards,opt){opt=opt||{};const mgr=!ro()&&(isAdmin()||(S.me&&S
   const canMove=(c,to)=>bdAllowed(c.p,c.v,to);   // a vágó csak „Utómunka alatt” és „Belső ellenőrzés” oszlopba húzhat; az ügyfél-jóváhagyásba csak ügyvezető / termelési vezető
   const nextOf=st=>({modositas:'vagas',vagasra:'vagas',vagas:'ellen',ellen:mgr?'leadva':''})[st]||'';
   const card=c=>{const nx=nextOf(c.v.st),nl=nx?(BOARD_COLS.find(x=>x[0]===nx)||[])[1]:'',drag=canMove(c,nx||c.v.st);
-    const rw=c.v.st==='vagasra'?rawWait(c.p):'';
+    const rw=c.v.st==='vagasra'?rawWait(c.p,c.v):'';
     return `<div class="bd-card st-${esc(c.v.st)}${c.v.link?' has-link':''}${rw?' bd-wait':''}"${rw?` data-tip="${esc(rw)}"`:''}${drag?' draggable="true"':''} data-action="vid-view" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-bd-pid="${esc(c.p.id)}" data-bd-vid="${esc(c.v.id)}" data-bd-st="${esc(c.v.st)}"><div class="bd-t">${esc(c.v.k==='foto'?'📷 Fotók utómunkája':c.v.name)}</div>${(()=>{const tg=revPill(c.v)+seenPill(c.v);return tg?`<div class="bd-tags">${tg}</div>`:'';})()}
       ${mgr||nx?`<div class="bd-m">${mgr?`<span class="bd-who">${esc((c.v.k==='foto'?'📷 ':'✂️ ')+(nmShort((crewById(c.ow)||{}).name||'')||'Kiosztásra vár'))}</span>`:''}${nx&&canMove(c,nx)?`<button type="button" class="bd-next" data-action="bd-move" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-st="${nx}" title="Tovább: ${esc(nl.replace(/^\S+\s/,''))}">→</button>`:''}</div>`:''}</div>`;};
   const byP=new Map();cards.forEach(c=>{if(!byP.has(c.p.id))byP.set(c.p.id,{p:c.p,L:[]});byP.get(c.p.id).L.push(c);});
