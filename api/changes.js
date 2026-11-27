@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e7a86d6b50",
+"at": "2026-11-27T20:56:20+01:00",
+"msg": "Fotógaléria az appon belül (belső ellenőrzés + ügyfél jóváhagyó oldal): bélyegképek, nagyítás, lapozás, képre szóló megjegyzés"
+},
+{
 "id": "0a82aac294",
 "at": "2026-11-27T15:10:10+02:00",
 "msg": "Projektlista: a lezajlott / lezárt sorok olvashatóbbak"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "E-mailek: a tárgyban szereplő projekt- / videónév nem ismétlődik a levélben; az instrukciók nem törölhetők"
 },
 {
-"id": "9e0292ebd1",
-"at": "2026-11-26T21:12:45+02:00",
-"msg": "Instrukciók: ugyanaz a bejegyzés / hozzászólás nem kerül be kétszer (dupla koppintás, hálózati újrapróbálás), a levél sem megy ki újra"
-},
-{
-"id": "2a8cfaa8cf",
-"at": "2026-11-26T19:11:32Z",
+"id": "51cd983524",
+"at": "2026-11-26T19:12:54Z",
 "msg": "Változásnapló frissítése"
 }
 ];
