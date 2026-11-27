@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "484593b617",
+"at": "2026-11-27T21:56:50+01:00",
+"msg": "Kártya húzása: tiszta fehér húzási kép (telefonon nem szürke, fekete sarkú), a halványítás utána jön"
+},
+{
 "id": "c954060cfd",
 "at": "2026-11-27T21:54:31+01:00",
 "msg": "Ablak alja mobilon (bal oldali gombbal): két egyforma mellékgomb, alatta a fő gomb teljes szélességben"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "25ada52641",
 "at": "2026-11-26T22:00:26+02:00",
 "msg": "iOS: az állapotsor saját sávot kap (default) – a felső menü nem homályosodik el (újratelepítés után); újdonság a többieknek"
-},
-{
-"id": "4d8325432b",
-"at": "2026-11-26T21:53:44+02:00",
-"msg": "Indítóképernyő: felfedés után kikerül az oldalból (iOS fejléc-homály gyanús rétege)"
 }
 ];
 const allowed = require('./_auth.js');
