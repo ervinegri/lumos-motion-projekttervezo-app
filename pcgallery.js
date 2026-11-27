@@ -83,7 +83,7 @@
   function wmHtml(wm,n){const t=['LUMOS MOTION','JÓVÁHAGYÁSRA – NEM VÉGLEGES'].concat(typeof wm==='string'&&wm?[wm]:[]);return '<div class="pcg-wm" aria-hidden="true">'+Array.from({length:n},(_,k)=>'<span>'+esc(t[k%t.length])+'</span>').join('')+'</div>';}
   const norm=s=>String(s||'').trim().toLowerCase();
 
-  function mount(el,link,opts){opts=opts||{};if(!el||!parse(link))return null;css();
+  function mount(el,link,opts){opts=Object.assign({},opts||{});if(!el||!parse(link))return null;css();opts._el=el;
     const ctl={g:null,open:()=>{},el};el.classList.add('pcg');el.innerHTML='<div class="pcg-load"><span class="pcg-spin"></span>Fotók betöltése…</div>';
     const ext=opts.wm?'':`<a href="${esc(link)}" target="_blank" rel="noopener">Megnyitás a pCloudban ↗</a>`;
     list(link).then(g=>{if(!el.isConnected)return;
@@ -101,6 +101,7 @@
     el._pcg=ctl;return ctl;}
 
   function lightbox(g,i,opts){document.querySelectorAll('.pcg-lb').forEach(x=>x.remove());
+    const own=opts._el;
     const lb=document.createElement('div');lb.className='pcg-lb';lb.setAttribute('role','dialog');lb.setAttribute('aria-modal','true');lb.tabIndex=-1;
     lb.innerHTML=`<div class="pcg-lb-top"><div class="pcg-lb-cap"></div>${opts.onNote?'<button type="button" class="pcg-lb-note">💬 Megjegyzés ehhez a képhez</button>':''}<button type="button" class="pcg-lb-x" aria-label="Bezárás">✕</button></div>
       <div class="pcg-lb-mid"><button type="button" class="pcg-lb-nav p" aria-label="Előző kép"><i>‹</i></button><div class="pcg-lb-box"></div><button type="button" class="pcg-lb-nav n" aria-label="Következő kép"><i>›</i></button></div>`;
@@ -118,7 +119,8 @@
     const close=()=>{lb.remove();document.removeEventListener('keydown',key,true);if(opts._focus&&opts._focus.focus)try{opts._focus.focus();}catch(e){}};
     const key=e=>{if(!lb.isConnected){document.removeEventListener('keydown',key,true);return;}
       if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();}else if(lb._zkey&&lb._zkey(e)){e.preventDefault();e.stopPropagation();}else if(e.key==='ArrowRight'){e.preventDefault();e.stopPropagation();show(i+1);}else if(e.key==='ArrowLeft'){e.preventDefault();e.stopPropagation();show(i-1);}};
-    document.addEventListener('keydown',key,true);   // elsőként kapja: az Esc csak a nagyítást zárja be, az alatta lévő ablakot nem
+    document.addEventListener('keydown',key,true);
+    const watch=setInterval(()=>{if(!lb.isConnected){clearInterval(watch);return;}if(own&&!own.isConnected)close();},800);   // ha az alatta lévő ablak bezárult (pl. vissza gomb), a nagyítás se maradjon fent   // elsőként kapja: az Esc csak a nagyítást zárja be, az alatta lévő ablakot nem
     lb.addEventListener('click',e=>{const t=e.target;if(t.closest('.pcg-lb-x'))return close();if(t.closest('.pcg-lb-nav.p'))return show(i-1);if(t.closest('.pcg-lb-nav.n'))return show(i+1);
       if(t.closest('.pcg-lb-note')){const nm=g.items[i].name;close();try{opts.onNote(nm);}catch(er){}return;}
       if(t===lb||t.classList.contains('pcg-lb-mid')||t.classList.contains('pcg-lb-box'))close();});
