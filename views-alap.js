@@ -531,10 +531,10 @@ function viewProjects(){
   const T=todayISO(),f=S.pf,q=f.q.trim().toLowerCase();
   const filters=[['aktiv','Aktív',S.projects.filter(isOpen).length],...STAGES.map(s=>[s.id,s.label,S.projects.filter(p=>(p.status||'tervezes')===s.id).length]),['lemondva','Lemondva',S.projects.filter(p=>p.status==='lemondva').length],['mind','Mind',S.projects.length]];
   let list=ro()?S.projects.filter(p=>!p.invPending):S.projects;   /* függő meghívás: a Meghívások dobozban van */   /* az állapotszűrő sor kikerült (Ervin kérése, 2026-11-09): minden projekt látszik */
-  if(ro()&&S.me&&(S.me.crewId||(S.me.viewAs&&S.me.viewAs.crewId))){const me=(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId,T0=todayISO();   /* szakember: csak az aktív beosztások – jövőbeli, most zajló, vagy vágás / jóváhagyás alatt, ha ő a vágó */
+  if(ro()&&S.me&&(S.me.crewId||(S.me.viewAs&&S.me.viewAs.crewId))){const me=(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId,T0=todayISO();   /* szakember: csak az aktív beosztások – jövőbeli, most zajló, vagy (a forgatás után is, amíg a projekt még a Helyszíni munka lépésben van) vágás / jóváhagyás alatt, ha övé az utómunka */
     list=list.filter(p=>{if(p.status==='lemondva')return false;const r=pr(p);if(!r||(r.end||r.start)>=T0)return true;
       const cut=crewPostWork(p,me)||(p.videos||[]).some(v=>vidOwner(p,v)===me);
-      return cut&&p.status!=='atadva'&&['utomunka','jovahagyas','leadva'].includes(p.status||'')&&(p.videos||[]).filter(v=>vidOwner(p,v)===me).some(v=>v.st!=='jovahagyva');});}
+      return cut&&p.status!=='atadva'&&['helyszin','utomunka','jovahagyas','leadva'].includes(p.status||'')&&(p.videos||[]).filter(v=>vidOwner(p,v)===me).some(v=>v.st!=='jovahagyva');});}
   if(q)list=list.filter(p=>fold([p.name,p.client,p.venue,p.eventType,p.contactName].join(' ')).includes(fold(q)));
   const closed=p=>p.status==='atadva'||p.status==='lemondva';
   const ahead=list.filter(p=>!closed(p)&&(!pr(p)||pr(p).end>=T)).sort((a,b)=>!pr(a)?1:!pr(b)?-1:byStart(b,a));   // terepi munkára vár (dátum nélküliek a végén)
