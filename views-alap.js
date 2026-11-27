@@ -261,7 +261,8 @@ function render(force){try{fixLegacyRoles();}catch(e){}setTimeout(appReveal,0);s
   try{if(window.tlNameFix)tlNameFix();}catch(e){}   /* idővonal: a balra kicsúszó sávok neve látható marad */   /* tablet: a projekt neve oszlop rögzítése */   /* telefonon a Fizetések tábla egyetlen görgető felületen (a fejléc a táblával együtt görget) */
   pwN=VIEW.querySelector('.dock-wrap')||pwN;if(pwKeep){pwN.scrollLeft=pwS.l;pwN.scrollTop=pwS.t;}
   try{const tb=document.querySelector('.topbar'),dw=VIEW.querySelector('.dock-wrap');if(document.body.classList.contains('pay-dock')&&dw&&window.payDockSync)payDockSync(dw);else if(tb&&tb.style.transform){tb.style.transform='';tb.style.transition='';}}catch(e){}
-  {const dp=S.tab==='projektek'&&S.projectId&&S.draft;VIEW.classList.toggle('proj-done',!!(dp&&(S.draft.status==='atadva'||(ro()&&crewPast(S.draft)))));}   /* lezárt projekt: minden szürke */
+  {const dp=S.tab==='projektek'&&S.projectId&&S.draft;const myOpen=()=>{try{const me=boardMe();return !!me&&(S.draft.videos||[]).some(v=>vidOwner(S.draft,v)===me&&v.st!=='jovahagyva');}catch(e){return false;}};   /* a szakembernek még van saját, nem jóváhagyott utómunkája */
+    VIEW.classList.toggle('proj-done',!!(dp&&(S.draft.status==='atadva'||(ro()&&crewPast(S.draft)&&!myOpen()))));}   /* lezárt projekt: minden szürke – a szakembernél csak ha már nincs dolga rajta */
   VIEW.querySelectorAll('textarea.inp').forEach(autoGrow);
   markReq();zebra(VIEW);
   syncHash();
