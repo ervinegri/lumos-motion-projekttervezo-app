@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "db2d6c61fc",
+"at": "2026-11-27T21:47:05+01:00",
+"msg": "Lehúzásos frissítés: csak a nagyított fotón tiltva; a nagyítás bezárul az ablakkal; actions-dijcsokkentes betöltési hiba javítva"
+},
+{
 "id": "c0c383c663",
 "at": "2026-11-27T21:44:37+01:00",
 "msg": "Nagyított fotón a lehúzás nem frissíti az oldalt"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "iPhone / iPad: az appon belüli navigáció nem ír előzmény-bejegyzést (iOS 26.2 hiba: elhomályosodó felső menü)"
 },
 {
-"id": "35278c7ccb",
-"at": "2026-11-26T21:36:35+02:00",
-"msg": "Visszavonva: a rugózás tiltása nem oldotta meg a felső menü homályát"
-},
-{
-"id": "d8a66f0872",
-"at": "2026-11-26T19:32:36Z",
+"id": "13f4fafe65",
+"at": "2026-11-26T19:36:45Z",
 "msg": "Változásnapló frissítése"
 }
 ];
