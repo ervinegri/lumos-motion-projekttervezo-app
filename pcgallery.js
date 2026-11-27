@@ -14,7 +14,7 @@
 .pcg-head a{margin-left:auto;color:inherit;font-size:12px;text-decoration:none;opacity:.85}
 .pcg-head a:hover{text-decoration:underline;opacity:1}
 .pcg-fold{margin:14px 0 6px;font-size:12px;font-weight:700;color:#56656f;text-transform:uppercase;letter-spacing:.04em}
-.pcg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:6px}
+.pcg-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .pcg-t{position:relative;aspect-ratio:1;border:0;padding:0;margin:0;border-radius:8px;overflow:hidden;background:#e6ecf1;cursor:zoom-in;display:block;width:100%}
 .pcg-t img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s;-webkit-user-drag:none;user-select:none}
 .pcg-t:hover img{transform:scale(1.04)}
@@ -31,24 +31,30 @@
 .pcg-wm{position:absolute;inset:0;pointer-events:none;overflow:hidden;display:flex;flex-wrap:wrap;align-content:space-around;justify-content:space-around;gap:18px 28px;padding:10px;transform:rotate(-24deg) scale(1.5);opacity:.55}
 .pcg-wm span{color:rgba(255,255,255,.75);font:700 11px/1 Arial,sans-serif;letter-spacing:.06em;text-shadow:0 0 2px rgba(0,0,0,.6);white-space:nowrap}
 .pcg-lb .pcg-wm span{font-size:15px}
-.pcg-lb{position:fixed;inset:0;z-index:2147483000;background:rgba(8,12,18,.94);display:flex;flex-direction:column;color:#fff;touch-action:pan-y;user-select:none}
-.pcg-lb-top{display:flex;align-items:center;gap:10px;padding:10px 12px;min-height:52px}
-.pcg-lb-cap{flex:1;min-width:0;font-size:13px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pcg-lb-cap small{opacity:.65;margin-left:8px}
+.pcg-lb{position:fixed;inset:0;z-index:2147483000;background:#05080c;color:#fff;touch-action:pan-y;user-select:none;overflow:hidden}
+.pcg-lb-top{position:absolute;left:0;right:0;top:0;z-index:4;display:flex;align-items:center;gap:10px;padding:12px 14px 26px;min-height:52px;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,0));pointer-events:none}
+.pcg-lb-top>*{pointer-events:auto}
+.pcg-lb-cap{flex:1;min-width:0;font-size:13px;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.pcg-lb-cap small{opacity:.75;margin-left:8px}
 .pcg-lb button{font:inherit;cursor:pointer}
-.pcg-lb-x,.pcg-lb-nav{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:50%;width:42px;height:42px;font-size:20px;display:flex;align-items:center;justify-content:center;flex:none}
-.pcg-lb-x:hover,.pcg-lb-nav:hover{background:rgba(255,255,255,.24)}
-.pcg-lb-note{border:0;background:#fff;color:#101923;font-weight:700;border-radius:10px;padding:9px 14px;font-size:13px;flex:none}
-.pcg-lb-mid{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 10px 14px}
-.pcg-lb-box{position:relative;max-width:100%;max-height:100%;display:flex;align-items:center;justify-content:center;flex:1;min-width:0;height:100%}
-.pcg-lb-fr{position:relative;display:inline-block;max-width:100%;max-height:100%;line-height:0}
-.pcg-lb-fr img{max-width:100%;max-height:calc(100dvh - 90px);object-fit:contain;display:block;border-radius:4px;-webkit-user-drag:none}
-.pcg-lb-fr.ld img{opacity:.35}
+.pcg-lb-x{border:0;background:rgba(0,0,0,.45);color:#fff;border-radius:50%;width:46px;height:46px;font-size:22px;display:flex;align-items:center;justify-content:center;flex:none}
+.pcg-lb-x:hover{background:rgba(0,0,0,.7)}
+.pcg-lb-note{border:0;background:#fff;color:#101923;font-weight:700;border-radius:10px;padding:10px 15px;font-size:13px;flex:none;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.pcg-lb-mid{position:absolute;inset:0}
+.pcg-lb-box{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.pcg-lb-nav{position:absolute;top:0;bottom:0;z-index:3;width:min(18%,170px);border:0;background:transparent;padding:0;display:flex;align-items:center;color:#fff}
+.pcg-lb-nav.p{left:0;justify-content:flex-start;padding-left:18px}.pcg-lb-nav.n{right:0;justify-content:flex-end;padding-right:18px}
+.pcg-lb-nav i{font-style:normal;width:84px;height:84px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:54px;line-height:1;padding-bottom:6px;box-shadow:0 2px 14px rgba(0,0,0,.4);transition:background .15s,transform .15s}
+.pcg-lb-nav:hover i{background:rgba(0,0,0,.78);transform:scale(1.06)}
+.pcg-lb-nav[hidden]{display:none}
+.pcg-lb-fr{position:relative;line-height:0;flex:none}
+.pcg-lb-fr img{width:100%;height:100%;display:block;object-fit:contain;-webkit-user-drag:none}
+.pcg-lb-fr.ld img{opacity:.45}
 .pcg-lb-fr .pcg-spin{position:absolute;left:50%;top:50%;margin:-11px 0 0 -11px;border-color:rgba(255,255,255,.25);border-top-color:#fff}
-.pcg-lb-fail{font-size:14px;opacity:.8;text-align:center;line-height:1.5}
+.pcg-lb-fail{font-size:14px;opacity:.8;text-align:center;line-height:1.5;padding:0 20px}
 @media(hover:none){.pcg-t:hover img{transform:none}.pcg-t:hover .pcg-nm{opacity:0}.pcg-t.noimg .pcg-nm{opacity:1}}
 @media(max-width:700px){.pcg-head{flex-wrap:nowrap;margin:0 0 8px}.pcg-head span{display:none}.pcg-head a{white-space:nowrap}}
-@media(max-width:700px){.pcg-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:4px}.pcg-lb-nav{position:absolute;top:50%;margin-top:-21px;z-index:2;background:rgba(0,0,0,.35)}.pcg-lb-nav.p{left:6px}.pcg-lb-nav.n{right:6px}.pcg-lb-mid{padding:0 0 10px}.pcg-lb-note{padding:8px 10px;font-size:12px}}
+@media(max-width:700px){.pcg-grid{gap:4px}.pcg-lb-nav{width:22%}.pcg-lb-nav.p{padding-left:8px}.pcg-lb-nav.n{padding-right:8px}.pcg-lb-nav i{width:62px;height:62px;font-size:42px}.pcg-lb-note{padding:8px 10px;font-size:12px}}
 `;
   function css(){if(document.getElementById('pcg-css'))return;const s=document.createElement('style');s.id='pcg-css';s.textContent=CSS;document.head.appendChild(s);}
   const CACHE={};
@@ -75,7 +81,7 @@
       if(!g||g.err){el.innerHTML=`<div class="pcg-err">${esc(g&&g.err||'A galériát nem sikerült betölteni.')}${opts.wm?'':`<a href="${esc(link)}" target="_blank" rel="noopener">📷 Fotók megnyitása</a>`}</div>`;if(opts.onFail)try{opts.onFail(g&&g.err);}catch(e){}return;}
       ctl.g=g;const multi=new Set(g.items.map(x=>x.folder)).size>1;let h='',last=null;
       g.items.forEach((it,i)=>{if(multi&&it.folder!==last){if(last!==null)h+='</div>';h+=`<div class="pcg-fold">${esc(it.folder||'Fő mappa')}</div><div class="pcg-grid">`;last=it.folder;}else if(i===0)h+='<div class="pcg-grid">';
-        h+=`<button type="button" class="pcg-t" data-i="${i}" title="${esc(it.name)}"><img loading="lazy" decoding="async" alt="${esc(it.name)}" referrerpolicy="no-referrer" draggable="false" src="${esc(thumb(g,it,'320x320',1))}">${opts.wm?wmHtml(opts.wm,6):''}<span class="pcg-nm">${esc(it.name)}</span></button>`;});
+        h+=`<button type="button" class="pcg-t" data-i="${i}" title="${esc(it.name)}"><img loading="lazy" decoding="async" alt="${esc(it.name)}" referrerpolicy="no-referrer" draggable="false" src="${esc(thumb(g,it,'480x480',1))}">${opts.wm?wmHtml(opts.wm,6):''}<span class="pcg-nm">${esc(it.name)}</span></button>`;});
       el.innerHTML=`<div class="pcg-head"><b>📷 ${g.items.length} fotó</b>${opts.onNote?'<span>Kattints egy képre a nagyításhoz – onnan megjegyzést is fűzhetsz hozzá.</span>':'<span>Kattints egy képre a nagyításhoz.</span>'}${ext}</div>${h}</div>`;
       el.querySelectorAll('.pcg-t img').forEach(im=>im.addEventListener('error',()=>{const b=im.closest('.pcg-t');if(b)b.classList.add('noimg');im.remove();},{once:true}));
       if(opts.wm)el.addEventListener('contextmenu',e=>{if(e.target.closest('.pcg-t'))e.preventDefault();});
@@ -88,14 +94,16 @@
   function lightbox(g,i,opts){document.querySelectorAll('.pcg-lb').forEach(x=>x.remove());
     const lb=document.createElement('div');lb.className='pcg-lb';lb.setAttribute('role','dialog');lb.setAttribute('aria-modal','true');lb.tabIndex=-1;
     lb.innerHTML=`<div class="pcg-lb-top"><div class="pcg-lb-cap"></div>${opts.onNote?'<button type="button" class="pcg-lb-note">💬 Megjegyzés ehhez a képhez</button>':''}<button type="button" class="pcg-lb-x" aria-label="Bezárás">✕</button></div>
-      <div class="pcg-lb-mid"><button type="button" class="pcg-lb-nav p" aria-label="Előző kép">‹</button><div class="pcg-lb-box"></div><button type="button" class="pcg-lb-nav n" aria-label="Következő kép">›</button></div>`;
+      <div class="pcg-lb-mid"><button type="button" class="pcg-lb-nav p" aria-label="Előző kép"><i>‹</i></button><div class="pcg-lb-box"></div><button type="button" class="pcg-lb-nav n" aria-label="Következő kép"><i>›</i></button></div>`;
     document.body.appendChild(lb);const box=lb.querySelector('.pcg-lb-box'),cap=lb.querySelector('.pcg-lb-cap'),N=g.items.length,pre={};
     const big=it=>[thumb(g,it,'2048x1024',0),thumb(g,it,'1024x1024',0),thumb(g,it,'640x640',0)];
     const preload=k=>{const it=g.items[(k+N)%N];if(!it||pre[it.id])return;pre[it.id]=new Image();pre[it.id].referrerPolicy='no-referrer';pre[it.id].src=big(it)[0];};
+    const fit=()=>{const fr=box.querySelector('.pcg-lb-fr');if(!fr||!fr._nw)return;const W=lb.clientWidth,H=lb.clientHeight,k=Math.min(W/fr._nw,H/fr._nh);fr.style.width=Math.round(fr._nw*k)+'px';fr.style.height=Math.round(fr._nh*k)+'px';};   // a kép a képernyő széléig ér (felnagyítva is)
+    const rs=()=>{if(!lb.isConnected){removeEventListener('resize',rs);return;}fit();};addEventListener('resize',rs);
     const show=k=>{i=(k+N)%N;const it=g.items[i];cap.innerHTML=`${esc(it.name)}<small>${i+1} / ${N}${it.folder?' · '+esc(it.folder):''}</small>`;
       box.innerHTML=`<div class="pcg-lb-fr ld"><img alt="${esc(it.name)}" referrerpolicy="no-referrer" draggable="false" src="${esc(thumb(g,it,'320x320',0))}"><span class="pcg-spin"></span>${opts.wm?wmHtml(opts.wm,40):''}</div>`;
-      const fr=box.firstChild,im=fr.querySelector('img'),U=big(it);let u=0;const hi=new Image();hi.referrerPolicy='no-referrer';
-      hi.onload=()=>{if(g.items[i]!==it)return;im.src=hi.src;fr.classList.remove('ld');const s=fr.querySelector('.pcg-spin');if(s)s.remove();};
+      const fr=box.firstChild,im=fr.querySelector('img'),U=big(it);im.addEventListener('load',()=>{if(!fr._nw&&im.naturalWidth){fr._nw=im.naturalWidth;fr._nh=im.naturalHeight;fit();}},{once:true});let u=0;const hi=new Image();hi.referrerPolicy='no-referrer';
+      hi.onload=()=>{if(g.items[i]!==it)return;fr._nw=hi.naturalWidth;fr._nh=hi.naturalHeight;fit();im.src=hi.src;fr.classList.remove('ld');const s=fr.querySelector('.pcg-spin');if(s)s.remove();};
       hi.onerror=()=>{if(g.items[i]!==it)return;if(++u<U.length)hi.src=U[u];else{box.innerHTML='<div class="pcg-lb-fail">Ezt a képet a pCloud nem tudja előnézetben megjeleníteni'+(IMG.test(it.name)&&/\.(dng|cr2|cr3|nef|arw|raf|orf|rw2|tiff?)$/i.test(it.name)?' (nyers / TIFF formátum)':'')+'.</div>';}};hi.src=U[0];
       lb.querySelector('.pcg-lb-nav.p').hidden=lb.querySelector('.pcg-lb-nav.n').hidden=N<2;preload(i+1);preload(i-1);};
     const close=()=>{lb.remove();document.removeEventListener('keydown',key,true);if(opts._focus&&opts._focus.focus)try{opts._focus.focus();}catch(e){}};
