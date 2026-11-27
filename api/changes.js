@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b4cd97ddcf",
+"at": "2026-11-27T14:57:57+02:00",
+"msg": "Termelési vezető: a nézetváltóban csak a saját és a szakember nézet (az ügyvezetői és értékesítői sor ki sem kerül a listába)"
+},
+{
 "id": "e894131efc",
 "at": "2026-11-27T14:55:55+02:00",
 "msg": "Utómunka tábla: a fotók utómunkája nem vár a nyersanyag-feltöltésre (a fotós a saját képeit dolgozza fel) – a szakember azonnal mozgathatja"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Projekt fejléc: a ragadós címsáv nem takarja ki a gombokat (az új elrendezésben is jól érzékeli, mikor csúszik ki a cím)"
 },
 {
-"id": "1f0186256b",
-"at": "2026-11-26T18:09:28+02:00",
-"msg": "Projekt fejléc (gép): gombok a név sorában, a leírás alul a teljes szélességben"
-},
-{
-"id": "511ce73c3e",
-"at": "2026-11-26T16:06:25Z",
+"id": "6518b46b3e",
+"at": "2026-11-26T16:09:37Z",
 "msg": "Változásnapló frissítése"
 }
 ];
