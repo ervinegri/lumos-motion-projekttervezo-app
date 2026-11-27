@@ -3768,3 +3768,7 @@ html body .b-grid.svc-locked.ro-lock :is(a[href],.map-link,.cp-btn,.copy-btn,[da
 }
 .bd-ghost1{height:auto;padding:0;background:transparent}
 .bd-ghost1>.bd-card{position:static!important;opacity:1!important;background:#fff!important;box-shadow:0 10px 26px rgba(16,25,35,.22)!important;transform:none!important;margin:0!important;filter:none!important}
+/* fekvő telefon: a projekt videótáblája (ablak) a teljes magasságot kitölti – magasabb fehér rész, nagyobb oszlopok a húzáshoz */
+@media (orientation:landscape) and (max-height:560px){
+  html body #modalRoot #mform.mbox:has(.bd-modal){height:calc(100dvh - 12px)!important;max-height:calc(100dvh - 12px)!important;margin-block:6px!important}
+}
