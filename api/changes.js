@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2df2c2ed8c",
+"at": "2026-11-27T15:01:46+02:00",
+"msg": "Szakember: a lezajlott projekt nem szürkül el, amíg van rajta saját, nem jóváhagyott utómunkája"
+},
+{
 "id": "6fd8d5ad95",
 "at": "2026-11-27T14:59:31+02:00",
 "msg": "Szakember: a lezajlott, de még Helyszíni munka lépésben lévő projekt is látszik, ha övé az utómunka (pl. fotók)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Projekt fejléc (gép): dátumkártya 54 px"
 },
 {
-"id": "ac9cfb416c",
-"at": "2026-11-26T18:11:43+02:00",
-"msg": "Projekt fejléc (gép): szélesebb dátumkártya"
-},
-{
-"id": "ecea2e1096",
-"at": "2026-11-26T16:10:48Z",
+"id": "b72a3c2e15",
+"at": "2026-11-26T16:11:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
