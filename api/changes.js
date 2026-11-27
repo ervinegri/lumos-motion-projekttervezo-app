@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "abacdd52c8",
+"at": "2026-11-27T15:05:39+02:00",
+"msg": "Szakember, Lezárt projektek: csak az előző hónap elejétől"
+},
+{
 "id": "446f3c20d0",
 "at": "2026-11-27T15:02:45+02:00",
 "msg": "Szakember: „Lezárt projektek” gomb a Beosztásaim alján – a korábbi beosztások is visszanézhetők"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Szakaszok állapota csak ugyanannál a projektnél töltődik vissza"
 },
 {
-"id": "dec1ec1e67",
-"at": "2026-11-26T18:13:54+02:00",
-"msg": "Projekt oldal: frissítés után a szakaszok nem nyílnak ki – a nyitott / csukott állapot megmarad"
-},
-{
-"id": "5713e5d037",
-"at": "2026-11-26T16:12:55Z",
+"id": "439434e446",
+"at": "2026-11-26T16:14:04Z",
 "msg": "Változásnapló frissítése"
 }
 ];
