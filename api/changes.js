@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2947083651",
+"at": "2026-11-27T21:50:05+01:00",
+"msg": "Videó/fotó ablak alja mobilon: Bezárás kis ✕ gomb, a fő gombok felirata nem vágódik le"
+},
+{
 "id": "491f5dd4e2",
 "at": "2026-11-27T21:48:27+01:00",
 "msg": "Fotónagyítás: a léptető nyilak gyors dupla nyomása két lapozás, nem nagyítás"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "iOS: menet közben a cím sem változik (elhomályosodó menü elleni második próba); telefonon fele olyan széles utómunka-oszlopok"
 },
 {
-"id": "5c05dc9b0b",
-"at": "2026-11-26T21:39:17+02:00",
-"msg": "Telefon, projekt oldal: a szakaszok széltől szélig (oldalsó margó és keret nélkül)"
-},
-{
-"id": "15afd91865",
-"at": "2026-11-26T19:38:33Z",
+"id": "31180774ae",
+"at": "2026-11-26T19:39:27Z",
 "msg": "Változásnapló frissítése"
 }
 ];
