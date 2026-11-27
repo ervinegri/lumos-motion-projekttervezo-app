@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6fd8d5ad95",
+"at": "2026-11-27T14:59:31+02:00",
+"msg": "Szakember: a lezajlott, de még Helyszíni munka lépésben lévő projekt is látszik, ha övé az utómunka (pl. fotók)"
+},
+{
 "id": "b4cd97ddcf",
 "at": "2026-11-27T14:57:57+02:00",
 "msg": "Termelési vezető: a nézetváltóban csak a saját és a szakember nézet (az ügyvezetői és értékesítői sor ki sem kerül a listába)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Projekt fejléc (gép): szélesebb dátumkártya"
 },
 {
-"id": "1389d41c19",
-"at": "2026-11-26T18:10:33+02:00",
-"msg": "Projekt fejléc: a ragadós címsáv nem takarja ki a gombokat (az új elrendezésben is jól érzékeli, mikor csúszik ki a cím)"
-},
-{
-"id": "6518b46b3e",
-"at": "2026-11-26T16:09:37Z",
+"id": "ecea2e1096",
+"at": "2026-11-26T16:10:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
