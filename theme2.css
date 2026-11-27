@@ -3742,3 +3742,5 @@ html body .vv-pcg .pcg-head{position:sticky;top:0;z-index:2;background:var(--bg-
 html.th2 .vv-cm button.vv-ts.vv-pref{min-width:0;font-variant-numeric:normal;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
 html.th2 .vv-cm button.vv-ts.vv-pref::before{content:'📷 ';font-size:.9em}
 @media (max-width:860px){html body .vv-pcg{max-height:none;overflow:visible;min-height:0}}
+/* lezárt Alapadatok: a Térkép link és a másoló / tárcsázó gombok továbbra is használhatók (a zár rétege fölött) */
+html body .b-grid.svc-locked.ro-lock :is(a[href],.map-link,.cp-btn,.copy-btn,[data-action="copy"],[data-action="tel"]){position:relative;z-index:7;pointer-events:auto}
