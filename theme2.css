@@ -3744,3 +3744,15 @@ html.th2 .vv-cm button.vv-ts.vv-pref::before{content:'📷 ';font-size:.9em}
 @media (max-width:860px){html body .vv-pcg{max-height:none;overflow:visible;min-height:0}html body .vv-pcg .pcg-head{position:static;padding:0;background:none}}
 /* lezárt Alapadatok: a Térkép link és a másoló / tárcsázó gombok továbbra is használhatók (a zár rétege fölött) */
 html body .b-grid.svc-locked.ro-lock :is(a[href],.map-link,.cp-btn,.copy-btn,[data-action="copy"],[data-action="tel"]){position:relative;z-index:7;pointer-events:auto}
+/* Videó / fotó ablak alja mobilon (2026-11-27): a Bezárás egy kis ✕ gomb, a két fő gomb kitölti a sort, a felirat nem vágódik le */
+@media (max-width:700px){
+  html body #modalRoot #mform.m-video .mfoot{display:flex!important;flex-wrap:wrap!important;align-items:stretch!important;gap:8px!important}
+  html body #modalRoot #mform.m-video .mfoot>[data-action=modal-cancel],html body #modalRoot #mform.m-video .mfoot>[data-action=modal-close]{order:-1!important;flex:0 0 48px!important;width:48px!important;min-width:48px!important;padding:0!important;font-size:0!important;position:relative}
+  html body #modalRoot #mform.m-video .mfoot>[data-action=modal-cancel]::before,html body #modalRoot #mform.m-video .mfoot>[data-action=modal-close]::before{content:'✕';font-size:18px;line-height:1}
+  html body #modalRoot #mform.m-video .mfoot>[data-action=modal-close]:only-of-type{flex:1 1 auto!important;width:auto!important;font-size:15px!important}
+  html body #modalRoot #mform.m-video .mfoot>[data-action=modal-close]:only-of-type::before{content:none}
+  html body #modalRoot #mform.m-video .mfoot>.left{order:0!important;flex:1 1 0!important;min-width:0!important;display:flex!important}
+  html body #modalRoot #mform.m-video .mfoot>.left>.btn,html body #modalRoot #mform.m-video .mfoot>button[type=submit]{flex:1 1 0!important;width:100%!important;min-width:0!important;min-height:48px;padding:6px 8px!important;font-size:14px!important;line-height:1.15!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;text-align:center;justify-content:center}
+  html body #modalRoot #mform.m-video .mfoot>button[type=submit]{order:1!important}
+  html body #modalRoot #mform.m-video .mfoot>.vv-tcw{order:-2!important;flex:1 1 100%!important}
+}
