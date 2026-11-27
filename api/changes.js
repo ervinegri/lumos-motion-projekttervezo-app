@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "491f5dd4e2",
+"at": "2026-11-27T21:48:27+01:00",
+"msg": "Fotónagyítás: a léptető nyilak gyors dupla nyomása két lapozás, nem nagyítás"
+},
+{
 "id": "db2d6c61fc",
 "at": "2026-11-27T21:47:05+01:00",
 "msg": "Lehúzásos frissítés: csak a nagyított fotón tiltva; a nagyítás bezárul az ablakkal; actions-dijcsokkentes betöltési hiba javítva"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Telefon, projekt oldal: a szakaszok széltől szélig (oldalsó margó és keret nélkül)"
 },
 {
-"id": "4b092297b5",
-"at": "2026-11-26T21:38:24+02:00",
-"msg": "iPhone / iPad: az appon belüli navigáció nem ír előzmény-bejegyzést (iOS 26.2 hiba: elhomályosodó felső menü)"
-},
-{
-"id": "13f4fafe65",
-"at": "2026-11-26T19:36:45Z",
+"id": "15afd91865",
+"at": "2026-11-26T19:38:33Z",
 "msg": "Változásnapló frissítése"
 }
 ];
