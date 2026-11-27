@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "9975f9f022",
+"at": "2026-11-27T21:53:35+01:00",
+"msg": "Fotógaléria: belső ellenőrzésben nincs megjegyzés gomb; elforgatáskor újraillesztés; fekvő telefonon nagyobb terület"
+},
+{
 "id": "4f22449588",
 "at": "2026-11-27T21:51:03+01:00",
 "msg": "Fotók küldése az ügyfélnek: „Fotók megtekintése” gomb és fotós alapszöveg (a videós minta nem íródik felül)"
@@ -140,16 +145,6 @@ const ITEMS = [
 "id": "43edfbcb28",
 "at": "2026-11-26T21:52:09+02:00",
 "msg": "Visszaállítva: iOS-en is működik a „vissza” mozdulat (a menü homályát nem ez okozta)"
-},
-{
-"id": "9c86f5a685",
-"at": "2026-11-26T21:51:07+02:00",
-"msg": "Táblák: a rögzített első oszlop fejléce is a helyén marad, a többsoros fejlécnél is jó oszlop rögzül (Értékesítők teljesítménytáblája nem csúszik szét); keskenyebb név-oszlop"
-},
-{
-"id": "4cd3e42f58",
-"at": "2026-11-26T19:46:20Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
