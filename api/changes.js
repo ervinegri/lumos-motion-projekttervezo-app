@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a1c80702e8",
+"at": "2026-11-27T15:06:48+02:00",
+"msg": "Szakember: az e havi projektek lezárva is a listában; „Előző havi projektek” lenyitható gomb"
+},
+{
 "id": "abacdd52c8",
 "at": "2026-11-27T15:05:39+02:00",
 "msg": "Szakember, Lezárt projektek: csak az előző hónap elejétől"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Projekt fejléc: keskenyebb ablakban a gombok külön sorba kerülnek, a név mindig látszik"
 },
 {
-"id": "47fc5ac4e8",
-"at": "2026-11-26T18:14:08+02:00",
-"msg": "Szakaszok állapota csak ugyanannál a projektnél töltődik vissza"
-},
-{
-"id": "439434e446",
-"at": "2026-11-26T16:14:04Z",
+"id": "bc76e6a35e",
+"at": "2026-11-26T16:14:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
