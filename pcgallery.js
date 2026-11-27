@@ -51,7 +51,7 @@
 .pcg-lb-fr img{width:100%;height:100%;display:block;object-fit:contain;-webkit-user-drag:none}
 .pcg-lb-fr.ld img{opacity:.45}
 .pcg-lb-fr .pcg-spin{position:absolute;left:50%;top:50%;margin:-11px 0 0 -11px;border-color:rgba(255,255,255,.25);border-top-color:#fff}
-.pcg-lb{touch-action:none}
+.pcg-lb{touch-action:none;overscroll-behavior:none}
 .pcg-lb-fr{transform-origin:center center;will-change:transform;cursor:zoom-in}
 .pcg-lb.zm .pcg-lb-fr{cursor:grab}.pcg-lb.zm .pcg-lb-fr:active{cursor:grabbing}
 .pcg-lb.zm .pcg-lb-nav{display:none}
@@ -154,6 +154,7 @@
       if(z===1&&e.pointerType!=='mouse'){if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3){show(dx<0?i+1:i-1);return;}if(dy>90&&Math.abs(dy)>Math.abs(dx)*1.5){close();return;}}
       if(!moved&&e.pointerType!=='mouse'){const now=Date.now();if(now-lastTap<300){lastTap=0;if(z>1){z=1;apply(true);}else zoomAt(2.5,e.clientX,e.clientY,true);moved=true;return;}lastTap=now;}   // dupla koppintás
     };
+    lb.addEventListener('touchmove',e=>{e.preventDefault();},{passive:false});   // a böngésző saját gesztusai (lehúzásos frissítés, oldal nagyítása, visszapattanás) itt nem indulnak
     lb.addEventListener('pointerup',up);lb.addEventListener('pointercancel',up);
     lb.addEventListener('click',e=>{if((moved||z>1)&&!e.target.closest('.pcg-lb-top')){e.stopPropagation();moved=false;}},true);   // húzás / nagyított kép után a kattintás nem zár be
     lb._zreset=()=>{z=1;tx=0;ty=0;lb.classList.remove('zm');zl.textContent='100%';};
