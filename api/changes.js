@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4cf575e81b",
+"at": "2026-11-27T15:08:47+02:00",
+"msg": "Projektlista: a mai projekt kerete miatt nem görgethető vízszintesen a lista"
+},
+{
 "id": "1817f52194",
 "at": "2026-11-27T15:07:40+02:00",
 "msg": "Szakember: a gomb a múlt hónap nevét viseli (pl. Októberi projektek)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Stáb- / utómunka-instrukció: a beírt, el nem küldött szöveg nem vész el (újrarajzolás és frissítés után visszatöltődik, küldés után törlődik)"
 },
 {
-"id": "10c960b02c",
-"at": "2026-11-26T18:17:08+02:00",
-"msg": "Projekt fejléc: a gombok csak akkor kerülnek külön sorba, ha mellettük nem férne ki a teljes név"
-},
-{
-"id": "04ebe91c9f",
-"at": "2026-11-26T16:15:54Z",
+"id": "ec7e810287",
+"at": "2026-11-26T16:17:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
