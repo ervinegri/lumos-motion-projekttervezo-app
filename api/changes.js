@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c954060cfd",
+"at": "2026-11-27T21:54:31+01:00",
+"msg": "Ablak alja mobilon (bal oldali gombbal): két egyforma mellékgomb, alatta a fő gomb teljes szélességben"
+},
+{
 "id": "9975f9f022",
 "at": "2026-11-27T21:53:35+01:00",
 "msg": "Fotógaléria: belső ellenőrzésben nincs megjegyzés gomb; elforgatáskor újraillesztés; fekvő telefonon nagyobb terület"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "4d8325432b",
 "at": "2026-11-26T21:53:44+02:00",
 "msg": "Indítóképernyő: felfedés után kikerül az oldalból (iOS fejléc-homály gyanús rétege)"
-},
-{
-"id": "43edfbcb28",
-"at": "2026-11-26T21:52:09+02:00",
-"msg": "Visszaállítva: iOS-en is működik a „vissza” mozdulat (a menü homályát nem ez okozta)"
 }
 ];
 const allowed = require('./_auth.js');
