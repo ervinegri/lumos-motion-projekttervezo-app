@@ -3758,3 +3758,11 @@ html body .b-grid.svc-locked.ro-lock :is(a[href],.map-link,.cp-btn,.copy-btn,[da
 }
 /* fekvő telefonon (alacsony képernyő) a fotógaléria nem saját görgetősávban van, hanem az ablakkal együtt görög – így nagyobb területen látszik */
 @media (max-height:560px){html body .vv-pcg{max-height:none!important;overflow:visible!important;min-height:0}html body .vv-pcg .pcg-head{position:static;padding:0;background:none}}
+/* Ablak alja mobilon, ha van bal oldali gomb is (pl. ügyfélnek küldés: „Áthelyezés e-mail nélkül” · Mégse · Küldés): a két mellékgomb egyforma szélességű sorban, alatta a fő gomb teljes szélességben */
+@media (max-width:700px){
+  html body #modalRoot #mform:not(.m-video) .mfoot:has(>.left):has(>button[type=submit]){display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;align-items:stretch!important}
+  html body #modalRoot #mform:not(.m-video) .mfoot:has(>.left):has(>button[type=submit])>.left{grid-column:1!important;grid-row:1!important;display:flex!important;width:auto!important;min-width:0!important;margin:0!important;flex:none!important}
+  html body #modalRoot #mform:not(.m-video) .mfoot:has(>.left):has(>button[type=submit])>.left>.btn{flex:1 1 auto!important;width:100%!important;min-width:0!important;margin:0!important;white-space:normal!important;line-height:1.15!important;min-height:48px}
+  html body #modalRoot #mform:not(.m-video) .mfoot:has(>.left):has(>button[type=submit])>[data-action=modal-cancel]{grid-column:2!important;grid-row:1!important;width:auto!important;min-width:0!important;margin:0!important;min-height:48px}
+  html body #modalRoot #mform:not(.m-video) .mfoot:has(>.left):has(>button[type=submit])>button[type=submit]{grid-column:1/-1!important;grid-row:2!important;width:100%!important;margin:0!important;min-height:50px}
+}
