@@ -140,11 +140,11 @@
     zw.addEventListener('click',e=>{const b=e.target.closest('[data-z]');if(!b)return;e.stopPropagation();if(b.dataset.z==='+')zc(1.6);else zc(1/1.6);});
     zl.addEventListener('click',e=>{e.stopPropagation();z=1;apply(true);});
     lb.addEventListener('wheel',e=>{e.preventDefault();zoomAt(z*Math.exp(-e.deltaY*(e.ctrlKey?0.01:0.0025)),e.clientX,e.clientY,false);},{passive:false});
-    lb.addEventListener('dblclick',e=>{if(e.target.closest('.pcg-lb-top'))return;e.preventDefault();if(z>1){z=1;apply(true);}else zoomAt(2.5,e.clientX,e.clientY,true);});
+    lb.addEventListener('dblclick',e=>{if(e.target.closest('.pcg-lb-top,.pcg-lb-nav'))return;e.preventDefault();if(z>1){z=1;apply(true);}else zoomAt(2.5,e.clientX,e.clientY,true);});
     const ptr=e=>({x:e.clientX,y:e.clientY});
     lb.addEventListener('pointerdown',e=>{if(e.target.closest('.pcg-lb-top'))return;if(e.pointerType==='mouse'&&e.button!==0)return;P.set(e.pointerId,ptr(e));moved=false;
       if(P.size===2){const [a,b]=[...P.values()];g0={d:Math.hypot(a.x-b.x,a.y-b.y)||1,mx:(a.x+b.x)/2,my:(a.y+b.y)/2,z,tx,ty};sw=null;}
-      else if(P.size===1){sw={x:e.clientX,y:e.clientY,tx,ty,t:Date.now()};}});
+      else if(P.size===1){sw={x:e.clientX,y:e.clientY,tx,ty,t:Date.now(),nav:!!e.target.closest('.pcg-lb-nav')};}});   // a léptető nyílon a dupla koppintás két lapozás, nem nagyítás
     lb.addEventListener('pointermove',e=>{if(!P.has(e.pointerId))return;P.set(e.pointerId,ptr(e));
       if(P.size>=2&&g0){const [a,b]=[...P.values()],d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2,nz=Math.max(1,Math.min(8,g0.z*d/g0.d)),r=lb.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
         tx=(mx-cx)-((g0.mx-cx)-g0.tx)*(nz/g0.z);ty=(my-cy)-((g0.my-cy)-g0.ty)*(nz/g0.z);z=nz;moved=true;apply(false);}
@@ -154,12 +154,12 @@
       if(P.size===1){const [a]=[...P.values()];sw={x:a.x,y:a.y,tx,ty,t:Date.now()};return;}
       if(!sw)return;const dx=e.clientX-sw.x,dy=e.clientY-sw.y,s0=sw;sw=null;
       if(z===1&&e.pointerType!=='mouse'){if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3){show(dx<0?i+1:i-1);return;}if(dy>90&&Math.abs(dy)>Math.abs(dx)*1.5){close();return;}}
-      if(!moved&&e.pointerType!=='mouse'){const now=Date.now();if(now-lastTap<300){lastTap=0;if(z>1){z=1;apply(true);}else zoomAt(2.5,e.clientX,e.clientY,true);moved=true;return;}lastTap=now;}   // dupla koppintás
+      if(!moved&&e.pointerType!=='mouse'&&!(e.target.closest&&e.target.closest('.pcg-lb-nav'))&&!(s0.nav)){const now=Date.now();if(now-lastTap<300){lastTap=0;if(z>1){z=1;apply(true);}else zoomAt(2.5,e.clientX,e.clientY,true);moved=true;return;}lastTap=now;}   // dupla koppintás
     };
     lb.addEventListener('touchmove',e=>{e.preventDefault();},{passive:false});   // a böngésző saját gesztusai (lehúzásos frissítés, oldal nagyítása, visszapattanás) itt nem indulnak
     lb.addEventListener('pointerup',up);lb.addEventListener('pointercancel',up);
     lb.addEventListener('click',e=>{if((moved||z>1)&&!e.target.closest('.pcg-lb-top')){e.stopPropagation();moved=false;}},true);   // húzás / nagyított kép után a kattintás nem zár be
-    lb._zreset=()=>{z=1;tx=0;ty=0;lb.classList.remove('zm');zl.textContent='100%';};
+    lb._zreset=()=>{lastTap=0;z=1;tx=0;ty=0;lb.classList.remove('zm');zl.textContent='100%';};
     lb._zkey=e=>{if(e.key==='+'||e.key==='='){zc(1.6);return true;}if(e.key==='-'||e.key==='_'){zc(1/1.6);return true;}if(e.key==='0'){z=1;apply(true);return true;}return false;};
     show(i);lb.focus();}
 
