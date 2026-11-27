@@ -537,7 +537,8 @@ function viewProjects(){
     const act=p=>{if(p.status==='lemondva')return false;const r=pr(p);if(!r||(r.end||r.start)>=T0)return true;
       const cut=crewPostWork(p,me)||(p.videos||[]).some(v=>vidOwner(p,v)===me);
       return cut&&p.status!=='atadva'&&['helyszin','utomunka','jovahagyas','leadva'].includes(p.status||'')&&(p.videos||[]).filter(v=>vidOwner(p,v)===me).some(v=>v.st!=='jovahagyva');};
-    crewOld=list.filter(p=>p.status!=='lemondva'&&!act(p));list=list.filter(act);}   /* a korábbi (lezajlott, lezárt) beosztásai a „Lezárt projektek” gombbal nyithatók le */
+    const M0=(()=>{const d=new Date(T0+'T12:00:00');d.setDate(1);d.setMonth(d.getMonth()-1);return d.toISOString().slice(0,8)+'01';})();   /* csak az előző hónap elejétől – a régebbiek eltűnnek */
+    crewOld=list.filter(p=>p.status!=='lemondva'&&!act(p)&&!!pr(p)&&(pr(p).end||pr(p).start)>=M0);list=list.filter(act);}   /* a korábbi (lezajlott, lezárt) beosztásai a „Lezárt projektek” gombbal nyithatók le */
   if(q)list=list.filter(p=>fold([p.name,p.client,p.venue,p.eventType,p.contactName].join(' ')).includes(fold(q)));
   const closed=p=>p.status==='atadva'||p.status==='lemondva';
   const ahead=list.filter(p=>!closed(p)&&(!pr(p)||pr(p).end>=T)).sort((a,b)=>!pr(a)?1:!pr(b)?-1:byStart(b,a));   // terepi munkára vár (dátum nélküliek a végén)
