@@ -1,6 +1,6 @@
 {"_megjegyzes":"Újdonságok a nem ügyvezető felhasználóknak (szakemberek, termelési vezető, értékesítők) – csak nagyobb fejlesztések, pénzügyi és értékesítési tételek NÉLKÜL. Új tétel a lista elejére, egyedi id-vel.",
 "items":[
-    {"id":"crew-lezart","at":"2026-11-27","msg":"📁 A Beosztásaim listában az e havi projektjeid akkor is látszanak, ha már lezajlottak; az alján az „Előző havi projektek” gombbal a múlt hónapiakat is visszanézheted."},
+    {"id":"crew-lezart","at":"2026-11-27","msg":"📁 A Beosztásaim listában az e havi projektjeid akkor is látszanak, ha már lezajlottak; az alján a múlt hónap nevével jelölt gombbal (pl. „Októberi projektek”) a múlt hónapiakat is visszanézheted."},
     {"id":"ios-statusbar","at":"2026-11-26","msg":"📱 iPhone-on homályos a felső menü? Töröld az appot a főképernyőről, majd nyisd meg Safariban, és add hozzá újra (Megosztás → Főképernyőhöz adás) – utána éles marad."},
     {"id":"gbp-editor","at":"2026-11-26","msg":"⭐ A Google-értékeléseket a termelési vezető is látja (Ügyfelek fül, ⭐ gomb): link másolása, QR-kód, és az utómunka-táblán értékelés kérhető."},
     {"id":"gyors-mentes","at":"2026-11-26","msg":"⚡ Sokkal gyorsabb app: a mentések és a betöltés a legtöbb helyen a másodperc töredéke alatt lefutnak, és mentés közben az ablak eltűnik – nyugodtan dolgozhatsz tovább."},
