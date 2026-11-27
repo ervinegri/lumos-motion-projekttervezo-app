@@ -46,6 +46,8 @@
 .pcg-lb-fr.ld img{opacity:.35}
 .pcg-lb-fr .pcg-spin{position:absolute;left:50%;top:50%;margin:-11px 0 0 -11px;border-color:rgba(255,255,255,.25);border-top-color:#fff}
 .pcg-lb-fail{font-size:14px;opacity:.8;text-align:center;line-height:1.5}
+@media(hover:none){.pcg-t:hover img{transform:none}.pcg-t:hover .pcg-nm{opacity:0}.pcg-t.noimg .pcg-nm{opacity:1}}
+@media(max-width:700px){.pcg-head{flex-wrap:nowrap;margin:0 0 8px}.pcg-head span{display:none}.pcg-head a{white-space:nowrap}}
 @media(max-width:700px){.pcg-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:4px}.pcg-lb-nav{position:absolute;top:50%;margin-top:-21px;z-index:2;background:rgba(0,0,0,.35)}.pcg-lb-nav.p{left:6px}.pcg-lb-nav.n{right:6px}.pcg-lb-mid{padding:0 0 10px}.pcg-lb-note{padding:8px 10px;font-size:12px}}
 `;
   function css(){if(document.getElementById('pcg-css'))return;const s=document.createElement('style');s.id='pcg-css';s.textContent=CSS;document.head.appendChild(s);}
