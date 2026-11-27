@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "eecaaf4c6c",
+"at": "2026-11-27T21:58:13+01:00",
+"msg": "Fekvő telefon: a projekt videótábla ablaka kitölti a képernyő magasságát"
+},
+{
 "id": "484593b617",
 "at": "2026-11-27T21:56:50+01:00",
 "msg": "Kártya húzása: tiszta fehér húzási kép (telefonon nem szürke, fekete sarkú), a halványítás utána jön"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "53e214beeb",
 "at": "2026-11-26T22:02:51+02:00",
 "msg": "Stáb / Szereplők: csak lista (a kártyanézet és a váltó megszűnt); kereső és szerep-szűrő egy sorban"
-},
-{
-"id": "25ada52641",
-"at": "2026-11-26T22:00:26+02:00",
-"msg": "iOS: az állapotsor saját sávot kap (default) – a felső menü nem homályosodik el (újratelepítés után); újdonság a többieknek"
 }
 ];
 const allowed = require('./_auth.js');
