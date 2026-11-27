@@ -531,16 +531,18 @@ function viewProjects(){
   if(S.projectId&&S.draft)return viewProject(S.draft);
   const T=todayISO(),f=S.pf,q=f.q.trim().toLowerCase();
   const filters=[['aktiv','Aktív',S.projects.filter(isOpen).length],...STAGES.map(s=>[s.id,s.label,S.projects.filter(p=>(p.status||'tervezes')===s.id).length]),['lemondva','Lemondva',S.projects.filter(p=>p.status==='lemondva').length],['mind','Mind',S.projects.length]];
+  let crewOld=null;
   let list=ro()?S.projects.filter(p=>!p.invPending):S.projects;   /* függő meghívás: a Meghívások dobozban van */   /* az állapotszűrő sor kikerült (Ervin kérése, 2026-11-09): minden projekt látszik */
   if(ro()&&S.me&&(S.me.crewId||(S.me.viewAs&&S.me.viewAs.crewId))){const me=(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId,T0=todayISO();   /* szakember: csak az aktív beosztások – jövőbeli, most zajló, vagy (a forgatás után is, amíg a projekt még a Helyszíni munka lépésben van) vágás / jóváhagyás alatt, ha övé az utómunka */
-    list=list.filter(p=>{if(p.status==='lemondva')return false;const r=pr(p);if(!r||(r.end||r.start)>=T0)return true;
+    const act=p=>{if(p.status==='lemondva')return false;const r=pr(p);if(!r||(r.end||r.start)>=T0)return true;
       const cut=crewPostWork(p,me)||(p.videos||[]).some(v=>vidOwner(p,v)===me);
-      return cut&&p.status!=='atadva'&&['helyszin','utomunka','jovahagyas','leadva'].includes(p.status||'')&&(p.videos||[]).filter(v=>vidOwner(p,v)===me).some(v=>v.st!=='jovahagyva');});}
+      return cut&&p.status!=='atadva'&&['helyszin','utomunka','jovahagyas','leadva'].includes(p.status||'')&&(p.videos||[]).filter(v=>vidOwner(p,v)===me).some(v=>v.st!=='jovahagyva');};
+    crewOld=list.filter(p=>p.status!=='lemondva'&&!act(p));list=list.filter(act);}   /* a korábbi (lezajlott, lezárt) beosztásai a „Lezárt projektek” gombbal nyithatók le */
   if(q)list=list.filter(p=>fold([p.name,p.client,p.venue,p.eventType,p.contactName].join(' ')).includes(fold(q)));
   const closed=p=>p.status==='atadva'||p.status==='lemondva';
   const ahead=list.filter(p=>!closed(p)&&(!pr(p)||pr(p).end>=T)).sort((a,b)=>!pr(a)?1:!pr(b)?-1:byStart(b,a));   // terepi munkára vár (dátum nélküliek a végén)
   const past=list.filter(p=>!closed(p)&&pr(p)&&pr(p).end<T).sort((a,b)=>byStart(b,a));   // lezajlott, utómunkára vár
-  const done=list.filter(closed).sort((a,b)=>!pr(a)?1:!pr(b)?-1:byStart(b,a));   // lezárt: hónaponként
+  const done=(crewOld?(q?crewOld.filter(p=>fold([p.name,p.client,p.venue,p.eventType,p.contactName].join(' ')).includes(fold(q))):crewOld):list.filter(closed)).sort((a,b)=>!pr(a)?1:!pr(b)?-1:byStart(b,a));   // lezárt: hónaponként (szakembernél: a korábbi beosztásai)
   const issues=ro()?[]:computeIssues();
   const badP=new Set(issues.filter(i=>i.level==='bad').flatMap(i=>i.pids||[]));   // piros figyelmeztetésű projektek: a listában is pirosan
   const row=p=>{const r=pr(p),di=dueInfo(p),sub=(ro()?[p.venue]:[p.client,p.venue]).filter(Boolean).join(' · ')||(ro()?'':'Nincs ügyfél megadva'),days=r&&r.end!==r.start?` · ${diffDays(r.start,r.end)+1} napos`:'';
@@ -560,7 +562,7 @@ function viewProjects(){
   const grp=(t,arr,cls)=>arr.length?`<tr class="pt-group${cls?' '+cls:''}"><td colspan="${cols}">${t} <span class="muted">${arr.length}</span></td></tr>${arr.map(row).join('')}`:'';
   const months=[];done.forEach(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(p);});
   // egyetlen lista dátum szerint csökkenő sorrendben; a jelölő sor a mai (és még tartó) projektek alatt, a jövő / mai / lezajlott sorok eltérő jelöléssel
-  const closedOpen=(()=>{try{return localStorage.getItem('lpm_closed_open')==='1';}catch(e){return false;}})(),hideClosed=!q&&!ro();   // lezárt (kész / lemondott) projektek: külön, lenyitható csoportban
+  const closedOpen=(()=>{try{return localStorage.getItem('lpm_closed_open')==='1';}catch(e){return false;}})(),hideClosed=crewOld?true:!q;   // lezárt (kész / lemondott) projektek: külön, lenyitható csoportban
   const all=list.filter(p=>!(hideClosed&&closed(p))).sort((a,b)=>!pr(a)?-1:!pr(b)?1:byStart(b,a));
   let marked=false;const todayRow=`<tr class="pt-today-row"><td colspan="${cols}"><span><b>📍 Ma · ${esc(fmtDay(T))} · <span class="pt-clock">${nowHM()}</span></b></span></td></tr>`;
   let lastM=null;const monthRow=m=>'';   // hónap-elválasztó sorok nincsenek (a dátumkártya mutatja a hónapot)
