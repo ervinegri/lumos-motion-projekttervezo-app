@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "fbe61e98c5",
+"at": "2026-11-27T21:36:47+01:00",
+"msg": "Fotógaléria: nagyítás (csippentés, görgő, dupla koppintás, +/−, húzás; eredeti felbontás), megnyitáskor nem ugrik a végére"
+},
+{
 "id": "b251586750",
 "at": "2026-11-27T21:34:05+01:00",
 "msg": "Fotógaléria: 3 oszlop, nagyításnál a kép a képernyő széléig ér, nagy léptető gombok"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Telefon, projektlista: hosszabb videó-állapotsáv (kitölti a sort)"
 },
 {
-"id": "671d8fe2a7",
-"at": "2026-11-26T21:31:12+02:00",
-"msg": "iPhone: az oldal teteje nem rugózik le, így a felső menü nem homályosodik el (iOS 26)"
-},
-{
-"id": "4cf572f6a2",
-"at": "2026-11-26T19:28:34Z",
+"id": "9d554bef7e",
+"at": "2026-11-26T19:31:21Z",
 "msg": "Változásnapló frissítése"
 }
 ];
