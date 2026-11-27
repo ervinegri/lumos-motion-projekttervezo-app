@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d3f9429998",
+"at": "2026-11-27T21:32:20+01:00",
+"msg": "Fotógaléria mobilon: tömörebb fejléc (nem ragad), érintésnél nem marad kint a fájlnév"
+},
+{
 "id": "b49a0ab91f",
 "at": "2026-11-27T22:28:03+02:00",
 "msg": "Lezárt Alapadatok: a Térkép link és a másoló gombok kattinthatók maradnak"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "eda0679087",
 "at": "2026-11-26T21:28:25+02:00",
 "msg": "Telefon: a lépés-kártyák egy sorban, tömören"
-},
-{
-"id": "3a06416fd2",
-"at": "2026-11-26T21:22:01+02:00",
-"msg": "E-mailek: a tárgyban szereplő projekt- / videónév nem ismétlődik a levélben; az instrukciók nem törölhetők"
 }
 ];
 const allowed = require('./_auth.js');
