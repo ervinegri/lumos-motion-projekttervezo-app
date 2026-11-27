@@ -534,7 +534,8 @@ function viewProjects(){
   let crewOld=null;
   let list=ro()?S.projects.filter(p=>!p.invPending):S.projects;   /* függő meghívás: a Meghívások dobozban van */   /* az állapotszűrő sor kikerült (Ervin kérése, 2026-11-09): minden projekt látszik */
   if(ro()&&S.me&&(S.me.crewId||(S.me.viewAs&&S.me.viewAs.crewId))){const me=(S.me.viewAs&&S.me.viewAs.crewId)||S.me.crewId,T0=todayISO();   /* szakember: csak az aktív beosztások – jövőbeli, most zajló, vagy (a forgatás után is, amíg a projekt még a Helyszíni munka lépésben van) vágás / jóváhagyás alatt, ha övé az utómunka */
-    const act=p=>{if(p.status==='lemondva')return false;const r=pr(p);if(!r||(r.end||r.start)>=T0)return true;
+    const MC=T0.slice(0,8)+'01';   /* az aktuális hónap projektjei akkor is a listában maradnak, ha lezajlottak / lezártak */
+    const act=p=>{if(p.status==='lemondva')return false;const r=pr(p);if(!r||(r.end||r.start)>=T0||(r.end||r.start)>=MC)return true;
       const cut=crewPostWork(p,me)||(p.videos||[]).some(v=>vidOwner(p,v)===me);
       return cut&&p.status!=='atadva'&&['helyszin','utomunka','jovahagyas','leadva'].includes(p.status||'')&&(p.videos||[]).filter(v=>vidOwner(p,v)===me).some(v=>v.st!=='jovahagyva');};
     const M0=(()=>{const d=new Date(T0+'T12:00:00');d.setDate(1);d.setMonth(d.getMonth()-1);return d.toISOString().slice(0,8)+'01';})();   /* csak az előző hónap elejétől – a régebbiek eltűnnek */
@@ -564,7 +565,7 @@ function viewProjects(){
   const months=[];done.forEach(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';let g=months.find(x=>x.m===m);if(!g)months.push(g={m,arr:[]});g.arr.push(p);});
   // egyetlen lista dátum szerint csökkenő sorrendben; a jelölő sor a mai (és még tartó) projektek alatt, a jövő / mai / lezajlott sorok eltérő jelöléssel
   const closedOpen=(()=>{try{return localStorage.getItem('lpm_closed_open')==='1';}catch(e){return false;}})(),hideClosed=crewOld?true:!q;   // lezárt (kész / lemondott) projektek: külön, lenyitható csoportban
-  const all=list.filter(p=>!(hideClosed&&closed(p))).sort((a,b)=>!pr(a)?-1:!pr(b)?1:byStart(b,a));
+  const all=list.filter(p=>!(hideClosed&&!crewOld&&closed(p))).sort((a,b)=>!pr(a)?-1:!pr(b)?1:byStart(b,a));
   let marked=false;const todayRow=`<tr class="pt-today-row"><td colspan="${cols}"><span><b>📍 Ma · ${esc(fmtDay(T))} · <span class="pt-clock">${nowHM()}</span></b></span></td></tr>`;
   let lastM=null;const monthRow=m=>'';   // hónap-elválasztó sorok nincsenek (a dátumkártya mutatja a hónapot)
   // a mai projektek piros keretben, a keret tetején a „MA · …” jelölővel
@@ -573,7 +574,7 @@ function viewProjects(){
     if(isTd(p)){const first=!(i>0&&isTd(all[i-1])&&!h),last=!(all[i+1]&&isTd(all[i+1]));marked=true;
       return h+row(p).replace('class="pt-row ','class="pt-row pt-tf'+(first?' pt-tf-first':'')+(last?' pt-tf-last':'')+' ');}
     if(!marked&&r&&(r.end||r.start)<T){marked=true;h=(h&&h.indexOf('pt-month-sep')>=0&&m===T.slice(0,7)?h+todayRow:todayRow+h);}return h+row(p);}).join('')+(marked?'':todayRow)
-    +(hideClosed&&done.length?`<tr class="pt-closed-h"><td colspan="${cols}"><button type="button" class="pt-closed-tog" data-action="pt-closed-tog" aria-expanded="${closedOpen}"><span class="pt-closed-car">${closedOpen?'▾':'▸'}</span> Lezárt projektek <span class="muted">${done.length}</span></button></td></tr>${closedOpen?(()=>{let lm=null;return done.map(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';const h=m!==lm?monthRow(m):'';lm=m;return h+row(p);}).join('');})():''}`:'');
+    +(hideClosed&&done.length?`<tr class="pt-closed-h"><td colspan="${cols}"><button type="button" class="pt-closed-tog" data-action="pt-closed-tog" aria-expanded="${closedOpen}"><span class="pt-closed-car">${closedOpen?'▾':'▸'}</span> ${crewOld?'Előző havi projektek':'Lezárt projektek'} <span class="muted">${done.length}</span></button></td></tr>${closedOpen?(()=>{let lm=null;return done.map(p=>{const m=pr(p)?pr(p).start.slice(0,7):'';const h=m!==lm?monthRow(m):'';lm=m;return h+row(p);}).join('');})():''}`:'');
   (window.POST_RENDER=window.POST_RENDER||[]).push(()=>{ptFrames();requestAnimationFrame(ptFrames);if(S._ptScrollPending){S._ptScrollPending=false;requestAnimationFrame(()=>{const t=document.querySelector('.pt-tf-first,.pt-today-row');if(t&&!f.q)t.scrollIntoView({block:'center'});});}});
   const qIn=`<input class="inp search pt-q" id="q-projects" type="search" placeholder="Keresés név, ügyfél, helyszín szerint" value="${esc(f.q)}" aria-label="Projektek keresése">`;   // a keresőmező a táblázat „Projekt” fejlécében
   const mob=!ro()&&!!(window.matchMedia&&matchMedia('(max-width:700px)').matches);   /* telefonon: a kereső és az „Új projekt” egy sorban, a fül neve már kimondja, hol vagyunk */
