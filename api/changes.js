@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "b251586750",
+"at": "2026-11-27T21:34:05+01:00",
+"msg": "Fotógaléria: 3 oszlop, nagyításnál a kép a képernyő széléig ér, nagy léptető gombok"
+},
+{
 "id": "d3f9429998",
 "at": "2026-11-27T21:32:20+01:00",
 "msg": "Fotógaléria mobilon: tömörebb fejléc (nem ragad), érintésnél nem marad kint a fájlnév"
@@ -142,9 +147,9 @@ const ITEMS = [
 "msg": "iPhone: az oldal teteje nem rugózik le, így a felső menü nem homályosodik el (iOS 26)"
 },
 {
-"id": "eda0679087",
-"at": "2026-11-26T21:28:25+02:00",
-"msg": "Telefon: a lépés-kártyák egy sorban, tömören"
+"id": "4cf572f6a2",
+"at": "2026-11-26T19:28:34Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
