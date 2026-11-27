@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4f22449588",
+"at": "2026-11-27T21:51:03+01:00",
+"msg": "Fotók küldése az ügyfélnek: „Fotók megtekintése” gomb és fotós alapszöveg (a videós minta nem íródik felül)"
+},
+{
 "id": "2947083651",
 "at": "2026-11-27T21:50:05+01:00",
 "msg": "Videó/fotó ablak alja mobilon: Bezárás kis ✕ gomb, a fő gombok felirata nem vágódik le"
@@ -142,13 +147,8 @@ const ITEMS = [
 "msg": "Táblák: a rögzített első oszlop fejléce is a helyén marad, a többsoros fejlécnél is jó oszlop rögzül (Értékesítők teljesítménytáblája nem csúszik szét); keskenyebb név-oszlop"
 },
 {
-"id": "75c90da55a",
-"at": "2026-11-26T21:46:11+02:00",
-"msg": "iOS: menet közben a cím sem változik (elhomályosodó menü elleni második próba); telefonon fele olyan széles utómunka-oszlopok"
-},
-{
-"id": "31180774ae",
-"at": "2026-11-26T19:39:27Z",
+"id": "4cd3e42f58",
+"at": "2026-11-26T19:46:20Z",
 "msg": "Változásnapló frissítése"
 }
 ];
