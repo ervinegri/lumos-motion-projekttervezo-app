@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "6da23309dc",
+"at": "2026-11-28T10:24:54+01:00",
+"msg": "Csengő javítása (egy megjegyzés kikommentelte a lista betöltését)"
+},
+{
 "id": "ae96f21bad",
 "at": "2026-11-28T10:08:45+01:00",
 "msg": "Tablet: a szél nélküli nézet csak a projektoldalon (a pénzügyi táblázatok nem csúsznak szét)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Utómunka előtti projekt megnyitásakor a Stáb és eszközök szakasz nyitva"
 },
 {
-"id": "01abb31716",
-"at": "2026-11-28T08:49:45+01:00",
-"msg": "Utómunkában lévő projekt megnyitásakor az Utómunka szakasz nyitva"
-},
-{
-"id": "18656ca4a6",
-"at": "2026-11-28T07:49:35Z",
+"id": "c9733ed906",
+"at": "2026-11-28T07:49:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
