@@ -3772,3 +3772,9 @@ html body .b-grid.svc-locked.ro-lock :is(a[href],.map-link,.cp-btn,.copy-btn,[da
 @media (orientation:landscape) and (max-height:560px){
   html body #modalRoot #mform.mbox:has(.bd-modal){height:calc(100dvh - 12px)!important;max-height:calc(100dvh - 12px)!important;margin-block:6px!important}
 }
+/* fotógaléria nagy képernyőn: a bal oszlop teljes magasságát kitölti (eddig a videólejátszóhoz szabott rácssor csak egy keskeny sávot adott neki) */
+@media (min-width:861px) and (min-height:561px){
+  html body #mform.m-video .vv-body>.vv-pcg{grid-column:1!important;grid-row:1 / -1!important;align-self:stretch!important;height:calc(100dvh - 190px);max-height:calc(100dvh - 190px)!important}
+  html body #mform.m-video .vv-body:has(>.vv-pcg){grid-template-rows:auto!important;align-items:stretch!important}
+  html body #mform.m-video .vv-body:has(>.vv-pcg)>.vv-cm{grid-row:1!important;max-height:calc(100dvh - 190px)}
+}
