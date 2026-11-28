@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8edf205286",
+"at": "2026-11-28T14:19:45+01:00",
+"msg": "Árajánlat devizaválasztó: pénznemjelek (Ft, €, $, £)"
+},
+{
 "id": "75c7010ca1",
 "at": "2026-11-28T14:19:31+01:00",
 "msg": "Visszatérő ablak villanás nélkül; letiltott Mentés nem reagál rámutatásra; HubSpot: mentéskor Legitimate interest – Lead jogalap a kapcsolattartónál"
@@ -130,11 +135,6 @@ const ITEMS = [
 "id": "724cec3e9c",
 "at": "2026-11-28T10:37:49+01:00",
 "msg": "Külföldi ügyfél: kapcsoló + ország, EU VIES-ellenőrzés, pénzügyi jelzés (fordított adózás / EU-n kívül), számla: EUFAD37/HO kulcs, közösségi adószám, angol nyelvű számla"
-},
-{
-"id": "adebb2f06a",
-"at": "2026-11-28T10:32:02+01:00",
-"msg": "Csengő: az értesítések lenyílója közvetlenül a csengő alatt"
 }
 ];
 const allowed = require('./_auth.js');
