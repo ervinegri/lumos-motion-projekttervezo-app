@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ff4d647a9c",
+"at": "2026-11-28T13:59:56+01:00",
+"msg": "Lehetőség: a kiküldött ajánlat PDF-je és a PDF-megjelenítő már az ablak megnyitásakor töltődik"
+},
+{
 "id": "e4775a70b7",
 "at": "2026-11-28T13:57:14+01:00",
 "msg": "Lehetőség: ajánlatok egy listában (a lehetőség sora a legutóbbi kiküldés, korábbiak alatta); a redundáns Kiküldött ajánlat gomb törölve"
@@ -130,11 +135,6 @@ const ITEMS = [
 "id": "701ab24267",
 "at": "2026-11-28T09:48:41+01:00",
 "msg": "Értékelés-emlékeztető: csak az értékelések betöltése után, ügyfélnév-egyezés Kft./ékezet nélkül; egyetlen tételnél nincs lenyitás a projektlistában"
-},
-{
-"id": "8eab205f11",
-"at": "2026-11-28T09:46:06+01:00",
-"msg": "Videónevek rendbetétele a háttérben: egyetlen azonos fajtánál sorszám nélkül, többnél az azonosító szerinti sorszám (egyszeri javítás a futó projekteken)"
 }
 ];
 const allowed = require('./_auth.js');
