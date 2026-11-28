@@ -543,6 +543,8 @@ function rpcInner_(token, name, arg) {
     case 'videoCommentDel': return videoCommentDel_(u, arg);
     case 'videoCmDone': return videoCmDone_(u, arg);
     case 'myNotify': return myNotify_(u, arg);
+    case 'bellState': { const P = PropertiesService.getScriptProperties(), K = 'BELL_' + String(u.id || u.email || u.name).replace(/[^\w@.-]/g, '').slice(0, 80); let o = {}; try { o = JSON.parse(P.getProperty(K) || '{}'); } catch (e) { }   /* a csengő olvasottsága eszközök között (Ervin, 2026-11-28): látott / olvasott időbélyeg */
+      const s0 = Number(arg && arg.s) || 0, r0 = Number(arg && arg.r) || 0; if (s0 > (o.s || 0) || r0 > (o.r || 0)) { o = { s: Math.max(o.s || 0, s0), r: Math.max(o.r || 0, r0) }; P.setProperty(K, JSON.stringify(o)); } return o; }
     case 'dealQuoteSend': { const r = dealQuoteSend_(u, arg); try { qDel_('QD_' + str_(arg && arg.dealId, 64)); dataBump_(); } catch (e) {} return r; }   // elküldve: a piszkozat törlődik
     case 'quoteDraft': return quoteDraft_(u, arg);
     case 'quoteSent': return quoteSent_(u, arg);
