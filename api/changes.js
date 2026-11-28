@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e7d35b50e7",
+"at": "2026-11-28T14:16:24+01:00",
+"msg": "Értékelési QR: ügyfélnek mutatható kártya (logó, 5 csillag, kérés), nyomtatható PNG; a Link másolása gomb eltávolítva"
+},
+{
 "id": "52c56c3fe5",
 "at": "2026-11-28T14:15:06+01:00",
 "msg": "Árajánlat: külön nyelv (magyar / angol / német) és deviza (forint / euró / dollár / font) választó; német PDF, levél és aláírás; USD/GBP MNB-árfolyam"
@@ -132,13 +137,8 @@ const ITEMS = [
 "msg": "Csengő javítása (egy megjegyzés kikommentelte a lista betöltését)"
 },
 {
-"id": "ae96f21bad",
-"at": "2026-11-28T10:08:45+01:00",
-"msg": "Tablet: a szél nélküli nézet csak a projektoldalon (a pénzügyi táblázatok nem csúsznak szét)"
-},
-{
-"id": "a4536f25bc",
-"at": "2026-11-28T09:08:05Z",
+"id": "06c5c24d6a",
+"at": "2026-11-28T09:08:53Z",
 "msg": "Változásnapló frissítése"
 }
 ];
