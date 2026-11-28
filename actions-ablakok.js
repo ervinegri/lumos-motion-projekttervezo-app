@@ -197,7 +197,7 @@ const taxBlock=()=>`${mf('client','Cégnév',{max:160})}<div class="field"><labe
   <div class="field frn-ctry" hidden><label for="m-country">Ország</label><select class="inp" id="m-country" name="country" data-cmb="Ország kiválasztása…"><option value="">Ország kiválasztása…</option>${COUNTRY_OPTS()}</select></div>
   ${mf('clientAddress','Székhely',{full:true,max:300})}`;
 function frnApply(on,cc){const f=$('mform');if(!f)return;const t=$('m-clientTax'),cb=$('m-foreign'),cw=f.querySelector('.frn-ctry'),sel=$('m-country');if(cb)cb.checked=!!on;if(cw)cw.hidden=!on;f.classList.toggle('frn-on',!!on);
-  if(sel&&cc!==undefined){sel.value=cc||'';sel.dispatchEvent(new Event('change',{bubbles:true}));}
+  if(sel&&cc!==undefined){sel.value=cc||'';const ci=sel.parentNode&&sel.parentNode.querySelector('.cmb-in');if(ci)ci.value=sel.value&&sel.selectedOptions[0]?sel.selectedOptions[0].textContent:'';}
   if(t){t.maxLength=on?20:13;t.inputMode=on?'text':'numeric';t.placeholder=on?((sel&&sel.value&&!EU_CC.includes(sel.value))?'adóazonosító (ha van)':'pl. ATU12345678 (országkóddal)'):'12345678-2-42';}
   const b=f.querySelector('[data-action=tax-lookup]');if(b){const cc2=sel&&sel.value;b.hidden=!!on&&!!cc2&&!EU_CC.includes(cc2);b.title=on?'Ellenőrzés az EU VIES rendszerében (cégnév, cím)':'Cégadatok betöltése az adószám alapján (NAV)';}}
 document.addEventListener('change',e=>{if(e.target.id==='m-foreign')frnApply(e.target.checked);else if(e.target.id==='m-country')frnApply(true);});   /* cégnév és adószám egy sorban */
@@ -205,7 +205,7 @@ async function taxLookup(){
   const t=$('m-clientTax'),b=document.querySelector('[data-action=tax-lookup]');if(!t)return;
   if($('m-foreign')&&$('m-foreign').checked){const sel=$('m-country'),v=t.value.trim();if(!v){toast('Írd be a közösségi adószámot (pl. ATU12345678).',true);t.focus();return;}   /* EU VIES */
     if(b){b.disabled=true;b.textContent='Ellenőrzés…';}
-    try{const r=await call('viesLookup',{vat:v,country:sel?sel.value:''});t.value=r.vat;if(sel&&r.country&&sel.value!==r.country){sel.value=r.country;sel.dispatchEvent(new Event('change',{bubbles:true}));}
+    try{const r=await call('viesLookup',{vat:v,country:sel?sel.value:''});t.value=r.vat;if(sel&&r.country&&sel.value!==r.country)frnApply(true,r.country);
       if(!r.valid){toast('A VIES szerint ez a közösségi adószám nem érvényes.',true);return;}
       if(r.name&&$('m-client')&&!$('m-client').value.trim())$('m-client').value=r.name;else if(r.name&&$('m-client'))$('m-client').value=r.name;if(r.address&&$('m-clientAddress'))$('m-clientAddress').value=r.address;
       toast('✓ Érvényes közösségi adószám'+(r.name?' – cégadatok betöltve':' (a cégnevet ez az ország nem adja meg)'));}
