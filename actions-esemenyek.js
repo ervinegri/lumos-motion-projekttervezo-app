@@ -364,6 +364,8 @@ const ACT={
     const acc=Object.keys(d.invites||{}).filter(k=>{const iv=d.invites[k];return iv&&!iv.pre&&iv.st==='yes'&&iv.via!=='self';}).map(k=>(crewById(k)||{}).name||'?').join(', ');
     const msg=(why?when+' Biztosan módosítod a stábot vagy új embert hívsz meg? Az új meghívó sürgősként megy ki, rövid válaszadási határidővel (a forgatás előtt).':'')+(acc?(why?' ':'')+acc+' már elfogadta a meghívót. Ha az eszközeiken változtatsz, visszazáráskor (🔓 vagy a projekt elhagyásakor) megmutatom az értesítő e-mailt, és te döntöd el, elküldöd-e.':'');
     confirmModal('Stáb módosítása',msg,'✏️ Módosítom',()=>{if(acc)noticeSnapTake(d.id);(S.crewEdit=S.crewEdit||{})[d.id]=true;render(true);});},
+  'crew-past-open':()=>{const d=S.draft;if(!d)return;confirmModal('Stáb utólagos módosítása','A rendezvény már lezajlott. Utólag javítod a stábot vagy az eszközöket (pl. kimaradt valaki, vagy más eszköz volt kint)?','Feloldás',()=>{(S.crewPastEdit=S.crewPastEdit||{})[d.id]=true;render(true);});},
+  'crew-past-close':()=>{const d=S.draft;if(!d)return;if(S.crewPastEdit)delete S.crewPastEdit[d.id];render(true);toast('Visszazárva');},
   'crew-lock-close':()=>{const d=S.draft;if(!d)return;if(S.crewEdit)delete S.crewEdit[d.id];render(true);toast('Visszazárva');noticeMaybe(d.id);},
   'svc-lock-close':b=>{const d=S.draft;if(!d)return;String(b.dataset.k||'').split(',').filter(Boolean).forEach(k=>{delete svcEditMap(k)[d.id];});render(true);toast('Visszazárva');noticeMaybe(d.id);},
   'eq-edit':()=>{if(!S.draft)return;(S.eqEdit=S.eqEdit||{})[S.draft.id]=true;render(true);},
