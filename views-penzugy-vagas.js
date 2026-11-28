@@ -443,8 +443,16 @@ const vidOwner=(p,v)=>{
 function rawWait(p,v){const r=pr(p);if(!r||editOnly(p))return '';if(r.start>todayISO())return '⏳ Még nem volt a forgatás – a nyersanyag feltöltése után indulhat az utómunka';
   if(v&&v.k==='foto')return '';   /* a fotók utómunkája: a fotós a saját képeit dolgozza fel – nem kell a nyersanyag-feltöltésre várni */
   if(typeof rawPending==='function'&&rawPending(p))return '⏳ A nyersanyag még nincs feltöltve – amint a termelési vezető a projektet az Utómunka lépésbe teszi, indulhat a vágás';return '';}
+/* Mentés előtti előnézet (Ervin, 2026-11-28): a projektoldalon a darabszám módosítása azonnal látszik az Utómunka táblán – az új videók szaggatott kártyán („mentéskor jön létre”), a feleslegessé váló, még el nem kezdett videók eltűnnek. A háttér (videosEnsure_) szabályát követi. */
+const VK_FE=[['int_sarok','Interjúsarok videó'],['interju','Kiállítói videó (imázsfilm)'],['int_resztvevo','Interjú'],['aftermovie','Aftermovie'],['short60','Short videó (40–60 mp)'],['short30','Short videó (30–40 mp)'],['short15','Short videó (15–20 mp)'],['er_post_n','Előadások utómunkája'],['er_summary','Összefoglaló videó az előadásokból'],['er_clips','Kivágás az előadásból (short)']];
+function vidPreview(saved,d){const cur=Array.isArray(saved.videos)?saved.videos:[],byId={};cur.forEach(x=>{byId[x.id]=x;});const want=[],fl=v=>v===true||v===1||/^(1|true|igen)$/i.test(String(v==null?'':v).trim());
+  VK_FE.forEach(([k,lbl])=>{const n=Math.max(0,Math.min(40,Math.floor(Number(d[k])||0)));for(let i=1;i<=n;i++){const id=k+'-'+i,x=byId[id]||{id,k,editor:'',st:'vagasra',at:'',_new:1};const y=Object.assign({},x);if(!y.cn)y.name=lbl+(n>1?' '+i:'');want.push(y);}});
+  if(fl(d.x_foto)||Number(d.x_foto_n)>0)want.push(byId['foto-1']||{id:'foto-1',k:'foto',name:'Fotók',editor:'',st:'vagasra',at:'',_new:1});
+  const ids={};want.forEach(x=>{ids[x.id]=1;});cur.forEach(x=>{if(!ids[x.id]&&(x.st!=='vagasra'||x.link||(x.cm||[]).length||(x.vers||[]).length||x.fb||x.rvAt||x.okAt))want.push(x);});
+  const cut=[...new Set((d.crew||[]).filter(a=>a.role==='Vágó').map(a=>a.crewId))];if(cut.length===1)want.forEach(x=>{if(x._new&&!x.editor&&x.k!=='foto')x.editor=cut[0];});
+  return want;}
 function boardCards(only){const me=boardMe(),f=S.boardCut||'';const out=[];   // only: egy projekt videói (a lezárt / Kész projekté is – pl. a naptárból megnyitva)
-  S.projects.forEach(p=>{if(only&&p.id!==only)return;if(p.status==='lemondva'||(p.status==='atadva'&&!only)||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const ow=vidOwner(p,v);if(me&&ow!==me)return;if(!me&&f&&ow!==f)return;out.push({p,v,ow});});});
+  S.projects.forEach(p0=>{if(only&&p0.id!==only)return;const pv=only&&S.dirty&&S.draft&&S.draft.id===p0.id&&S.projectId===p0.id&&!ro(),p=pv?Object.assign({},p0,{videos:vidPreview(p0,S.draft)}):p0;if(p.status==='lemondva'||(p.status==='atadva'&&!only)||!Array.isArray(p.videos))return;p.videos.forEach(v=>{const ow=vidOwner(p,v);if(me&&ow!==me)return;if(!me&&f&&ow!==f)return;out.push({p,v,ow});});});
   return out;}
 /* Sávos tábla: soronként egy projekt (határidő szerint, mint az idővonalon), oszloponként a vágás állapotai */
 function boardLanes(cards,opt){opt=opt||{};const mgr=!ro()&&(isAdmin()||(S.me&&S.me.role==='editor')),T=todayISO();
@@ -453,6 +461,7 @@ function boardLanes(cards,opt){opt=opt||{};const mgr=!ro()&&(isAdmin()||(S.me&&S
   const nextOf=st=>({modositas:'vagas',vagasra:'vagas',vagas:'ellen',ellen:mgr?'leadva':''})[st]||'';
   const card=c=>{const nx=nextOf(c.v.st),nl=nx?(BOARD_COLS.find(x=>x[0]===nx)||[])[1]:'',drag=canMove(c,nx||c.v.st);
     const rw=c.v.st==='vagasra'?rawWait(c.p,c.v):'';
+    if(c.v._new)return `<div class="bd-card bd-new st-vagasra" data-tip="Mentéskor jön létre"><div class="bd-t">${esc(vNameShort(c.v,c.p))}</div><div class="bd-m"><span class="bd-who">${esc('✂️ '+(nmShort((crewById(c.v.editor)||{}).name||'')||'Kiosztásra vár'))}</span><span class="bd-newtag">új · mentéskor</span></div></div>`;
     return `<div class="bd-card st-${esc(c.v.st)}${c.v.link?' has-link':''}${rw?' bd-wait':''}"${rw?` data-tip="${esc(rw)}"`:''}${drag?' draggable="true"':''} data-action="vid-view" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-bd-pid="${esc(c.p.id)}" data-bd-vid="${esc(c.v.id)}" data-bd-st="${esc(c.v.st)}"><div class="bd-t"${c.v.k==='foto'?'':` title="${esc(c.v.name)}"`}>${esc(c.v.k==='foto'?'📷 Fotók utómunkája':vNameShort(c.v,c.p))}</div>${(()=>{const tg=revPill(c.v)+seenPill(c.v);return tg?`<div class="bd-tags">${tg}</div>`:'';})()}
       ${mgr||nx?`<div class="bd-m">${mgr?`<span class="bd-who">${esc((c.v.k==='foto'?'📷 ':'✂️ ')+(nmShort((crewById(c.ow)||{}).name||'')||'Kiosztásra vár'))}</span>`:''}${nx&&canMove(c,nx)?`<button type="button" class="bd-next" data-action="bd-move" data-pid="${esc(c.p.id)}" data-vid="${esc(c.v.id)}" data-st="${nx}" title="Tovább: ${esc(nl.replace(/^\S+\s/,''))}">→</button>`:''}</div>`:''}</div>`;};
   const byP=new Map();cards.forEach(c=>{if(!byP.has(c.p.id))byP.set(c.p.id,{p:c.p,L:[]});byP.get(c.p.id).L.push(c);});
@@ -810,5 +819,5 @@ function viewProject(p){
 }
 
 /* Projekt oldalán a videótábla (kanban) – ugyanaz, mint a naptárból nyíló „Videók” ablakban */
-function projBoardPanel(p){if(ro()||!projById(p.id)||!(Array.isArray(p.videos)&&p.videos.length)||typeof laneModalBody!=='function')return '';
+function projBoardPanel(p){if(ro()||!projById(p.id)||!((Array.isArray(p.videos)&&p.videos.length)||(S.dirty&&vidPreview(projById(p.id),p).length))||typeof laneModalBody!=='function')return '';
   return `<details class="panel fold proj-board" data-fold="board"${FOLD.board===true?' open':''}><summary><h3>🎬 Utómunka</h3></summary>${typeof pnBox==='function'?pnBox(p.id):''}<div class="bd-proj" data-pid="${esc(p.id)}">${laneModalBody(p.id)}</div></details>`;}

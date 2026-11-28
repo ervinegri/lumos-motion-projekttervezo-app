@@ -3819,3 +3819,6 @@ html body details.panel.crew-fin{background:#f4f8ff!important;border-color:#cddc
 html body details.panel.crew-fin>summary h3{color:#1f4a8a}
 html body details.panel.svc{background:#f3faf5!important;border-color:#cfe8d7!important}
 html body details.panel.svc>summary h3{color:#1f6b3a}
+/* még nem mentett (előnézeti) videókártya */
+html body .bd-card.bd-new{background:repeating-linear-gradient(135deg,#fff,#fff 8px,#f6f2ff 8px,#f6f2ff 16px)!important;border:1.5px dashed #b9a6ea!important;box-shadow:none!important;cursor:default}
+html body .bd-card.bd-new .bd-newtag{margin-left:auto;font-size:10.5px;font-weight:600;color:#6b4fb8;background:#efe8ff;border-radius:999px;padding:2px 7px}
