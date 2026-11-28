@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "462b752734",
+"at": "2026-11-28T09:44:48+01:00",
+"msg": "Táblán: egyetlen azonos fajta videónál sorszám nélküli név"
+},
+{
 "id": "4f12556db0",
 "at": "2026-11-28T09:41:41+01:00",
 "msg": "Projektlista: lezárt projekt állapot-sávja is szürke"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Fekvő telefon: a projekt videótábla ablaka kitölti a képernyő magasságát"
 },
 {
-"id": "484593b617",
-"at": "2026-11-27T21:56:50+01:00",
-"msg": "Kártya húzása: tiszta fehér húzási kép (telefonon nem szürke, fekete sarkú), a halványítás utána jön"
-},
-{
-"id": "d769aaf2c4",
-"at": "2026-11-27T20:54:46Z",
+"id": "b12afede8f",
+"at": "2026-11-27T20:56:59Z",
 "msg": "Változásnapló frissítése"
 }
 ];
