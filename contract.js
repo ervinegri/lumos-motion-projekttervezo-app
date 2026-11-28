@@ -52,7 +52,7 @@ function ctStep2(){const c=S.ct,tp=ctTplOf(c.tpl),f=(k,l,o={})=>`<div class="fie
   openModal(`📝 Új szerződés – 2/3: adatok`,`<p class="hint" style="margin:-4px 0 10px">${esc(tp.firm)} · ${esc(tp.t)}</p>
     <div class="fields"><div class="field full"><label for="ct-cl">Ügyfél a listából</label><select class="inp" id="ct-cl" data-cmb="Ügyfél kiválasztása (kitölti az adatokat)…"><option value="">– kézzel töltöm ki –</option>${cls.map(x=>`<option value="${esc(x.name)}"${c.client===x.name?' selected':''}>${esc(x.name)}</option>`).join('')}</select></div>
     ${ctDealField()}
-    ${ctEnOk(tp)?`<div class="field full"><label for="ct-lang">A szerződés nyelve</label><select class="inp" id="ct-lang" name="lang" data-cmb="Nyelv…"><option value="hu"${c.lang!=='en'?' selected':''}>🇭🇺 Magyar</option><option value="en"${c.lang==='en'?' selected':''}>🇬🇧 Angol (külföldi ügyfélnek)</option></select>${(()=>{const x=typeof clientIntl==='function'&&clientIntl(c.client);return x?`<span class="hint">${x.flag} Külföldi ügyfél – ${x.eu?'EU-s partner, fordított adózás: a díjak mellett „net, reverse charge” szerepel':'EU-n kívüli partner: a díjak mellett „net, no Hungarian VAT” szerepel'}.</span>`:'';})()}${c.lang==='en'?'<span class="hint">A kézzel kitöltött mezőket (szolgáltatások, helyszín, rendezvény) angolul írd be – ezek változatlanul kerülnek a szerződésbe.</span>':''}</div>`:''}
+    ${ctEnOk(tp)?`<div class="field full"><label for="ct-lang">A szerződés nyelve</label><select class="inp" id="ct-lang" name="lang" data-cmb="Nyelv…"><option value="hu"${c.lang!=='en'?' selected':''}>🇭🇺 Magyar</option><option value="en"${c.lang==='en'?' selected':''}>🇬🇧 Angol (külföldi ügyfélnek)</option></select>${(()=>{const x=typeof clientIntl==='function'&&clientIntl(c.client);return x?`<span class="hint">${x.flag} Külföldi ügyfél – ${x.eu?'EU-s partner, fordított adózás: a díjak nettóként, „reverse charge” (fordított adózás) megjegyzéssel szerepelnek':'EU-n kívüli partner: a díjak nettóként, „no Hungarian VAT” megjegyzéssel szerepelnek'}.</span>`:'';})()}${c.lang==='en'?'<span class="hint">A kézzel kitöltött mezőket (szolgáltatások, helyszín, rendezvény) angolul írd be – ezek változatlanul kerülnek a szerződésbe.</span>':''}</div>`:''}
     <h4 class="sub-h full" style="margin:6px 0 0">Megrendelő</h4>
     ${f('c_name','Név',{full:true})}${f('c_addr','Cím',{full:true})}${f('c_tax','Adószám')}${f('c_phone','Telefonszám')}${f('c_email','E-mail cím')}${f('c_rep','Képviseli',{ph:'Név, titulus'})}
     ${tp.hat?`<h4 class="sub-h full" style="margin:10px 0 0">Projekt</h4>
@@ -96,11 +96,14 @@ async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl),EN=ctEn();await ctLibs()
   if(tp.hat){const L=c.locs.filter(l=>l.place||l.date),V=c.svcs.filter(s=>s.name);
     x=rep(x,'{l_place}',(L.length?L:[{place:'',date:''}]).map((l,i)=>({l_n:(i+1)+'.',l_place:l.place,l_date:dd(l.date)})));
     x=rep(x,'{s_name}',(V.length?V:[{name:'',qty:'',ext:''}]).map(s=>({s_name:s.name,s_qty:s.qty,s_ext:s.ext})));}
-  if(tp.sh)x=fill(x,EN?ctShTokensEn():ctShTokens());
+  if(tp.sh)x=fill(x,EN?Object.assign(ctShTokensEn(),{p31:ctShTokensEn().p31+ctNoteMk()}):ctShTokens());
   x=x.replace(/<w:p[ >](?:(?!<w:p[ >])[\s\S])*?@@DEL@@(?:(?!<w:p[ >])[\s\S])*?<\/w:p>/g,'');   // kihagyott (opcionális) bekezdések
-  x=fill(x,{deliv:EN?ctDlvTextEn(tp):ctDlvText(tp),raw_buy:EN?ctRawTextEn('rb',tp):ctRawText('rb',tp),raw_keep:EN?ctRawTextEn('rk',tp):ctRawText('rk',tp),c_name:c.c_name,c_addr:c.c_addr,c_tax:c.c_tax,c_phone:c.c_phone,c_email:c.c_email,c_rep:c.c_rep,sig_name:c.sig_name||c.c_name,sig_rep:c.sig_rep||c.c_rep,date:dd(c.date),fee_dep:Ft(dep),fee_fin:Ft(fee-dep),fee_tot:Ft(fee)});
+  x=fill(x,{deliv:EN?ctDlvTextEn(tp)+ctNoteMk():ctDlvText(tp),raw_buy:EN?ctRawTextEn('rb',tp):ctRawText('rb',tp),raw_keep:EN?ctRawTextEn('rk',tp):ctRawText('rk',tp),c_name:c.c_name,c_addr:c.c_addr,c_tax:c.c_tax,c_phone:c.c_phone,c_email:c.c_email,c_rep:c.c_rep,sig_name:c.sig_name||c.c_name,sig_rep:c.sig_rep||c.c_rep,date:dd(c.date),fee_dep:Ft(dep),fee_fin:Ft(fee-dep),fee_tot:Ft(fee)});
   if(!(c.sig_rep||c.c_rep))x=x.replace(EN?/represented by: \{sig_rep\}/:/képviseli: \{sig_rep\}/,'');
-  if(EN){const v=ctVatEn();if(v!==' + VAT')x=x.replace(/ \+ VAT/g,v);}   // külföldi ügyfélnél nincs magyar áfa: „net, reverse charge” / „net, no Hungarian VAT”
+  if(EN){const ix=typeof clientIntl==='function'&&clientIntl(c.client||c.c_name);if(ix){x=x.replace(/ \+ VAT/g,' net');
+    const nt=ix.eu?'net amounts; VAT is to be accounted for by the Client under the reverse-charge mechanism':'net amounts; no Hungarian VAT is charged, as the place of supply is outside Hungary';
+    if(tp.hat)x=x.replace('the following service fee:',`the following service fee (${nt}):`);
+    x=x.replace('@@NOTE@@',X(' All fees are '+nt+'.'));}}   // külföldi ügyfélnél nincs magyar áfa: „net, reverse charge” / „net, no Hungarian VAT”
   z.file('word/document.xml',x);
   const blob=await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
   const slug=x=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'');
@@ -372,7 +375,7 @@ const CT_MONTHS_EN=['January','February','March','April','May','June','July','Au
 const CT_NUMW_EN=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen'];
 /* „2026. 11. 07., szombat” / „2026-11-07” → „Saturday, 7 November 2026” (tartományt is: „… – …”); más szöveget változatlanul hagy */
 function ctDateEn(v){return String(v||'').replace(/(\d{4})(?:\.\s*|-)(\d{1,2})(?:\.\s*|-)(\d{1,2})\.?(?:,?\s*(hétfő|kedd|szerda|csütörtök|péntek|szombat|vasárnap))?/g,(m,y,mo,d,wd)=>{const dt=new Date(Date.UTC(+y,+mo-1,+d));if(isNaN(dt)||!CT_MONTHS_EN[+mo-1])return m;return (wd?CT_WD_EN[dt.getUTCDay()]+', ':'')+(+d)+' '+CT_MONTHS_EN[+mo-1]+' '+y;});}
-function ctVatEn(){const x=typeof clientIntl==='function'&&clientIntl(S.ct.client||S.ct.c_name);return !x?' + VAT':x.eu?' net (VAT reverse-charged)':' net (no Hungarian VAT)';}
+const ctNoteMk=()=>{const x=typeof clientIntl==='function'&&clientIntl(S.ct.client||S.ct.c_name);return x?'@@NOTE@@':'';};
 function ctRawTextEn(p,tp){const c=S.ct,m=c[p+'_mode']||'pct',v=' + VAT',n=x=>num(String(x||'').replace(/[^\d]/g,'')),pc=String(c[p+'_pct']||'10').replace(',','.'),mn=n(c[p+'_min']),am=n(c[p+'_amt']);
   const price=m==='mail'?'for a fee agreed by the Parties by e-mail for each project':m==='fix'?`for a fee of HUF ${ctFtEn(am)}${v}`:`for a fee of ${pc}% of the net project fee${mn?`, but at least HUF ${ctFtEn(mn)}${v}`:''}`;
   if(p==='rb')return `At the Client's request, the Service Provider hands over the complete raw footage created during the project to the Client ${price}.`;
