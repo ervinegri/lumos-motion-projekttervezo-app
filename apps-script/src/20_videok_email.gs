@@ -1335,7 +1335,9 @@ function pnCan_(u, pid, write, kind) {
   const x = pnPost_(pid, kind); if (write === 'lead' || !u.crewId || !x.crew.some(c => c.id === u.crewId)) throw new Error('FORBIDDEN: ehhez nincs jogosultságod.');
   return x;
 }
-function postNotes_(u, a) { const pid = str_(a && a.projectId, 64), kind = a && a.kind === 'crew' ? 'crew' : 'post'; pnCan_(u, pid, '', kind); return { notes: pnLoad_(pid, kind) }; }
+function postNotes_(u, a) { const pid = str_(a && a.projectId, 64), kind = a && a.kind === 'crew' ? 'crew' : 'post', x = pnCan_(u, pid, '', kind); return pnOut_(u, x, pnLoad_(pid, kind)); }
+/* a projektvezető / ügyvezető a levél címzettjeit is látja (pipálható lista); a szakember nem (adatvédelem) */
+function pnOut_(u, x, notes) { const o = { notes: notes }; if (u.role === 'admin' || u.role === 'editor') { const me = String(u.email || '').trim().toLowerCase(); o.rcpt = x.crew.filter(c => String(c.email || '').trim().toLowerCase() !== me || !me).map(c => ({ id: c.id, name: String(c.nick || c.name || ''), mail: /@/.test(String(c.email || '')) })); } return o; }
 function postNoteAct_(u, a) {
   a = a || {}; const kind = a.kind === 'crew' ? 'crew' : 'post', LBL = kind === 'crew' ? 'stáb' : 'utómunka', pid = str_(a.projectId, 64), act = String(a.act || ''), t = str_(a.text, act === 'add' ? 12000 : 1000).trim();
   const plain = v => String(v || '').replace(/<\s*br\s*\/?>/gi, '\n').replace(/<\/(p|div|li|h\d)>/gi, '\n').replace(/<li[^>]*>/gi, '• ').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/\n{3,}/g, '\n\n').trim();   // a formázott instrukció az e-mailben szövegként
@@ -1357,7 +1359,7 @@ function postNoteAct_(u, a) {
   try {
     const url = appUrl_() + '#p=' + pid, pn = x.p.name, me = String(u.email || '').toLowerCase();
     let to = [];
-    if (act === 'add' && a.notify !== false) to = x.crew.map(c => String(c.email || '').trim());
+    if (act === 'add' && a.notify !== false) { const skip = Array.isArray(a.skip) ? a.skip.map(v => String(v)) : []; to = x.crew.filter(c => skip.indexOf(String(c.id)) < 0).map(c => String(c.email || '').trim()); }   // a kipipált címzettek nem kapják meg (Ervin, 2026-11-28)
     if (act === 'comment' && !a.__dup) { const names = [note.by].concat((note.cm || []).map(c => c.by)); const users = loadUsers_(); to = names.map(n => { const us = users.find(z => z.name === n), cr = readAll_('crew').find(c => c.name === n); return String((us && us.email) || (cr && cr.email) || '').trim(); }); }
     to = to.filter((m, i) => m && /@/.test(m) && m.toLowerCase() !== me && to.indexOf(m) === i);
     if (to.length) {
@@ -1367,7 +1369,7 @@ function postNoteAct_(u, a) {
     }
   } catch (e) { Logger.log('Instrukció e-mail: ' + e); }
   logEvent_(u, kind === 'crew' ? 'Stáb-instrukció' : 'Utómunka-instrukció', x.p.name, { add: 'új', comment: 'hozzászólás', done: a.done ? 'kész' : 'visszavonva', del: 'törölve' }[act] || act);
-  return { notes: pnLoad_(pid, kind) };
+  return pnOut_(u, x, pnLoad_(pid, kind));
 }
 
 /** Egyszeri pótlás: a nyitott projekteknél az előadásrögzítés utómunkái (előadások, összefoglaló, kivágások) is megjelennek a vágási táblán. */
