@@ -3825,3 +3825,7 @@ html body .bd-card.bd-new .bd-newtag{margin-left:auto;font-size:10.5px;font-weig
 /* lezárt (Kész) projekt a listában: a jobb oldali állapot-sáv (címke, videók, haladás) is szürke (Ervin, 2026-11-28) */
 html body .pt-row.pt-st-atadva .pt-status{filter:grayscale(1);opacity:.72}
 html body .pt-row.pt-st-atadva:hover .pt-status{opacity:.9}
+/* tablet: keskenyebb oldalsó margó, a panelek szinte a szélig érnek (Ervin, 2026-11-28) */
+@media (min-width:701px) and (max-width:1180px){
+  html body main.content,html body #view{padding-left:10px!important;padding-right:10px!important}
+}
