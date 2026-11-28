@@ -3913,3 +3913,4 @@ html body .rq-tools .btn{background:#fff!important;color:#111!important;opacity:
 .tab .tab-alert{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:#e5484d;color:#fff!important;font-size:11px;font-weight:800;line-height:1;vertical-align:1px;box-shadow:0 0 0 2px rgba(255,255,255,.9)}
 /* nincs mit menteni (letiltott Mentés): rámutatáskor sem változik a gomb */
 html body .mfoot button[type=submit]:disabled,html body .mfoot button[type=submit]:disabled:hover{pointer-events:none!important;cursor:default!important;filter:none!important;transform:none!important;box-shadow:none!important}
+.q-seg .q-sym{font-weight:800;color:#7b8794;min-width:1.1em;text-align:center}.q-seg label.on .q-sym{color:#111}
