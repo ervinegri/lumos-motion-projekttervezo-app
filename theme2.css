@@ -3812,3 +3812,8 @@ html body .vv-meta .vv-fcnt a{color:inherit;opacity:.8}
 }
 html body .sub-h .pf-btn{margin-left:10px;font-size:12px;padding:4px 10px;vertical-align:middle;text-transform:none;letter-spacing:0}
 html body .sub-h .pf-on{margin-left:8px;font-size:11.5px;font-weight:600;color:#8a5a00;background:#fff3d6;border-radius:999px;padding:2px 9px;vertical-align:middle}
+/* szakaszok színei (Ervin, 2026-11-28): Utómunka lilás, Stáb és eszközök kék (a Pénzügyek sárgás) */
+html body details.panel.proj-board{background:#f8f5ff!important;border-color:#e3d9fb!important}
+html body details.panel.proj-board>summary h3{color:#4f2f8f}
+html body details.panel.crew-fin{background:#f4f8ff!important;border-color:#cddcf5!important}
+html body details.panel.crew-fin>summary h3{color:#1f4a8a}
