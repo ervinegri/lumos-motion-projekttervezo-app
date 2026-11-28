@@ -553,8 +553,28 @@ ACT['rv-detail']=b=>{const p=projById(b.dataset.pid);if(!p)return;const st=rvSta
 
 /* Google-értékelési link: másolás és QR-kód (pl. rendezvényen kitenni, névjegyre, e-mail aláírásba) */
 ACT['rev-link-copy']=async()=>{try{await navigator.clipboard.writeText(REVIEW_URL);toast('✓ Az értékelési link a vágólapon: '+REVIEW_URL);}catch(e){prompt('Másold ki a linket:',REVIEW_URL);}};
-ACT['rev-qr']=async()=>{let img='';try{await loadQr();const q=qrcode(0,'M');q.addData(REVIEW_URL);q.make();img=q.createDataURL(10,16);}catch(e){toast('A QR-kód most nem készíthető el.',true);return;}
-  confirmLayer('▦ Értékelési QR-kód',`<div style="margin:0 16px;text-align:center"><img src="${img}" alt="QR-kód: Google-értékelés" style="width:min(70vw,300px);height:auto;image-rendering:pixelated;border:1px solid var(--line,#e3e6eb);border-radius:12px"><p class="hint" style="margin:8px 0 0;word-break:break-all">${esc(REVIEW_URL)}</p><p style="margin:10px 0 0"><a class="btn outline small" href="${img}" download="Lumos-Motion-Google-ertekeles-QR.png">⬇ Letöltés (PNG)</a></p></div>`,'🔗 Link másolása',(b,l)=>{l.remove();ACT['rev-link-copy']();});};
+/* Értékelési QR-kártya – az ügyfélnek mutatjuk (Ervin, 2026-11-28): logó, öt csillag, rövid kérés, nagy QR-kód; letölthető nyomtatható PNG-ként is */
+ACT['rev-qr']=async()=>{let img='',qr=null;try{await loadQr();qr=qrcode(0,'M');qr.addData(REVIEW_URL);qr.make();img=qr.createDataURL(12,0);}catch(e){toast('A QR-kód most nem készíthető el.',true);return;}
+  const ov=document.createElement('div');ov.className='rq-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Értékelési QR-kód');
+  ov.innerHTML=`<div class="rq-wrap"><div class="rq-card"><img class="rq-logo" src="mail/lumos-motion-stacked.png?v=2" alt="Lumos Motion"><div class="rq-stars" aria-label="5 csillag">★★★★★</div>
+    <h2 class="rq-t">Elégedett volt velünk?</h2><p class="rq-s">Értékeljen minket a Google-on – csak egy perc,<br>és nekünk nagyon sokat jelent.</p>
+    <div class="rq-qr"><img src="${img}" alt="QR-kód: Google-értékelés"></div><p class="rq-h">📷 Olvassa be a telefonja kamerájával</p></div>
+    <div class="rq-tools"><button type="button" class="btn outline small" data-rq="dl">⬇ Letöltés (PNG)</button><button type="button" class="btn ghost small" data-rq="x">Bezárás</button></div></div>`;
+  const close=()=>{ov.remove();document.removeEventListener('keydown',kd,true);},kd=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();}};
+  ov.addEventListener('click',async e=>{const b=e.target.closest('[data-rq]');if(e.target===ov||(b&&b.dataset.rq==='x')){close();return;}if(b&&b.dataset.rq==='dl'){b.disabled=true;try{const a=document.createElement('a');a.href=await revQrPng(qr);a.download='Lumos-Motion-Google-ertekeles.png';document.body.appendChild(a);a.click();a.remove();}catch(err){toast('A kép most nem készíthető el.',true);}finally{b.disabled=false;}}});
+  document.addEventListener('keydown',kd,true);document.body.appendChild(ov);};
+/* nyomtatható kártya (1200×1600 px): ugyanaz, mint a képernyőn */
+async function revQrPng(qr){const W=1200,H=1600,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  x.fillStyle='#f4f1ea';x.fillRect(0,0,W,H);const r=48,cx=80,cy=80,cw=W-160,ch=H-160;x.fillStyle='#fff';x.beginPath();x.roundRect?x.roundRect(cx,cy,cw,ch,r):x.rect(cx,cy,cw,ch);x.fill();
+  const logo=await new Promise(ok=>{const im=new Image();im.onload=()=>ok(im);im.onerror=()=>ok(null);im.src='mail/lumos-motion-stacked.png?v=2';});
+  if(logo){const lh=150,lw=logo.width*lh/logo.height;x.drawImage(logo,(W-lw)/2,170,lw,lh);}
+  if(document.fonts&&document.fonts.ready)await document.fonts.ready;const F=getComputedStyle(document.body).fontFamily||'sans-serif';
+  x.textAlign='center';x.fillStyle='#f5b301';x.font='90px '+F;x.fillText('★★★★★',W/2,450);
+  x.fillStyle='#111';x.font='700 70px '+F;x.fillText('Elégedett volt velünk?',W/2,570);
+  x.fillStyle='#5b6573';x.font='40px '+F;x.fillText('Értékeljen minket a Google-on – csak egy perc,',W/2,650);x.fillText('és nekünk nagyon sokat jelent.',W/2,705);
+  const n=qr.getModuleCount(),size=640,m=size/n,ox=(W-size)/2,oy=780;x.fillStyle='#111';for(let rr=0;rr<n;rr++)for(let cc=0;cc<n;cc++)if(qr.isDark(rr,cc))x.fillRect(Math.floor(ox+cc*m),Math.floor(oy+rr*m),Math.ceil(m),Math.ceil(m));
+  x.fillStyle='#5b6573';x.font='38px '+F;x.fillText('Olvassa be a telefonja kamerájával',W/2,1500);
+  return c.toDataURL('image/png');}
 
 /* Értékelés-kérő levél: a szokásos levélnézet (Feladó / Címzett / Tárgy fejléc + a levél szerkeszthetően, formázva, alatta az aláírásod).
    A szerkesztett szöveg a rejtett „text” mezőbe kerül vissza; a háttér ugyanígy, az aláírással küldi ki. */

@@ -3896,3 +3896,16 @@ html body #modalRoot .mbox-deal .mhead .btn{min-height:34px!important;height:aut
 .q-seg label.on{background:#fff;box-shadow:0 1px 3px rgba(16,25,35,.14);color:#111}
 .q-seg label:focus-within{outline:2px solid #2f6fed;outline-offset:1px}
 .q-lc-hints{display:flex;flex-direction:column;gap:2px;margin-top:-6px}
+/* értékelési QR-kártya (ügyfélnek mutatva) */
+.rq-ov{position:fixed;inset:0;z-index:2147482500;background:rgba(15,18,24,.72);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.rq-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:100%}
+.rq-card{background:#fff;border-radius:28px;padding:34px 38px 30px;width:min(420px,calc(100vw - 32px));text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.rq-logo{height:54px;width:auto;display:block;margin:0 auto 14px}
+.rq-stars{font-size:34px;letter-spacing:6px;color:#f5b301;line-height:1;margin:0 0 12px;text-shadow:0 1px 0 rgba(0,0,0,.06)}
+.rq-t{font-size:24px;font-weight:800;margin:0 0 6px;color:#111;letter-spacing:-.01em}
+.rq-s{font-size:14.5px;line-height:1.5;color:#5b6573;margin:0 0 18px}
+.rq-qr{background:#fff;border-radius:18px;padding:14px;margin:0 auto;width:min(280px,70vw);border:1px solid #ece7dc}
+.rq-qr img{display:block;width:100%;height:auto;image-rendering:pixelated}
+.rq-h{font-size:13px;color:#6b7480;margin:14px 0 0}
+.rq-tools{display:flex;gap:8px}.rq-tools .btn{background:rgba(255,255,255,.92)!important}
+html body .rq-tools .btn{background:#fff!important;color:#111!important;opacity:1!important;border:0!important;box-shadow:0 2px 8px rgba(0,0,0,.2)}
