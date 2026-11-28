@@ -3859,3 +3859,10 @@ html body #mform .tax-hd{display:flex;align-items:center;justify-content:space-b
 html body #mform .tax-hd>label[for]{font-size:12px;font-weight:600;color:var(--fg-2);flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 html body #mform .tax-hd .frn-chk{display:inline-flex;align-items:center;gap:5px;margin:0;font-size:12px;font-weight:600;color:#5b6573;text-transform:none;letter-spacing:0;white-space:nowrap;cursor:pointer;flex:0 0 auto}
 html body #mform .tax-hd .frn-chk input{width:14px;height:14px;margin:0}
+/* videó- / fotó-ablak közepes szélességen (701–1099px, pl. kisebb laptopablak, nagyított nézet) is teljes képernyős – mint széles képernyőn */
+@media (min-width:701px) and (max-width:1099px){
+  html body .modal:has(#mform.m-video){padding:0!important;align-items:stretch}
+  html body #mform.m-video{width:100vw!important;max-width:100vw!important;height:100dvh;max-height:100dvh!important;border-radius:0;border:0;margin:0;box-shadow:none;display:flex;flex-direction:column}
+  html body #mform.m-video .vv-body{flex:1 1 auto;min-height:0;align-items:stretch}
+  html body #mform.m-video .vv-body>.vv-pcg{height:calc(100dvh - 150px)!important;max-height:calc(100dvh - 150px)!important;border-radius:12px}
+}
