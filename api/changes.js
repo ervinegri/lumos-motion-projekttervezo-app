@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "71be14431b",
+"at": "2026-11-28T09:31:46+01:00",
+"msg": "Helyszínen kért feladat rögzítése: megerősítő ablak nélkül"
+},
+{
 "id": "0cff8d0bbe",
 "at": "2026-11-28T09:30:25+01:00",
 "msg": "Lezajlott rendezvény feloldva: nem szürke, az operatőr kiválasztható; Szolgáltatások zöld; a táblán a videó neve terjedelem nélkül"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Fotók küldése az ügyfélnek: „Fotók megtekintése” gomb és fotós alapszöveg (a videós minta nem íródik felül)"
 },
 {
-"id": "2947083651",
-"at": "2026-11-27T21:50:05+01:00",
-"msg": "Videó/fotó ablak alja mobilon: Bezárás kis ✕ gomb, a fő gombok felirata nem vágódik le"
-},
-{
-"id": "88d6d81875",
-"at": "2026-11-27T20:48:37Z",
+"id": "0240bffabf",
+"at": "2026-11-27T20:50:15Z",
 "msg": "Változásnapló frissítése"
 }
 ];
