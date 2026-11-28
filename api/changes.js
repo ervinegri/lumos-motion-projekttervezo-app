@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ae96f21bad",
+"at": "2026-11-28T10:08:45+01:00",
+"msg": "Tablet: a szél nélküli nézet csak a projektoldalon (a pénzügyi táblázatok nem csúsznak szét)"
+},
+{
 "id": "d270677a1b",
 "at": "2026-11-28T10:07:56+01:00",
 "msg": "Csengő betöltés közben is látszik; Fizetések táblázat kerete pontosan a képernyő aljáig (iPad)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Utómunkában lévő projekt megnyitásakor az Utómunka szakasz nyitva"
 },
 {
-"id": "4eee905b55",
-"at": "2026-11-28T08:49:22+01:00",
-"msg": "Projekt megnyitása új lapon: jobb klikk menü a projektsoron és a naptárban, Ctrl/⌘+kattintás és középső gomb"
-},
-{
-"id": "501b52355d",
-"at": "2026-11-28T07:48:38Z",
+"id": "18656ca4a6",
+"at": "2026-11-28T07:49:35Z",
 "msg": "Változásnapló frissítése"
 }
 ];
