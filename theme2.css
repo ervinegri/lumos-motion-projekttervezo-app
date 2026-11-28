@@ -3804,3 +3804,5 @@ html body details.crew-fin>.pn-box{margin-bottom:12px}
 .pn-rc-i input{margin:0}
 .pn-rc-i:has(input:not(:checked)){opacity:.55;text-decoration:line-through}
 .pn-rc-i.off{opacity:.45;cursor:not-allowed;text-decoration:none}
+html body .vv-meta .vv-fcnt{white-space:nowrap}
+html body .vv-meta .vv-fcnt a{color:inherit;opacity:.8}

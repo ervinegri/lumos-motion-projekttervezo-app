@@ -90,13 +90,13 @@
     const ext=opts.wm?'':`<a href="${esc(link)}" target="_blank" rel="noopener">Megnyitás a pCloudban ↗</a>`;
     list(link).then(g=>{if(!el.isConnected)return;
       if(!g||g.err){el.innerHTML=`<div class="pcg-err">${esc(g&&g.err||'A galériát nem sikerült betölteni.')}${opts.wm?'':`<a href="${esc(link)}" target="_blank" rel="noopener">📷 Fotók megnyitása</a>`}</div>`;if(opts.onFail)try{opts.onFail(g&&g.err);}catch(e){}return;}
-      ctl.g=g;const multi=new Set(g.items.map(x=>x.folder)).size>1,NC=3;let h='';
+      ctl.g=g;const multi=new Set(g.items.map(x=>x.folder)).size>1,NC=opts.cols||(innerWidth<700?3:4);let h='';
       /* hasábos elrendezés (Ervin, 2026-11-28): 3 oszlop, a képek eredeti arányban; mindig a legrövidebb oszlop kapja a következőt (így az olvasási sorrend is soronként halad) */
       const tile=(it,i)=>{const ar=it.w&&it.h?it.w/it.h:0;return `<button type="button" class="pcg-t" data-i="${i}" title="${esc(it.name)}"${ar?` style="aspect-ratio:${ar.toFixed(4)}"`:''}><img loading="lazy" decoding="async" alt="${esc(it.name)}" referrerpolicy="no-referrer" draggable="false" src="${esc(thumb(g,it,'640x640',0))}">${opts.wm?wmHtml(opts.wm,6):''}<span class="pcg-nm">${esc(it.name)}</span></button>`;};
       const group=list=>{const cols=Array.from({length:NC},()=>({h:0,s:''}));list.forEach(([it,i])=>{const c=cols.reduce((m,x)=>x.h<m.h-0.01?x:m,cols[0]);c.s+=tile(it,i);c.h+=it.w&&it.h?it.h/it.w:0.75;});return '<div class="pcg-grid pcg-mas">'+cols.map(c=>`<div class="pcg-col">${c.s}</div>`).join('')+'</div>';};
       const groups=[];g.items.forEach((it,i)=>{const L=groups[groups.length-1];if(!L||L.f!==it.folder)groups.push({f:it.folder,l:[[it,i]]});else L.l.push([it,i]);});
       groups.forEach(G=>{h+=(multi?`<div class="pcg-fold">${esc(G.f||'Fő mappa')}</div>`:'')+group(G.l);});
-      if(opts.onCount)try{opts.onCount(g.items.length);}catch(e){}
+      if(opts.onCount)try{opts.onCount(g.items.length,opts.wm?'':link);}catch(e){}
       el.innerHTML=(opts.noHead?'':`<div class="pcg-head"><b>📷 ${g.items.length} fotó</b>${ext}</div>`)+h;
       el.querySelectorAll('.pcg-t img').forEach(im=>im.addEventListener('load',()=>{const b=im.closest('.pcg-t');if(b&&!b.style.aspectRatio&&im.naturalWidth)b.style.aspectRatio=(im.naturalWidth/im.naturalHeight).toFixed(4);},{once:true}));
       el.querySelectorAll('.pcg-t img').forEach(im=>im.addEventListener('error',()=>{const b=im.closest('.pcg-t');if(b)b.classList.add('noimg');im.remove();},{once:true}));
