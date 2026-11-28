@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "66864d4b5e",
+"at": "2026-11-28T09:14:19+01:00",
+"msg": "Fotógaléria: gépen 4 oszlop (telefonon 3), a fotók száma és a pCloud link a fejlécsorban"
+},
+{
 "id": "49dbc49a23",
 "at": "2026-11-28T09:13:34+01:00",
 "msg": "svcCanPost egyszerűsítése"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Fotógaléria az appon belül (belső ellenőrzés + ügyfél jóváhagyó oldal): bélyegképek, nagyítás, lapozás, képre szóló megjegyzés"
 },
 {
-"id": "0a82aac294",
-"at": "2026-11-27T15:10:10+02:00",
-"msg": "Projektlista: a lezajlott / lezárt sorok olvashatóbbak"
-},
-{
-"id": "17f17678b1",
-"at": "2026-11-27T13:09:01Z",
+"id": "49dfb73770",
+"at": "2026-11-27T13:10:18Z",
 "msg": "Változásnapló frissítése"
 }
 ];
