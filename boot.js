@@ -183,3 +183,8 @@ document.addEventListener('dragstart',e=>{const t=e.target;if(t&&t.closest&&t.cl
   document.addEventListener('selectstart',e=>{if(mq.matches&&!OK(e.target))e.preventDefault();},true);
   document.addEventListener('selectionchange',()=>{if(!mq.matches)return;const s=document.getSelection&&document.getSelection();if(!s||s.isCollapsed||!s.rangeCount)return;if(OK(s.anchorNode)||OK(s.focusNode)||OK(document.activeElement))return;try{s.removeAllRanges();}catch(e){}});
 })();
+/* Fizetések táblázat: a görgethető keret pontosan a képernyő aljáig ér (iPaden a dvh / eszköztár miatt eddig túllógott, és az alja nem volt elérhető – Ervin, 2026-11-28) */
+{let pfT=0;const payFit=()=>{const w=document.querySelector('#view .pay-wrap:not(.dock-wrap)');if(!w)return;if(innerWidth<=700||innerHeight<=560){w.style.removeProperty('max-height');return;}
+    const top=w.getBoundingClientRect().top+scrollY,h=Math.max(260,Math.round(innerHeight-top-12));w.style.setProperty('max-height',h+'px','important');};
+  const sch=()=>{clearTimeout(pfT);pfT=setTimeout(payFit,120);};addEventListener('resize',sch);addEventListener('orientationchange',sch);
+  try{new MutationObserver(sch).observe(document.getElementById('view')||document.body,{childList:true,subtree:false});}catch(e){}}
