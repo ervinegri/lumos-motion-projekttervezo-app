@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e5c3953c92",
+"at": "2026-11-28T10:51:12+01:00",
+"msg": "Angol szerződés: külföldi ügyfélnél nettó díjak, fordított adózási / no Hungarian VAT megjegyzés"
+},
+{
 "id": "1b7d0f38ec",
 "at": "2026-11-28T10:48:51+01:00",
 "msg": "Szerződés: angol nyelvű változat külföldi ügyfélnek (Lumos sablonok _en, nyelvválasztó, angol szövegek, dátum, áfa-megjegyzés, levél)"
@@ -135,16 +140,6 @@ const ITEMS = [
 "id": "da64b28331",
 "at": "2026-11-28T09:15:50+01:00",
 "msg": "Videótábla telefonon: keskenyebb oszlopok, a kártyán is lehet görgetni"
-},
-{
-"id": "66864d4b5e",
-"at": "2026-11-28T09:14:19+01:00",
-"msg": "Fotógaléria: gépen 4 oszlop (telefonon 3), a fotók száma és a pCloud link a fejlécsorban"
-},
-{
-"id": "9aee2e4884",
-"at": "2026-11-28T08:13:48Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
