@@ -3793,3 +3793,7 @@ html body .b-grid.svc-locked.ro-lock :is(a[href],.map-link,.cp-btn,.copy-btn,[da
 .cl-mail-x{border:0;background:#f0f3f6;border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer;flex:none}
 .cl-mail-f{flex:1;border:0;width:100%;background:#fff}
 @media (max-width:700px){.cl-mail-ov{padding:0}.cl-mail-box{border-radius:0;height:100dvh;width:100%}}
+/* zárolt stábnál is szerkeszthető stáb-instrukciók */
+html body details.crew-fin>.pn-box,html body details.crew-fin>.pn-box *{cursor:auto}
+html body details.crew-fin>.pn-box :is(button,summary,[role=button],label){cursor:pointer}
+html body details.crew-fin>.pn-box{margin-bottom:12px}
