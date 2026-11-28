@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "072998a1b8",
+"at": "2026-11-28T14:05:59+01:00",
+"msg": "Új ajánlat ugyanennél a lehetőségnél (a legutóbbi kiküldött alapján); kompakt ajánlatnéző fejléc; ajánlaton a készítő neve, adószám a cégnév mellett; jegyzetek teljes képernyőn; felesleges napválasztó-tipp törölve"
+},
+{
 "id": "e8e04766dd",
 "at": "2026-11-28T14:01:25+01:00",
 "msg": "Árajánlat: nyelv és pénznem egy választóban (Magyar · Ft / English · HUF / English · EUR)"
@@ -132,13 +137,8 @@ const ITEMS = [
 "msg": "Tablet: szélek nélkül (a panelek a képernyő széléig); videóablak fejléce az iPad állapotsora alatt olvasható"
 },
 {
-"id": "e4c017d511",
-"at": "2026-11-28T09:54:51+01:00",
-"msg": "Tablet nézet: keskeny oldalsó margó"
-},
-{
-"id": "396f68b58e",
-"at": "2026-11-28T08:48:57Z",
+"id": "a1c3cc0a18",
+"at": "2026-11-28T08:55:06Z",
 "msg": "Változásnapló frissítése"
 }
 ];
