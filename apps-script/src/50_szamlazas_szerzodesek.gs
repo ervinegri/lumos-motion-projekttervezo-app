@@ -4,7 +4,7 @@
    A kifizetés alapján a projekt / bevételi sor fizetési állapota magától frissül. Az Agent-kulcs: SZAMLAZZ_AGENT_KEY. */
 const SZ_SETTINGS_PROPERTY = 'LUMOS_PM_SZ';
 const SZ_KIND_LABEL_ = { szamla: 'Számla', dijbekero: 'Díjbekérő', eloleg: 'Foglalószámla', vegszamla: 'Végszámla' };
-const SZ_VATS = ['27', '18', '5', '0', 'AAM', 'TAM', 'EU', 'EUK', 'MAA', 'F.AFA', 'K.AFA', 'ÁKK', 'TEHK', 'HO', 'KBAET'];
+const SZ_VATS = ['27', '18', '5', '0', 'AAM', 'TAM', 'EU', 'EUK', 'MAA', 'F.AFA', 'K.AFA', 'ÁKK', 'TEHK', 'HO', 'KBAET', 'EUFAD37', 'EUFADE', 'EUE'];
 const SZ_PAYMETHODS = ['Átutalás', 'Készpénz', 'Bankkártya'];
 function szSettings_() {
   let s = {}; try { s = JSON.parse(PropertiesService.getScriptProperties().getProperty(SZ_SETTINGS_PROPERTY) || '{}') || {}; } catch (e) { s = {}; }
@@ -145,7 +145,8 @@ function szInvoice_(u, a) {
   const key = szNeedKey_(), tg = szTarget_(a), set = szSettings_();
   const b = a.buyer || {}, kind = SZ_KINDS.indexOf(a.kind) >= 0 ? a.kind : 'szamla';
   const dijbekeroNo = kind === 'eloleg' ? str_(a.dijbekeroNo, 60) : '', elolegNo = kind === 'vegszamla' ? str_(a.elolegNo, 60) : '';
-  const buyer = { name: str_(b.name, 200), tax: str_(b.tax, 20), zip: str_(b.zip, 10), city: str_(b.city, 80), address: str_(b.address, 200), email: str_(b.email, 300) };
+  const buyer = { name: str_(b.name, 200), tax: str_(b.tax, 20), zip: str_(b.zip, 10), city: str_(b.city, 80), address: str_(b.address, 200), email: str_(b.email, 300), country: String(b.country || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2), countryName: str_(b.countryName, 60) };
+  const frn = !!buyer.country && buyer.country !== 'HU', frnEU = frn && ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'GR', 'ES', 'FI', 'FR', 'HR', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'].indexOf(buyer.country) >= 0;   /* külföldi vevő (Ervin, 2026-11-28) */
   if (buyer.name.length < 2) throw new Error('Add meg a vevő nevét.');
   if (!buyer.zip || !buyer.city || !buyer.address) throw new Error('Add meg a vevő teljes címét (irányítószám, település, cím).');
   if (buyer.email && !buyer.email.split(/[,;]\s*/).every(e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))) throw new Error('Hibás e-mail-cím a vevőnél.');
@@ -168,14 +169,15 @@ function szInvoice_(u, a) {
   const xml = szXmlHead_('xmlszamla', 'agent')
     + '<beallitasok>' + szEl_('szamlaagentkulcs', key) + szEl_('eszamla', eInvoice ? 'true' : 'false') + szEl_('szamlaLetoltes', ownMail ? 'true' : 'false') + szEl_('valaszVerzio', '2') + '</beallitasok>'
     + '<fejlec>' + szEl_('keltDatum', today) + szEl_('teljesitesDatum', fulfill) + szEl_('fizetesiHataridoDatum', due) + szEl_('fizmod', payMethod) + szEl_('penznem', 'Ft')
-    + szEl_('szamlaNyelve', 'hu') + szEl_('megjegyzes', szPayNote_(str_(a.comment, 1000), payMethod)) + szEl_('arfolyamBank', '') + szEl_('arfolyam', '0') + szEl_('rendelesSzam', szOrderNo_(tg, kind))
+    + szEl_('szamlaNyelve', frn ? 'en' : 'hu') + szEl_('megjegyzes', szPayNote_((frnEU && !/reverse charge|fordított adózás/i.test(String(a.comment || '')) ? 'Fordított adózás / Reverse charge. ' : '') + str_(a.comment, 1000), payMethod)) + szEl_('arfolyamBank', '') + szEl_('arfolyam', '0') + szEl_('rendelesSzam', szOrderNo_(tg, kind))
     + (dijbekeroNo ? szEl_('dijbekeroSzamlaszam', dijbekeroNo) : '') + szEl_('elolegszamla', kind === 'eloleg' ? 'true' : 'false') + szEl_('vegszamla', kind === 'vegszamla' ? 'true' : 'false')
     + (elolegNo ? szEl_('elolegSzamlaszam', elolegNo) : '') + szEl_('dijbekero', kind === 'dijbekero' ? 'true' : 'false') + (a.paid ? szEl_('fizetve', 'true') : '') + '</fejlec>'
     + '<elado>' + szEl_('emailReplyto', /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(u && u.email || '')) ? u.email : 'ervin.egri@lumosmotion.com') + '</elado>'   // a számlázz.hu kötelezően kéri az <elado> elemet; a vevő válasza hozzánk jön
     + '<vevo>' + szEl_('nev', buyer.name) + szEl_('irsz', buyer.zip) + szEl_('telepules', buyer.city) + szEl_('cim', buyer.address)
     + (buyer.email ? szEl_('email', buyer.email) : '') + szEl_('sendEmail', viaSz ? 'true' : 'false')   // a számlázz.hu nem küldi: a Lumos címéről megy (PDF melléklettel)
    
-    + szEl_('adoalany', taxDigits.length >= 11 ? '1' : '-1') + (taxDigits.length >= 11 ? szEl_('adoszam', taxDigits.slice(0, 8) + '-' + taxDigits[8] + '-' + taxDigits.slice(9, 11)) : '') + '</vevo>'
+    + (frn ? (buyer.countryName ? szEl_('orszag', buyer.countryName) : '') + szEl_('adoalany', '7') + (frnEU && buyer.tax ? szEl_('adoszamEU', buyer.tax.toUpperCase().replace(/[^A-Z0-9]/g, '')) : '')   // külföldi adóalany: közösségi adószám, ország
+      : szEl_('adoalany', taxDigits.length >= 11 ? '1' : '-1') + (taxDigits.length >= 11 ? szEl_('adoszam', taxDigits.slice(0, 8) + '-' + taxDigits[8] + '-' + taxDigits.slice(9, 11)) : '')) + '</vevo>'
     + '<tetelek>' + items.map(it => '<tetel>' + szEl_('megnevezes', it.name) + szEl_('mennyiseg', String(it.qty)) + szEl_('mennyisegiEgyseg', it.unit) + szEl_('nettoEgysegar', String(it.price))
       + szEl_('afakulcs', it.vat) + szEl_('nettoErtek', String(it.net)) + szEl_('afaErtek', String(it.vatAmt)) + szEl_('bruttoErtek', String(it.gross)) + (it.note ? szEl_('megjegyzes', it.note) : '') + '</tetel>').join('') + '</tetelek>'
     + '</xmlszamla>';

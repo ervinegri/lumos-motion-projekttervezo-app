@@ -185,11 +185,31 @@ function knownClients(q){
   return out.sort((a,b)=>a.company.localeCompare(b.company,'hu'));
 }
 /* Új ügyfél: adószámból a cégnév és a székhely a NAV-ból (számlázz.hu-n keresztül, mint a Sales Appban). */
-const taxBlock=()=>`${mf('client','Cégnév',{max:160})}<div class="field"><label for="m-clientTax">Adószám</label><div class="tax-row"><input class="inp" id="m-clientTax" name="clientTax" inputmode="numeric" maxlength="13" placeholder="12345678-2-42" autocomplete="off"><button class="btn outline small" type="button" data-action="tax-lookup" title="Cégadatok betöltése az adószám alapján (NAV)">Betöltés</button></div>
-  <button class="linkbtn" type="button" data-action="nav-search" style="align-self:flex-start;font-size:13px">🔎 Adószám keresése név alapján (NAV)</button></div>
-  ${mf('clientAddress','Székhely',{full:true,max:300})}`;   /* cégnév és adószám egy sorban */
+/* Külföldi cég (Ervin, 2026-11-28): „Külföldi cég” kapcsoló → országválasztó, közösségi adószám (VIES-ellenőrzés), a NAV-gombok eltűnnek */
+const EU_CC=['AT','BE','BG','CY','CZ','DE','DK','EE','GR','ES','FI','FR','HR','IE','IT','LT','LU','LV','MT','NL','PL','PT','RO','SE','SI','SK'];
+const ccHu=c=>{try{return new Intl.DisplayNames(['hu'],{type:'region'}).of(c)||c;}catch(e){return c;}};
+const COUNTRY_OPTS=()=>{const all=[...new Set(EU_CC.concat((typeof PH_CC!=='undefined'?PH_CC:[]).map(x=>x[0])))].filter(c=>c!=='HU'),fl=c=>((typeof PH_CC!=='undefined'?PH_CC:[]).find(x=>x[0]===c)||[])[1]||'';
+  const o=c=>`<option value="${c}">${fl(c)} ${esc(ccHu(c))}</option>`,eu=all.filter(c=>EU_CC.includes(c)).sort((a,b)=>ccHu(a).localeCompare(ccHu(b),'hu')),rest=all.filter(c=>!EU_CC.includes(c)).sort((a,b)=>ccHu(a).localeCompare(ccHu(b),'hu'));
+  return `<optgroup label="EU">${eu.map(o).join('')}</optgroup><optgroup label="EU-n kívül">${rest.map(o).join('')}</optgroup>`;};
+const taxBlock=()=>`${mf('client','Cégnév',{max:160})}<div class="field"><label for="m-clientTax"><span class="tax-lbl-hu">Adószám</span><span class="tax-lbl-fr">Közösségi / külföldi adószám</span></label><div class="tax-row"><input class="inp" id="m-clientTax" name="clientTax" inputmode="numeric" maxlength="13" placeholder="12345678-2-42" autocomplete="off"><button class="btn outline small" type="button" data-action="tax-lookup" title="Cégadatok betöltése az adószám alapján (NAV / EU VIES)">Betöltés</button></div>
+  <button class="linkbtn tax-nav" type="button" data-action="nav-search" style="align-self:flex-start;font-size:13px">🔎 Adószám keresése név alapján (NAV)</button>
+  <label class="q-disc-on frn-chk" style="margin-top:2px"><input type="checkbox" id="m-foreign" name="foreign"> Külföldi cég</label></div>
+  <div class="field frn-ctry" hidden><label for="m-country">Ország</label><select class="inp" id="m-country" name="country" data-cmb="Ország kiválasztása…"><option value="">Ország kiválasztása…</option>${COUNTRY_OPTS()}</select></div>
+  ${mf('clientAddress','Székhely',{full:true,max:300})}`;
+function frnApply(on,cc){const f=$('mform');if(!f)return;const t=$('m-clientTax'),cb=$('m-foreign'),cw=f.querySelector('.frn-ctry'),sel=$('m-country');if(cb)cb.checked=!!on;if(cw)cw.hidden=!on;f.classList.toggle('frn-on',!!on);
+  if(sel&&cc!==undefined){sel.value=cc||'';sel.dispatchEvent(new Event('change',{bubbles:true}));}
+  if(t){t.maxLength=on?20:13;t.inputMode=on?'text':'numeric';t.placeholder=on?((sel&&sel.value&&!EU_CC.includes(sel.value))?'adóazonosító (ha van)':'pl. ATU12345678 (országkóddal)'):'12345678-2-42';}
+  const b=f.querySelector('[data-action=tax-lookup]');if(b){const cc2=sel&&sel.value;b.hidden=!!on&&!!cc2&&!EU_CC.includes(cc2);b.title=on?'Ellenőrzés az EU VIES rendszerében (cégnév, cím)':'Cégadatok betöltése az adószám alapján (NAV)';}}
+document.addEventListener('change',e=>{if(e.target.id==='m-foreign')frnApply(e.target.checked);else if(e.target.id==='m-country')frnApply(true);});   /* cégnév és adószám egy sorban */
 async function taxLookup(){
-  const t=$('m-clientTax'),b=document.querySelector('[data-action=tax-lookup]');if(!t)return;const v=t.value.replace(/\D/g,'');
+  const t=$('m-clientTax'),b=document.querySelector('[data-action=tax-lookup]');if(!t)return;
+  if($('m-foreign')&&$('m-foreign').checked){const sel=$('m-country'),v=t.value.trim();if(!v){toast('Írd be a közösségi adószámot (pl. ATU12345678).',true);t.focus();return;}   /* EU VIES */
+    if(b){b.disabled=true;b.textContent='Ellenőrzés…';}
+    try{const r=await call('viesLookup',{vat:v,country:sel?sel.value:''});t.value=r.vat;if(sel&&r.country&&sel.value!==r.country){sel.value=r.country;sel.dispatchEvent(new Event('change',{bubbles:true}));}
+      if(!r.valid){toast('A VIES szerint ez a közösségi adószám nem érvényes.',true);return;}
+      if(r.name&&$('m-client')&&!$('m-client').value.trim())$('m-client').value=r.name;else if(r.name&&$('m-client'))$('m-client').value=r.name;if(r.address&&$('m-clientAddress'))$('m-clientAddress').value=r.address;
+      toast('✓ Érvényes közösségi adószám'+(r.name?' – cégadatok betöltve':' (a cégnevet ez az ország nem adja meg)'));}
+    catch(e){handleErr(e);}finally{if(b){b.disabled=false;b.textContent='Betöltés';}}return;}const v=t.value.replace(/\D/g,'');
   if(v.length<8){toast('Az adószám első 8 számjegye szükséges.',true);t.focus();return;}
   if(b){b.disabled=true;b.textContent='Betöltés…';}
   try{const r=await call('lookupTaxpayer',{tax:v});$('m-client').value=r.name||'';$('m-clientAddress').value=r.address||'';toast('Cégadatok betöltve');}

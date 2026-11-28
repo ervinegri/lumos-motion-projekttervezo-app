@@ -587,6 +587,7 @@ function rpcInner_(token, name, arg) {
     case 'saveItem': canEdit(); return saveItem_(u, arg);
     case 'deleteItem': canEdit(); return deleteItem_(u, arg);
     case 'saveClient': canEdit(); return saveClient_(u, arg);
+    case 'viesLookup': canEdit(); return viesLookup_(u, arg);
     case 'addPenalty': canEdit(); return addPenalty_(u, arg);
     case 'decidePenalty': adminOnly(); return decidePenalty_(u, arg);
     case 'deletePenalty': adminOnly(); return deletePenalty_(u, arg);

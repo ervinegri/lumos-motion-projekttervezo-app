@@ -450,7 +450,7 @@ function perfRec(op,ms,pf,bad){const P=perfLoad(),r=P.ops[op]||(P.ops[op]=[0,0,0
 /* Gyors út (2026-11-26): a kérés először a saját szerverünkre (Vercel, közvetlenül a Neon mellett) megy – ~0,2–0,5 mp a 3–4 mp helyett.
    Ha a művelet Google-szolgáltatást igényel (levél, naptár, Drive…), a gyors út semmit nem ír, és jelzi: ilyenkor az Apps Script végzi, mint eddig.
    Kikapcsolható: localStorage lpm_fast = '0'. Ismétlődő szerverhibánál a munkamenetre magától kikapcsol. */
-const FAST_DENY=/^(bellState|clientMailGet|calendarEvents|settingsData|googleLogin|logout|setViewAs|viewBoot|\w*Upload\w*|vidUp\w+|clientUp\w+|rec(Up\w+|List|Process|ApplyNext|Del)|gemini\w*|openai\w*|reviewSend|\w*Preview|syncCalendar|szSync|salesSyncNow|navSync|crewDocsImport|hubspot\w*|gbp\w*|sendEquipmentList|crewInvite|finalizeCrew|szPdf|contractPdf)$/;
+const FAST_DENY=/^(viesLookup|bellState|clientMailGet|calendarEvents|settingsData|googleLogin|logout|setViewAs|viewBoot|\w*Upload\w*|vidUp\w+|clientUp\w+|rec(Up\w+|List|Process|ApplyNext|Del)|gemini\w*|openai\w*|reviewSend|\w*Preview|syncCalendar|szSync|salesSyncNow|navSync|crewDocsImport|hubspot\w*|gbp\w*|sendEquipmentList|crewInvite|finalizeCrew|szPdf|contractPdf)$/;
 let FAST_BAD=0;const FAST_SKIP={};
 function fastOn(){try{if(localStorage.getItem('lpm_fast')==='0')return false;}catch(e){}return FAST_BAD<3&&location.protocol==='https:';}
 async function gsFast(name,body){const t0=performance.now();let res,j=null;
@@ -874,3 +874,10 @@ async function beStatusCheck(){try{if(!isAdmin()||Date.now()-(S._beAt||0)<600000
   el.style.background=bad?'#c62828':'#b26a00';
   el.innerHTML=bad?'⚠️ <b>A háttérkód legutóbbi frissítései nem települtek</b> – '+esc(o.msg||'')+'. Amíg ez fennáll, az új funkciók háttér-része nem működik. Teendő: Apps Script szerkesztő → Projekt előzményei → Verziók tömeges törlése (a régieket), majd szólj Claude-nak.':'⚠️ Az Apps Script verziók száma '+esc(String(o.n))+'/200 – hamarosan takarítani kell (Projekt előzményei → Verziók tömeges törlése).';
   const a=document.createElement('a');a.href='https://script.google.com/home';a.target='_blank';a.rel='noopener';a.textContent='Apps Script megnyitása ↗';a.style.cssText='color:#fff;font-weight:600;text-decoration:underline';el.appendChild(a);}catch(e){}}
+/* Külföldi ügyfél jelzése a pénzügyeknél (Ervin, 2026-11-28): EU-s partnernél fordított adózás, EU-n kívülinél áfa nélküli (export) számla – hogy a számlázásnál ne maradjon le */
+function clientIntl(name){const k=String(name||'').trim().toLowerCase();if(!k)return null;const c=(S.clients||[]).find(x=>String(x.name||'').trim().toLowerCase()===k);if(!c||!c.country||c.country==='HU')return null;
+  const eu=(typeof EU_CC!=='undefined'?EU_CC:[]).includes(c.country),fl=((typeof PH_CC!=='undefined'?PH_CC:[]).find(x=>x[0]===c.country)||[])[1]||'🌍';
+  return {cc:c.country,eu,flag:fl,tax:c.tax||'',label:eu?'EU-s partner – fordított adózás':'EU-n kívüli partner – áfa nélküli számla'};}
+function intlBadge(name){const x=clientIntl(name);if(!x)return '';
+  const tip=x.eu?`Közösségi adószámmal rendelkező EU-s cég${x.tax?' ('+x.tax+')':''}: a számla áfa nélkül, „fordított adózás” megjegyzéssel és a vevő közösségi adószámával megy ki. A pontos áfakódot egyeztesd a könyvelővel.`:`EU-n kívüli cég: a szolgáltatás teljesítési helye általában a vevő országa, így a számla áfa nélkül megy ki. A pontos áfakódot egyeztesd a könyvelővel.`;
+  return `<span class="intl-badge${x.eu?'':' noneu'}" data-tip="${esc(tip)}">${x.flag} ${esc(x.label)}</span>`;}

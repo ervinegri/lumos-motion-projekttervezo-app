@@ -3841,3 +3841,8 @@ html body .phone-row .ph-cc::after{content:'▾';font-size:10px;margin-left:4px;
 html body .hs-box.cc-box{max-height:320px;overflow:auto;padding-top:0}
 html body .hs-box.cc-box .cc-q-wrap{position:sticky;top:0;background:#fff;padding:8px;border-bottom:1px solid #eef1f4;z-index:1}
 html body .hs-box.cc-box .cc-q{width:100%;padding:8px 10px;font-size:14px}
+/* külföldi ügyfél */
+html body .intl-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#1f4a8a;background:#e8f0fd;border:1px solid #c9daf6;border-radius:999px;padding:2px 9px;margin-right:6px;white-space:nowrap}
+html body .intl-badge.noneu{color:#6b3f00;background:#fff3dc;border-color:#f0d9a8}
+html body #mform .tax-lbl-fr{display:none}html body #mform.frn-on .tax-lbl-fr{display:inline}html body #mform.frn-on .tax-lbl-hu{display:none}
+html body #mform.frn-on .tax-nav{display:none!important}

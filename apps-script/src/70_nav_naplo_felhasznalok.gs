@@ -194,7 +194,8 @@ function saveClient_(u, a) {
   if (!a || typeof a !== 'object') throw new Error('Hiányos adatok.');
   const id = str_(a.id, 64);
   if (!ID_RE.test(id)) throw new Error('Hibás azonosító.');
-  const c = { id: id, name: str_(a.name, 160).replace(/\s+/g, ' '), tax: str_(a.tax, 20).replace(/[^\d-]/g, ''), address: str_(a.address, 300),
+  const ctry = String(a.country || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2), frn = !!ctry && ctry !== 'HU';   /* külföldi cég (Ervin, 2026-11-28): közösségi / külföldi adószám betűkkel */
+  const c = { id: id, name: str_(a.name, 160).replace(/\s+/g, ' '), tax: frn ? str_(a.tax, 20).toUpperCase().replace(/[^A-Z0-9]/g, '') : str_(a.tax, 20).replace(/[^\d-]/g, ''), country: frn ? ctry : '', address: str_(a.address, 300),
     contactName: str_(a.contactName, 120), contactPhone: str_(a.contactPhone, 40), contactEmail: str_(a.contactEmail, 160).toLowerCase(), note: str_(a.note, 1000), rep: str_(a.rep, 120), repPhone: str_(a.repPhone, 40), repEmail: str_(a.repEmail, 160).toLowerCase(), contactTitle: str_(a.contactTitle, 120), repTitle: str_(a.repTitle, 120), billEmail: str_(a.billEmail, 500).toLowerCase(), tigMail: a.tigMail && typeof a.tigMail === 'object' ? JSON.stringify({ to: str_(a.tigMail.to, 300), cc: str_(a.tigMail.cc, 300), subject: str_(a.tigMail.subject, 200), text: str_(a.tigMail.text, 5000) }) : str_(typeof a.tigMail === 'string' ? a.tigMail : '', 6000) };
   if (c.name.length < 2) throw new Error('Add meg az ügyfél nevét.');
   if (c.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.contactEmail)) throw new Error('Az e-mail-cím érvénytelen.');
@@ -207,7 +208,7 @@ function saveClient_(u, a) {
       const ex = readAll_('clients').find(x => String(x.name || '').trim().toLowerCase() === c.name.toLowerCase());
       if (ex) { c.id = ex.id; row = findRow_(sh, ex.id); }
     }
-    if (row) { old = readRow_('clients', sh, row); c.createdAt = old.createdAt; if (a.tigMail === undefined) c.tigMail = old.tigMail || ''; if (a.billEmail === undefined) c.billEmail = old.billEmail || ''; } else c.createdAt = now_();
+    if (row) { old = readRow_('clients', sh, row); c.createdAt = old.createdAt; if (a.tigMail === undefined) c.tigMail = old.tigMail || ''; if (a.billEmail === undefined) c.billEmail = old.billEmail || ''; if (a.country === undefined) { c.country = old.country || ''; if (c.country) c.tax = String(a.tax == null ? old.tax || '' : a.tax).toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20); } } else c.createdAt = now_();
     c.updatedAt = now_();
     putRow_('clients', sh, c, row);
     let renamed = 0;
@@ -836,4 +837,19 @@ function crewAddress_(a) {
   try { if (szamlazzKey_()) { const t = szamlazzTaxpayer_(tax8); address = prettyAddress_(t); src = 'nav'; } } catch (e) {}
   if (address) { try { C.put('cadr2_' + tax8, address, 21600); } catch (e) {} }
   return { address: address, src: src };
+}
+
+/** EU-s közösségi adószám ellenőrzése a VIES rendszerben (Ervin, 2026-11-28). a: {vat, country} → {valid, name, address, country, vat} */
+function viesLookup_(u, a) {
+  let v = String(a && a.vat || '').toUpperCase().replace(/[^A-Z0-9]/g, ''), cc = String(a && a.country || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2);
+  if (/^[A-Z]{2}/.test(v)) { cc = v.slice(0, 2); v = v.slice(2); }
+  if (cc === 'GR') cc = 'EL';
+  const EU = ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'EL', 'ES', 'FI', 'FR', 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK', 'XI'];
+  if (!cc || EU.indexOf(cc) < 0) throw new Error('A VIES csak EU-s közösségi adószámot ellenőriz (pl. ATU12345678, DE123456789).');
+  if (v.length < 4) throw new Error('Írd be a teljes közösségi adószámot (országkóddal, pl. ATU12345678).');
+  const r = UrlFetchApp.fetch('https://ec.europa.eu/taxation_customs/vies/rest-api/ms/' + cc + '/vat/' + encodeURIComponent(v), { muteHttpExceptions: true, headers: { Accept: 'application/json' } });
+  if (r.getResponseCode() !== 200) throw new Error('A VIES most nem érhető el (' + r.getResponseCode() + ') – próbáld újra később.');
+  const j = JSON.parse(r.getContentText() || '{}'), clean = x => { x = String(x || '').replace(/\s*\n\s*/g, ', ').replace(/\s+/g, ' ').trim(); return x === '---' ? '' : x; };
+  if (j.userError && j.userError !== 'VALID' && j.userError !== 'INVALID') throw new Error('A VIES nem tudta ellenőrizni (' + j.userError + ') – próbáld újra később.');
+  return { valid: !!j.isValid, name: clean(j.name), address: clean(j.address), country: cc === 'EL' ? 'GR' : cc, vat: cc + v };
 }

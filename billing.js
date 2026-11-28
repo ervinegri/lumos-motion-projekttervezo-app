@@ -345,7 +345,7 @@ function projBillingPanel(p){
   if(!S.fin){if(!S.finErr)finLoad();return wrap(`<summary><h3>📄 Szerződés és számlázás <span class="aside">${S.finErr?'nem sikerült betölteni':'betöltés…'}</span></h3></summary>${S.finErr?`<div class="btns"><button class="btn outline small" type="button" data-action="fin-retry">Újrapróbálás</button></div>`:'<div class="loading"><span class="spin"></span>Betöltés…</div>'}`);}
   if(!S.fin.billing)return wrap(`<summary><h3>📄 Szerződés és számlázás</h3></summary><p class="hint">A legújabb háttérkód (Code.gs) telepítése után érhető el.</p>`);
   const B=billBoxes(p),i=B.i,b=B.b;
-  return wrap(`<summary><h3>📄 Szerződés és számlázás <span class="aside"><span class="statuspill ${i.nextCls}">${esc(i.next)}</span></span></h3></summary>
+  return wrap(`<summary><h3>📄 Szerződés és számlázás <span class="aside">${intlBadge(p.client)}<span class="statuspill ${i.nextCls}">${esc(i.next)}</span></span></h3></summary>
     <div class="pb-grid">${(()=>{const C=billCells(p,i);return C.contract+C.adv+C.tig+`<div class="pb-stack">${C.fin}</div>`;})()}
     </div>${b.note?`<div class="pb-foot"><span class="bl-meta">📝 ${esc(b.note)}</span></div>`:''}`);
 }

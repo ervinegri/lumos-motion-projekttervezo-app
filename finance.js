@@ -420,7 +420,7 @@ document.addEventListener('change',async e=>{const t=e.target;
 
 /* ===== Számlázás (számlázz.hu): kiállítás, hozzárendelés, kifizetések követése ===== */
 const szOn=()=>!!(S.fin&&S.fin.sz);
-const SZ_VATS=[['27','27%'],['18','18%'],['5','5%'],['0','0%'],['AAM','AAM – alanyi adómentes'],['TAM','TAM – tárgyi adómentes'],['EUK','EUK – EU-n belüli'],['MAA','MAA – mentes az adó alól']];
+const SZ_VATS=[['27','27%'],['18','18%'],['5','5%'],['0','0%'],['AAM','AAM – alanyi adómentes'],['TAM','TAM – tárgyi adómentes'],['EUK','EUK – EU-n belüli'],['MAA','MAA – mentes az adó alól'],['EUFAD37','EUFAD37 – EU-s partner, fordított adózás'],['HO','HO – EU-n kívüli (harmadik ország)']];
 const invFor=(kind,id)=>((S.fin&&S.fin.invoices)||[]).filter(x=>kind==='project'?invPids(x).includes(id):x.incomeId===id);
 const invState=x=>{if(x.kind==='eloleg'&&x.manual)return 'paid';const g=num(x.invGross),p=num(x.invPaid);if(g&&p>=g-1)return 'paid';if(p>0)return 'part';return x.due&&x.due<todayISO()?'late':'open';};
 const INV_CLS={paid:'p-ok',part:'p-info',late:'p-bad',open:'p-warn'};
@@ -444,7 +444,7 @@ function szItemRow(it,i){const st=S.fin.sz;return `<div class="sz-item" data-szi
   <input class="inp" name="it_qty" value="${esc(it.qty??1)}" inputmode="decimal" aria-label="Mennyiség">
   <input class="inp" name="it_unit" value="${esc(it.unit||st.unit)}" aria-label="Mennyiségi egység" maxlength="20">
   <input class="inp" name="it_price" value="${esc(moneyFmt(it.price))}" inputmode="numeric" data-money="1" placeholder="Nettó egységár" aria-label="Nettó egységár">
-  <select class="inp" name="it_vat" aria-label="ÁFA">${SZ_VATS.map(([v,l])=>`<option value="${v}"${v===(it.vat||st.vat)?' selected':''}>${l}</option>`).join('')}</select>
+  <select class="inp" name="it_vat" aria-label="ÁFA">${SZ_VATS.map(([v,l])=>`<option value="${v}"${v===(it.vat||window._szDefVat||st.vat)?' selected':''}>${l}</option>`).join('')}</select>
   <button class="trash" type="button" data-action="sz-item-del" aria-label="Tétel törlése">🗑️</button></div>`;}
 function szReadItems(){return [...document.querySelectorAll('[data-szitem]')].map(el=>({name:el.querySelector('[name=it_name]').value.trim(),qty:Number(String(el.querySelector('[name=it_qty]').value).replace(',','.'))||0,
   unit:el.querySelector('[name=it_unit]').value.trim(),price:(v=>/^\s*[-−]/.test(v)?-num(moneyVal(v)):num(moneyVal(v)))(el.querySelector('[name=it_price]').value),vat:el.querySelector('[name=it_vat]').value}));}
@@ -518,6 +518,7 @@ function szInvoiceModal(kind,id,o={}){
   const dbRow=inv.filter(x=>x.kind==='dijbekero').pop(),elRow=inv.filter(x=>x.kind==='eloleg'&&x.advType!=='szamla').pop();S._szElRow=elRow||null;   /* csak a valódi előlegszámla vonható le a végszámlán */
   const b=t.buyer,cls=(S.clients||[]).slice().sort((x,y)=>x.name.localeCompare(y.name,'hu'));
   setTimeout(szBuyerLock,40);
+  {const pj=kind==='project'?projById(id):null,ix=pj&&typeof clientIntl==='function'?clientIntl(pj.client):null;window._szDefVat=ix?(ix.eu?'EUFAD37':'HO'):'';window._szIntl=ix;}   /* külföldi vevő: áfa nélküli alapkulcs (EU: fordított adózás, EU-n kívül: HO) – Ervin, 2026-11-28 */
   openModal((SZ_KIND[type]||'Számla')+' kiállítása – '+t.name,`<div class="fields">
     <div class="field"><label for="m-issuer">Kiállító</label><select class="inp" id="m-issuer" name="issuer"><option value="kft" selected>Lumos Motion Kft.</option><option value="ev" disabled>Egri Ervin E.V. (nincs bekötve)</option></select></div>
     ${ms('kind','Típus',[['dijbekero','Díjbekérő (foglaló bekérése)'],['eloleg','Foglalószámla'],['vegszamla','Végszámla'],['szamla','Számla (egyben)']],type)}
@@ -545,7 +546,7 @@ function szInvoiceModal(kind,id,o={}){
     const items=szReadItems(),tot=szTotals();
     const k=fd.get('kind');
     const a={[kind==='project'?'projectId':'incomeId']:id,kind:k,dijbekeroNo:k==='eloleg'&&dbRow?dbRow.no:'',elolegNo:k==='vegszamla'&&elRow?elRow.no:'',paid:k==='eloleg',buyer:{name:String(fd.get('bName')||'').trim(),tax:String(fd.get('bTax')||'').trim(),email:fd.getAll('bEmail').map(x=>String(x||'').trim().toLowerCase()).filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i).join(','),
-      zip:String(fd.get('bZip')||'').trim(),city:String(fd.get('bCity')||'').trim(),address:String(fd.get('bAddr')||'').trim()},items,fulfill:fd.get('fulfill'),due:fd.get('due'),payMethod:fd.get('payMethod'),
+      zip:String(fd.get('bZip')||'').trim(),city:String(fd.get('bCity')||'').trim(),address:String(fd.get('bAddr')||'').trim(),country:(window._szIntl&&window._szIntl.cc)||'',countryName:window._szIntl&&typeof ccHu==='function'?ccHu(window._szIntl.cc):''},items,fulfill:fd.get('fulfill'),due:fd.get('due'),payMethod:fd.get('payMethod'),
       comment:String(fd.get('comment')||'').trim(),eInvoice:true,sendEmail:!!fd.get('sendEmail'),mailLumos:!!fd.get('mailLumos'),mailSz:!!fd.get('mailSz'),mailSubject:String(($('m-szSubj')||{}).value||'').trim(),mailText:String(($('m-szText')||{}).value||'').trim(),
       projectIds:kind==='project'?[...document.querySelectorAll('[data-szshare]:checked')].map(x=>x.dataset.szshare):[],tigId:o.tigId||''};
     if(a.buyer.name.length<2||!a.buyer.zip||!a.buyer.city||!a.buyer.address){toast('Add meg a vevő nevét és teljes címét.',true);return;}
