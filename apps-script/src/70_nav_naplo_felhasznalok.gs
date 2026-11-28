@@ -741,23 +741,23 @@ function quoteAll_(u, d, extra) {
       const L0 = store[tgt.id] || []; if (L0.some(r => r.fileId && Math.abs(tm(r.at) - t0) < 10 * 60e3)) return;   // az alkalmazásból küldött – már megvan
       const sd = quoteSends_(tgt).filter(y => Math.abs(tm(y.at) - t0) < 15 * 60e3)[0];
       const fid = quoteFolder_().createFile(att.copyBlob().setName(at.slice(0, 10) + ' ' + att.getName())).getId();
-      const meta = { at: at, by: sd ? sd.by : '', to: String(m.getTo() || ''), subject: subj, total: sd ? sd.total : 0, currency: sd && sd.currency, eurCents: sd && sd.eurCents, fileId: fid, q: null, msgId: m.getId(), imported: true };
+      const meta = { at: at, by: sd ? sd.by : '', to: String(m.getTo() || ''), subject: subj, total: sd ? sd.total : 0, currency: sd && sd.currency, eurCents: sd && sd.eurCents, netOnly: !!(sd && sd.netOnly), fileId: fid, q: null, msgId: m.getId(), imported: true };
       const H = qGet_('QSH_' + tgt.id), L = (H && H.list) || []; L.push(meta); L.sort((a, b) => String(b.at).localeCompare(String(a.at))); qPut_('QSH_' + tgt.id, { at: now_(), list: L.slice(0, 40) });
       store[tgt.id] = L0.concat([meta]); known.add(m.getId()); diag.imp++;
     }));
   } catch (e) { diag.err = String(e && e.message || e); } }
   const out = [], seen = new Set();
   deals.forEach(x => (store[x.id] || []).forEach(r => { if (!r || !r.fileId) return; const kk = x.id + '|' + String(r.at || '').slice(0, 16); if (seen.has(kk)) return; seen.add(kk);
-    out.push({ dealId: x.id, title: x.title || '', at: String(r.at || '').slice(0, 16), subject: r.subject || '', to: r.to || '', total: Number(r.total) || 0, currency: r.currency, eurCents: r.eurCents, by: r.by || '' }); }));
+    out.push({ dealId: x.id, title: x.title || '', at: String(r.at || '').slice(0, 16), subject: r.subject || '', to: r.to || '', total: Number(r.total) || 0, currency: r.currency, eurCents: r.eurCents, netOnly: !!r.netOnly, by: r.by || '' }); }));
   out.sort((a, b) => b.at.localeCompare(a.at));
   if (diag.imp) { try { dataBump_(); } catch (e) {} }
   return { list: out, diag: diag };
 }
 /* A lehetőség összes kiküldött ajánlata a napló sorai alapján (újabb elöl); amelyiknek a PDF-je megvan, az megnyitható. */
 function quoteSends_(d) {
-  const re = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})(?: · ([^\]]*))?\] 📄 Árajánlat elküldve \(([^)]*)\)(?: – ([\d \u00a0\u202f]+) Ft(?: \+ ÁFA| \(ajánlati árfolyamon\))?)?(?: – (\d+)\.(\d{2}) EUR nettó)?/g;
+  const re = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})(?: · ([^\]]*))?\] 📄 Árajánlat elküldve \(([^)]*)\)(?: – ([\d \u00a0\u202f]+) Ft(?: (\+ ÁFA|\(ajánlati árfolyamon\)|nettó))?)?(?: – (\d+)\.(\d{2}) EUR nettó)?/g;
   const out = []; let m; const t = String(d.note || '');
-  while ((m = re.exec(t))) out.push({ at: m[1], by: m[2] || '', to: m[3] || '', total: Number(String(m[4] || '').replace(/\s/g, '')) || 0, currency: m[5] ? 'EUR' : 'HUF', eurCents: m[5] ? Number(m[5] + m[6]) : 0 });
+  while ((m = re.exec(t))) out.push({ at: m[1], by: m[2] || '', to: m[3] || '', total: Number(String(m[4] || '').replace(/\s/g, '')) || 0, currency: m[6] ? 'EUR' : 'HUF', eurCents: m[6] ? Number(m[6] + m[7]) : 0, netOnly: m[5] === 'nettó' });
   return out;
 }
 function quoteStore_(d) { const L = []; const c = qGet_('QS_' + d.id); if (c) L.push(c); const H = qGet_('QSH_' + d.id); ((H && H.list) || []).forEach(x => L.push(x)); return L; }
@@ -768,7 +768,7 @@ function quoteSentAt_(d, at) { at = String(at || '').slice(0, 16); const st = qu
   while (it.hasNext()) { const f = it.next(); if (f.getName().indexOf(at.slice(0, 10)) !== 0) continue; const dt = Math.abs(f.getDateCreated().getTime() - t0); if (dt < 20 * 60e3 && dt < bd) { best = f; bd = dt; } }
   if (!best) return null; const meta = Object.assign({}, sd, { fileId: best.getId(), q: null, recovered: true });
   const H = qGet_('QSH_' + d.id); const L = (H && H.list) || []; L.push(meta); qPut_('QSH_' + d.id, { at: now_(), list: L.slice(0, 20) }); return meta; }
-function quoteHist_(d) { const st = quoteStore_(d), cur = qGet_('QS_' + d.id); return quoteSends_(d).map(x => ({ at: x.at, by: x.by, to: x.to, total: x.total, currency: x.currency, eurCents: x.eurCents, cur: !!(cur && String(cur.at || '').slice(0, 16) === x.at), has: st.some(y => String(y.at || '').slice(0, 16) === x.at) })); }
+function quoteHist_(d) { const st = quoteStore_(d), cur = qGet_('QS_' + d.id); return quoteSends_(d).map(x => ({ at: x.at, by: x.by, to: x.to, total: x.total, currency: x.currency, eurCents: x.eurCents, netOnly: x.netOnly, cur: !!(cur && String(cur.at || '').slice(0, 16) === x.at), has: st.some(y => String(y.at || '').slice(0, 16) === x.at) })); }
 /* Árajánlat-piszkozat: lehetőségenként egy mentett (még ki nem küldött) ajánlat – bármelyik eszközről folytatható; küldéskor törlődik. */
 function quoteDraft_(u, a) {
   const d = readAll_('deals').find(x => x.id === str_(a && a.dealId, 64)); if (!d) throw new Error('A lehetőség nem található.');
@@ -785,16 +785,20 @@ function dealQuoteSend_(u, a) {
   const tos = str_(a.to, 600).split(/\s*,\s*/).filter(Boolean).slice(0, 8); if (!tos.length || !tos.every(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))) throw new Error('Adj meg érvényes e-mail címet.');
   const b64 = String(a.pdf || ''); if (!b64 || b64.length > 12 * 1024 * 1024) throw new Error('Hiányzik az ajánlat PDF-je.');
   const subj = str_(a.subject, 200).trim() || ('Árajánlat – ' + d.title), body = str_(a.body, 6000);
-  const currency = a.currency === 'EUR' ? 'EUR' : 'HUF', multiple = Number(a.opts) > 1;
+  const currency = a.currency === 'EUR' ? 'EUR' : 'HUF', multiple = Number(a.opts) > 1, netOnly = a.netOnly === true;
   const q = a.q && typeof a.q === 'object' ? a.q : null;
   let total = Number(a.total) || 0, eurCents = 0;
   if (currency === 'EUR') {
     const rateText = String(q && q.eurRate || '').trim(), rate = Number(rateText.replace(',', '.'));
     eurCents = Number(a.eurCents);
-    if (!q || q.currency !== currency || !/^\d+(?:[.,]\d{1,6})?$/.test(rateText) || rate <= 0 || rate > 1000000 || !Number.isSafeInteger(eurCents) || eurCents < 0 || (multiple && eurCents !== 0)) throw new Error('Ellenőrizd az eurós ajánlat árfolyamát és végösszegét.');
+    const validRate = rateText === '' || (/^\d+(?:[.,]\d{1,6})?$/.test(rateText) && rate > 0 && rate <= 1000000);
+    if (!q || q.currency !== currency || !validRate || !Number.isSafeInteger(eurCents) || eurCents < 0 || (multiple && eurCents !== 0)) throw new Error('Ellenőrizd az eurós ajánlat végösszegét.');
+    // A kézzel megadott EUR-ár árfolyamkieséskor is küldhető. A lehetőség forintértékéhez árfolyam kell.
     total = Math.round(eurCents * rate / 100);
+    if (!Number.isSafeInteger(total)) throw new Error('Ellenőrizd az ajánlat forintra átszámított értékét.');
   }
-  const hufLog = total ? ' – ' + String(Math.round(total)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + (currency === 'EUR' ? ' Ft (ajánlati árfolyamon)' : ' Ft + ÁFA') : '';
+  const hufSuffix = currency === 'EUR' ? ' Ft (ajánlati árfolyamon)' : (netOnly ? ' Ft nettó' : ' Ft + ÁFA');
+  const hufLog = total ? ' – ' + String(Math.round(total)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + hufSuffix : '';
   const eurLog = eurCents ? ' – ' + Math.floor(eurCents / 100) + '.' + String(eurCents % 100).padStart(2, '0') + ' EUR nettó' : '';
   const fname = str_(a.fileName, 120).replace(/[\\/:*?"<>|]+/g, '-') || 'Arajanlat.pdf';
   const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + escapeHtml_(body).replace(/\n/g, '<br>') + '</div><br>' + r.sig.html;
@@ -810,7 +814,7 @@ function dealQuoteSend_(u, a) {
   try {   // a kiküldött ajánlat megmarad: PDF a Drive-on (a szkript tulajdonosának saját mappájában), az adatai a lehetőséghez kötve
     const fid = quoteFolder_().createFile(Utilities.newBlob(Utilities.base64Decode(b64), 'application/pdf', Utilities.formatDate(new Date(), SHEET_TZ, 'yyyy-MM-dd') + ' ' + fname)).getId();
     if (q) ['_pdf', '_pdfP', 'sig'].forEach(k => { delete q[k]; });
-    const meta = { at: now_(), by: u.name, to: tos.join(', '), subject: str_(a.subject, 200), total: total, currency: currency, eurCents: eurCents, fileId: fid, q: q };
+    const meta = { at: now_(), by: u.name, to: tos.join(', '), subject: str_(a.subject, 200), total: total, currency: currency, eurCents: eurCents, netOnly: netOnly, fileId: fid, q: q };
     { const old = qGet_('QS_' + d.id); if (old && old.fileId) { const H = qGet_('QSH_' + d.id); const L = (H && H.list) || []; L.unshift(old); qPut_('QSH_' + d.id, { at: now_(), list: L.slice(0, 20) }); } }   // a korábbi kiküldött ajánlat megmarad (előzmények)
     qPut_('QS_' + d.id, meta);
   } catch (e) { Logger.log('Kiküldött ajánlat mentése: ' + e); }
