@@ -258,3 +258,6 @@ ACT['pre-deal-open']=b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(d
   d.classList.toggle('dh-wrap',d.clientWidth-side-bw<need);};
   let raf=0;const q=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;try{fit();}catch(e){}});};
   window.addEventListener('resize',q);try{new MutationObserver(q).observe(document.getElementById('view')||document.body,{childList:true,subtree:true});}catch(e){}setInterval(q,2000);})();
+
+/* lezajlott rendezvény: a helyszínen kért, már teljesített feladat utólagos rögzítése (Ervin, 2026-11-28) */
+ACT['past-field-open']=()=>{const id=S.projectId;if(!id)return;confirmModal('Helyszínen kért feladat rögzítése','A rendezvény már lezajlott. Utólag rögzíted, amit a helyszínen kértek és teljesítettetek (pl. +2 short videó felvétele)? Új embert nem lehet beosztani – a feladat csak a helyszínen dolgozó stábhoz rendelhető.','Rögzítés',()=>{(S.pastField=S.pastField||{})[id]=true;render(true);});};

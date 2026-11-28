@@ -3810,3 +3810,5 @@ html body .vv-meta .vv-fcnt a{color:inherit;opacity:.8}
 @media (max-width:560px){
   html body #mform .bd-modal .bl-single .bl-row{grid-template-columns:repeat(var(--bl-n),minmax(150px,44vw))!important;min-width:calc(var(--bl-n) * 156px)!important;gap:6px!important}
 }
+html body .sub-h .pf-btn{margin-left:10px;font-size:12px;padding:4px 10px;vertical-align:middle;text-transform:none;letter-spacing:0}
+html body .sub-h .pf-on{margin-left:8px;font-size:11.5px;font-weight:600;color:#8a5a00;background:#fff3d6;border-radius:999px;padding:2px 9px;vertical-align:middle}
