@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "987aa08e2f",
+"at": "2026-11-28T08:47:37+01:00",
+"msg": "Fotógaléria: hasábos elrendezés eredeti arányokkal; jóváhagyó oldal: projekt · Fotók linkjének másolása · N fotó egy sorban"
+},
+{
 "id": "66604ec685",
 "at": "2026-11-28T08:30:58+01:00",
 "msg": "Kiküldött levél: a küldés bejegyzését rugalmasan keresi (korábbi változatok, időformátum), a címzett tartalékként a bejegyzésből"
@@ -137,14 +142,9 @@ const ITEMS = [
 "msg": "Utómunka tábla: a fotók utómunkája nem vár a nyersanyag-feltöltésre (a fotós a saját képeit dolgozza fel) – a szakember azonnal mozgathatja"
 },
 {
-"id": "636c5f0995",
-"at": "2026-11-26T21:44:15+01:00",
-"msg": "Belső jóváhagyás + ügyfélnek küldés: a vágó egyetlen levelet kap (Ügyfélnek továbbküldve: …), benne a megjegyzéssel"
-},
-{
-"id": "56caf36ba1",
-"at": "2026-11-26T22:39:45+02:00",
-"msg": "Telefon, Stáb lista: egyforma magas sorok (név+cég, szerepek+részletek egy-egy sorban, a többi …)"
+"id": "91d879c9e7",
+"at": "2026-11-26T20:44:25Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
