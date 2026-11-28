@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a19b2b5537",
+"at": "2026-11-28T13:55:09+01:00",
+"msg": "Kiküldött ajánlat: bezáráskor visszatér a lehetőség ablakára"
+},
+{
 "id": "33163fcd4e",
 "at": "2026-11-28T13:53:26+01:00",
 "msg": "Lehetőség: mentés után nyitva marad; kiküldött ajánlatok előtöltése; új projekt előfoglalásként a lehetőségből"
@@ -130,11 +135,6 @@ const ITEMS = [
 "id": "4f12556db0",
 "at": "2026-11-28T09:41:41+01:00",
 "msg": "Projektlista: lezárt projekt állapot-sávja is szürke"
-},
-{
-"id": "01027644cf",
-"at": "2026-11-28T08:39:37Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
