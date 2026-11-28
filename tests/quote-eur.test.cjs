@@ -43,11 +43,31 @@ async function test() {
   assert.equal(run('S.q.items[0].price'), '250000');
   assert.match(run('qPageHtml()'), /EUR 725\.50.*EUR 1,451\.00/);
   assert.doesNotMatch(run('qPageHtml()'), /class="r qp-br"/);
-  run('S.q.currency="HUF";qEdit()');
+  assert.match(run('qPageHtml()'), /Amount payable in HUF<\/td><td class="r">HUF 536,435/);
+  assert.equal(run('qQuoteTotals(S.q).total'), 536435);
+  assert.match(run('qPageHtml()'), /Payment must be made in Hungarian forints \(HUF\)\./);
+  assert.match(run('qPageHtml()'), /all currency conversion and bank transfer fees/);
+  assert.match(run('qPageHtml()'), /full HUF amount specified.*credited to Lumos Motion Kft/);
+  assert.match(run('qPageHtml()'), /EUR 1 = HUF 369\.70 · 27 November 2026/);
+
+  run('S.q.opts[0].discOn=true; S.q.opts[0].disc="10"');
+  assert.match(run('qPageHtml()'), /Amount payable in HUF<\/td><td class="r">HUF 482,791/);
+  assert.equal(run('qQuoteTotals(S.q).total'), 482791);
+  run('S.q.opts[0].discOn=false; S.q.opts[0].noTot=true');
+  assert.match(run('qPageHtml()'), /EUR 725\.50<small class="qp-desc">HUF 268,217/);
+  assert.doesNotMatch(run('qPageHtml()'), /qp-huf-payable/);
+  run('S.q.opts[0].noTot=false; S.q.lang="hu"');
+  assert.match(run('qPageHtml()'), /Fizetendő forintban.*536 435 Ft/);
+  assert.match(run('qPageHtml()'), /A fizetés magyar forintban \(HUF\) esedékes/);
+
+  run('S.q.currency="HUF"; S.q.lang="en"; qEdit()');
   assert.match(editor, /name="qi_price_0" value="250 000"/);
   assert.doesNotMatch(editor, /class="q-bh"/);
   run('S.deals[0].contactPhone="+36 1 555 0100";qEdit()');
   assert.match(editor, /class="q-bh"/);
+  assert.doesNotMatch(run('qPageHtml()'), /qp-payment-terms/);
+  run('S.q.currency="EUR"');
+  assert.match(run('qPageHtml()'), /Amount payable in HUF<\/td><td class="r">HUF 681,272/);
 
   global.fetch = async () => new Response(`
     <table><caption class="ttl">Napi árfolyamok: 2026. november 27., péntek</caption>
@@ -58,6 +78,6 @@ async function test() {
   await mnbEur({ method: 'GET' }, res);
   assert.equal(res.statusCode, 200);
   assert.deepEqual(result, { rate: 369.7, date: '2026-11-27' });
-  console.log('PASS direct EUR, MNB rate, foreign net-only, and domestic gross');
+  console.log('PASS direct EUR, MNB payable amount, HUF payment terms, and tax display');
 }
 test().catch(error => { console.error(error); process.exitCode = 1; });
