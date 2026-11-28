@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "da64b28331",
+"at": "2026-11-28T09:15:50+01:00",
+"msg": "Videótábla telefonon: keskenyebb oszlopok, a kártyán is lehet görgetni"
+},
+{
 "id": "66864d4b5e",
 "at": "2026-11-28T09:14:19+01:00",
 "msg": "Fotógaléria: gépen 4 oszlop (telefonon 3), a fotók száma és a pCloud link a fejlécsorban"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Lezárt Alapadatok: a Térkép link és a másoló gombok kattinthatók maradnak"
 },
 {
-"id": "e7a86d6b50",
-"at": "2026-11-27T20:56:20+01:00",
-"msg": "Fotógaléria az appon belül (belső ellenőrzés + ügyfél jóváhagyó oldal): bélyegképek, nagyítás, lapozás, képre szóló megjegyzés"
-},
-{
-"id": "49dfb73770",
-"at": "2026-11-27T13:10:18Z",
+"id": "66a472194e",
+"at": "2026-11-27T19:56:30Z",
 "msg": "Változásnapló frissítése"
 }
 ];
