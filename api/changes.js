@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "50014a3d9e",
+"at": "2026-11-28T14:07:39+01:00",
+"msg": "Lehetőség jegyzetei: a kiküldött árajánlat naplósora nem törölhető (felület + háttér)"
+},
+{
 "id": "072998a1b8",
 "at": "2026-11-28T14:05:59+01:00",
 "msg": "Új ajánlat ugyanennél a lehetőségnél (a legutóbbi kiküldött alapján); kompakt ajánlatnéző fejléc; ajánlaton a készítő neve, adószám a cégnév mellett; jegyzetek teljes képernyőn; felesleges napválasztó-tipp törölve"
@@ -132,13 +137,8 @@ const ITEMS = [
 "msg": "Csengő: a látott/olvasott értesítések eszközök között szinkronban (iPaden se jönnek elő a régiek)"
 },
 {
-"id": "7e218cd192",
-"at": "2026-11-28T10:01:55+01:00",
-"msg": "Tablet: szélek nélkül (a panelek a képernyő széléig); videóablak fejléce az iPad állapotsora alatt olvasható"
-},
-{
-"id": "a1c3cc0a18",
-"at": "2026-11-28T08:55:06Z",
+"id": "87d14b8b38",
+"at": "2026-11-28T09:02:05Z",
 "msg": "Változásnapló frissítése"
 }
 ];
