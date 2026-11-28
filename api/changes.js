@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "01abb31716",
+"at": "2026-11-28T08:49:45+01:00",
+"msg": "Utómunkában lévő projekt megnyitásakor az Utómunka szakasz nyitva"
+},
+{
 "id": "4eee905b55",
 "at": "2026-11-28T08:49:22+01:00",
 "msg": "Projekt megnyitása új lapon: jobb klikk menü a projektsoron és a naptárban, Ctrl/⌘+kattintás és középső gomb"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "6fd8d5ad95",
 "at": "2026-11-27T14:59:31+02:00",
 "msg": "Szakember: a lezajlott, de még Helyszíni munka lépésben lévő projekt is látszik, ha övé az utómunka (pl. fotók)"
-},
-{
-"id": "b4cd97ddcf",
-"at": "2026-11-27T14:57:57+02:00",
-"msg": "Termelési vezető: a nézetváltóban csak a saját és a szakember nézet (az ügyvezetői és értékesítői sor ki sem kerül a listába)"
 }
 ];
 const allowed = require('./_auth.js');
