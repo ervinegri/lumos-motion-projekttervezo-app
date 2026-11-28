@@ -435,13 +435,20 @@ function gbpLocation_() {
 }
 const gbpFold_ = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\b(kft|bt|zrt|nyrt|kkt|llc|ltd|egyesulet|nonprofit|dr)\b/g, ' ').replace(/\s+/g, ' ').trim();
 /** Az értékelő neve → ügyfél: cégnév, kapcsolattartó vagy képviselő (a projektek kapcsolattartói is). Csak egyértelmű egyezés. */
-function gbpGuess_(author, clients, projects) {
+function gbpGuess_(author, clients, projects, createdAt) {
   const a = gbpFold_(author); if (a.length < 3) return '';
   const sameName = (x) => { const f = gbpFold_(x); if (!f) return false; if (f === a) return true; const w1 = f.split(' ').sort().join(' '), w2 = a.split(' ').sort().join(' '); return w1 === w2 && f.indexOf(' ') > 0; };   // „Kiss Anna” = „Anna Kiss”
   const hits = {};
   clients.forEach(c => { if (sameName(c.name) || sameName(c.contactName) || sameName(c.rep)) hits[c.name] = 1; });
   projects.forEach(p => { if (p.client && sameName(p.contactName)) hits[String(p.client).trim()] = 1; });
-  const k = Object.keys(hits); return k.length === 1 ? k[0] : '';
+  let k = Object.keys(hits); if (k.length === 1) return k[0];
+  /* tartalék (Ervin, 2026-11-28): akinek értékelést kértünk – a levél címzettjének e-mail-címe (pl. martahegedus@…) vagy a megszólítás („Kedves Márta!”) egyezik a névvel, és az értékelés a kérés után jött */
+  const toks = a.split(' ').filter(w => w.length >= 3), at = String(createdAt || ''), hit2 = {};
+  projects.forEach(p => { if (!p.client || !p.reviewAt) return; if (at && at.slice(0, 10) < String(p.reviewAt).slice(0, 10)) return; let L = []; try { L = JSON.parse(p.reviewMail || '[]'); } catch (e) { }
+    L.forEach(m => { const locs = String(m.to || '').split(/\s*,\s*/).map(x => gbpFold_(x.split('@')[0]).replace(/[^a-z]/g, '')).filter(Boolean), gm = /Kedves\s+([^\s,!.]+)/i.exec(String(m.text || '')), greet = gm ? gbpFold_(gm[1]) : '';
+      const byMail = toks.length && locs.some(l => toks.every(w => l.indexOf(w.replace(/[^a-z]/g, '')) >= 0)), byGreet = toks.length === 1 && greet && greet === toks[0] || toks.length > 1 && greet && toks.indexOf(greet) >= 0 && locs.some(l => toks.some(w => w !== greet && l.indexOf(w.replace(/[^a-z]/g, '')) >= 0));
+      if (byMail || byGreet) hit2[String(p.client).trim()] = 1; }); });
+  k = Object.keys(hit2); return k.length === 1 ? k[0] : '';
 }
 /** Naponta (és kérésre): az értékelések behúzása. */
 function gbpSync_(u) {
@@ -454,7 +461,7 @@ function gbpSync_(u) {
       out.forEach(x => { const id = String(x.reviewId || x.name || ''); if (!id) return; const o = old[id], au = (x.reviewer && x.reviewer.displayName) || '';
         const row = { id: id, author: au, stars: STARS_[x.starRating] || '', text: gbpText_(x.comment), createdAt: String(x.createTime || '').slice(0, 19).replace('T', ' '), updatedAt: String(x.updateTime || '').slice(0, 19).replace('T', ' '),
           reply: (x.reviewReply && x.reviewReply.comment) || '', replyAt: x.reviewReply ? String(x.reviewReply.updateTime || '').slice(0, 19).replace('T', ' ') : '', photo: (x.reviewer && x.reviewer.profilePhotoUrl) || '',
-          client: o && o.manual ? o.client : ((o && o.client) || gbpGuess_(au, clients, projects)), manual: o && o.manual ? o.manual : '' };
+          client: o && o.manual ? o.client : ((o && o.client) || gbpGuess_(au, clients, projects, String(x.createTime || '').slice(0, 10))), manual: o && o.manual ? o.manual : '' };
         if (!o) added++; if (!o || JSON.stringify(Object.assign({}, o)) !== JSON.stringify(Object.assign({}, o, row))) putRow_('gReviews', sh, row, findRow_(sh, id) || null); });
       dataBump_(); dbFlush_(); });
     P.setProperty('GBP_SYNC', now_()); P.deleteProperty('GBP_ERR');
