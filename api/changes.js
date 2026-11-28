@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "e12ef9dd5c",
+"at": "2026-11-28T10:43:05+01:00",
+"msg": "Videótábla: húzás közben automatikus görgetés a szélek felé (telefonon a képen kívüli oszlopba is)"
+},
+{
 "id": "d5cdf95ccc",
 "at": "2026-11-28T10:40:58+01:00",
 "msg": "Külföldi ügyfél: az ország a választóban is látszik"
@@ -137,9 +142,9 @@ const ITEMS = [
 "msg": "svcCanPost egyszerűsítése"
 },
 {
-"id": "7506d88d52",
-"at": "2026-11-28T09:13:17+01:00",
-"msg": "Lezajlott rendezvény: az utómunka (extra videók, vágó) feloldás után szerkeszthető, csak a terepi feladatok zártak"
+"id": "180860b1d5",
+"at": "2026-11-28T08:13:27Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
