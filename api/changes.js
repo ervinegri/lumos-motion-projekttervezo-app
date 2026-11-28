@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "d270677a1b",
+"at": "2026-11-28T10:07:56+01:00",
+"msg": "Csengő betöltés közben is látszik; Fizetések táblázat kerete pontosan a képernyő aljáig (iPad)"
+},
+{
 "id": "523dd7104f",
 "at": "2026-11-28T10:04:12+01:00",
 "msg": "Csengő: a látott/olvasott értesítések eszközök között szinkronban (iPaden se jönnek elő a régiek)"
@@ -137,14 +142,9 @@ const ITEMS = [
 "msg": "Projekt megnyitása új lapon: jobb klikk menü a projektsoron és a naptárban, Ctrl/⌘+kattintás és középső gomb"
 },
 {
-"id": "931ef8e799",
-"at": "2026-11-28T08:48:29+01:00",
-"msg": "Projektlista: a videók és a fotók külön számolva (🎞️ 1 videó · 📷 fotók)"
-},
-{
-"id": "987aa08e2f",
-"at": "2026-11-28T08:47:37+01:00",
-"msg": "Fotógaléria: hasábos elrendezés eredeti arányokkal; jóváhagyó oldal: projekt · Fotók linkjének másolása · N fotó egy sorban"
+"id": "501b52355d",
+"at": "2026-11-28T07:48:38Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
