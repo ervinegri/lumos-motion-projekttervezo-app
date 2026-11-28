@@ -33,13 +33,13 @@ document.addEventListener('change',e=>{const t=e.target;if(t&&(t.name==='ct_firm
 document.addEventListener('click',e=>{const l=e.target.closest&&e.target.closest('[data-g="kind"] .ct-tpl');if(!l||!S.ct)return;const f=document.querySelector('input[name="ct_firm"]:checked'),k=l.querySelector('input');if(!f||!k)return;
   S.ct.tpl=f.value+'_'+k.value;S.ct._picked=true;setTimeout(ctStep2,120);});
 /* 2. lépés: ügyfél (és egy projektre szóló szerződésnél a projekt) adatai */
-function ctRead(fd){const c=S.ct;if(fd.has('sh_form')){c.sh_base=fd.has('sh_base');c.sh_kf=fd.has('sh_kf');c.sh_promo=fd.has('sh_promo');}['dealId','ev_name','ev_date','ev_place','sh_price','sh_comm','sh_settle','dlv','rb_mode','rb_pct','rb_min','rb_amt','rk_mode','rk_pct','rk_min','rk_amt','rk_years'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});['rb_min','rb_amt','rk_min','rk_amt','rk_years'].forEach(k=>{c[k]=String(c[k]||'').replace(/[^\d]/g,'');});c.rb_pct=String(c.rb_pct||'').replace(/[^\d.,]/g,'');c.rk_pct=String(c.rk_pct||'').replace(/[^\d.,]/g,'');['c_name','c_addr','c_tax','c_phone','c_email','c_rep','sig_name','sig_rep','date','fee'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});
+function ctRead(fd){const c=S.ct;if(fd.has('sh_form')){c.sh_base=fd.has('sh_base');c.sh_kf=fd.has('sh_kf');c.sh_promo=fd.has('sh_promo');}['dealId','ev_name','ev_date','ev_place','sh_price','sh_comm','sh_settle','dlv','rb_mode','rb_pct','rb_min','rb_amt','rk_mode','rk_pct','rk_min','rk_amt','rk_years'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});['rb_min','rb_amt','rk_min','rk_amt','rk_years'].forEach(k=>{c[k]=String(c[k]||'').replace(/[^\d]/g,'');});c.rb_pct=String(c.rb_pct||'').replace(/[^\d.,]/g,'');c.rk_pct=String(c.rk_pct||'').replace(/[^\d.,]/g,'');['c_name','c_addr','c_tax','c_phone','c_email','c_rep','sig_name','sig_rep','date','fee','lang'].forEach(k=>{if(fd.has(k))c[k]=String(fd.get(k)||'').trim();});
   c.fee=String(c.fee||'').replace(/\D/g,'');
   if(fd.has('loc_place_0')){c.locs=[];for(let i=0;fd.has('loc_place_'+i);i++)c.locs.push({place:String(fd.get('loc_place_'+i)||'').trim(),date:String(fd.get('loc_date_'+i)||'').trim()});}
   if(fd.has('svc_name_0')){c.svcs=[];for(let i=0;fd.has('svc_name_'+i);i++)c.svcs.push({name:String(fd.get('svc_name_'+i)||'').trim(),qty:String(fd.get('svc_qty_'+i)||'').trim(),ext:String(fd.get('svc_ext_'+i)||'').trim()});}}
 function ctFillClient(name){const c=S.ct,cl=(S.clients||[]).find(x=>x.name===name);if(!cl)return;c.client=name;
   const rep=[cl.rep||cl.contactName,cl.repTitle||(cl.rep?'':cl.contactTitle)].filter(Boolean).join(', ');
-  Object.assign(c,{c_name:cl.name||'',c_addr:cl.address||'',c_tax:cl.tax||'',c_phone:cl.repPhone||cl.contactPhone||'',c_email:cl.repEmail||cl.contactEmail||'',c_rep:rep,sig_name:cl.name||'',sig_rep:rep});if(!c.dealId){const d=ctDealsOpen().find(x=>String(x.client||'').trim().toLowerCase()===name.trim().toLowerCase());if(d)c.dealId=d.id;}}
+  Object.assign(c,{c_name:cl.name||'',c_addr:cl.address||'',c_tax:cl.tax||'',c_phone:cl.repPhone||cl.contactPhone||'',c_email:cl.repEmail||cl.contactEmail||'',c_rep:rep,sig_name:cl.name||'',sig_rep:rep});if(typeof clientIntl==='function')c.lang=clientIntl(cl.name)?'en':'hu';if(!c.dealId){const d=ctDealsOpen().find(x=>String(x.client||'').trim().toLowerCase()===name.trim().toLowerCase());if(d)c.dealId=d.id;}}
 function ctFillProject(pid){const c=S.ct,p=projById(pid);if(!p)return;c.pid=pid;{const d=(S.deals||[]).find(x=>x.projectId===pid);if(d)c.dealId=d.id;}const q=pr(p);
   c.locs=[{place:String(p.venue||'').trim(),date:q?(q.start===q.end?ctDay(q.start):ctDay(q.start)+' – '+ctDay(q.end)):''}];
   const sv=DELIVERABLES.filter(it=>num(p[it.k])>0).map(it=>({name:it.label,qty:String(num(p[it.k])),ext:''}));
@@ -52,6 +52,7 @@ function ctStep2(){const c=S.ct,tp=ctTplOf(c.tpl),f=(k,l,o={})=>`<div class="fie
   openModal(`📝 Új szerződés – 2/3: adatok`,`<p class="hint" style="margin:-4px 0 10px">${esc(tp.firm)} · ${esc(tp.t)}</p>
     <div class="fields"><div class="field full"><label for="ct-cl">Ügyfél a listából</label><select class="inp" id="ct-cl" data-cmb="Ügyfél kiválasztása (kitölti az adatokat)…"><option value="">– kézzel töltöm ki –</option>${cls.map(x=>`<option value="${esc(x.name)}"${c.client===x.name?' selected':''}>${esc(x.name)}</option>`).join('')}</select></div>
     ${ctDealField()}
+    ${ctEnOk(tp)?`<div class="field full"><label for="ct-lang">A szerződés nyelve</label><select class="inp" id="ct-lang" name="lang" data-cmb="Nyelv…"><option value="hu"${c.lang!=='en'?' selected':''}>🇭🇺 Magyar</option><option value="en"${c.lang==='en'?' selected':''}>🇬🇧 Angol (külföldi ügyfélnek)</option></select>${(()=>{const x=typeof clientIntl==='function'&&clientIntl(c.client);return x?`<span class="hint">${x.flag} Külföldi ügyfél – ${x.eu?'EU-s partner, fordított adózás: a díjak mellett „net, reverse charge” szerepel':'EU-n kívüli partner: a díjak mellett „net, no Hungarian VAT” szerepel'}.</span>`:'';})()}${c.lang==='en'?'<span class="hint">A kézzel kitöltött mezőket (szolgáltatások, helyszín, rendezvény) angolul írd be – ezek változatlanul kerülnek a szerződésbe.</span>':''}</div>`:''}
     <h4 class="sub-h full" style="margin:6px 0 0">Megrendelő</h4>
     ${f('c_name','Név',{full:true})}${f('c_addr','Cím',{full:true})}${f('c_tax','Adószám')}${f('c_phone','Telefonszám')}${f('c_email','E-mail cím')}${f('c_rep','Képviseli',{ph:'Név, titulus'})}
     ${tp.hat?`<h4 class="sub-h full" style="margin:10px 0 0">Projekt</h4>
@@ -71,7 +72,7 @@ function ctStep2(){const c=S.ct,tp=ctTplOf(c.tpl),f=(k,l,o={})=>`<div class="fie
     {submitLabel:'Minta megtekintése →',noDraft:true,left:`<button type="button" class="btn ghost" data-action="ct-back" data-s="1">← Vissza</button>`,submit:fd=>{ctRead(fd);const c2=S.ct;
       if(!c2.c_name){toast('Add meg a megrendelő nevét.',true);return;}if(!c2.sig_name)c2.sig_name=c2.c_name;if(!c2.sig_rep)c2.sig_rep=c2.c_rep;if(tp.hat&&!num(String(c2.fee).replace(/\s/g,''))){toast('Add meg a díjat.',true);return;}ctStep3();}});}
 document.addEventListener('change',e=>{const t=e.target;if(!t||!S.ct)return;
-  if(t.id==='ct-cl'||t.id==='ct-pj'){const f=$('mform');if(f)ctRead(new FormData(f));if(t.id==='ct-cl'){if(t.value)ctFillClient(t.value);else S.ct.client='';}else if(t.value)ctFillProject(t.value);else S.ct.pid='';ctStep2();}});
+  if(t.id==='ct-lang'){const f=$('mform');if(f)ctRead(new FormData(f));ctStep2();return;}if(t.id==='ct-cl'||t.id==='ct-pj'){const f=$('mform');if(f)ctRead(new FormData(f));if(t.id==='ct-cl'){if(t.value)ctFillClient(t.value);else S.ct.client='';}else if(t.value)ctFillProject(t.value);else S.ct.pid='';ctStep2();}});
 document.addEventListener('input',e=>{const t=e.target;if(t&&t.id==='ct-fee'){const h=$('ct-half'),n=num(String(t.value).replace(/\s/g,''));if(h)h.textContent='Foglaló és végszámla: 2 × '+ctFt(Math.round(n/2))+' Ft + ÁFA';}});
 Object.assign(ACT,{
   'new-contract':()=>{if(!isAdmin())return;ctNew();},
@@ -83,26 +84,27 @@ Object.assign(ACT,{
   'ct-dl':async()=>{try{const r=await ctBuild();const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=r.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}catch(e){handleErr(e);}}
 });
 /* a docx kitöltése: {mező} helyőrzők; a helyszín- és szolgáltatássor annyiszor ismétlődik, ahány tétel van */
-async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl);await ctLibs();
-  const t=CT_CACHE[c.tpl]||(CT_CACHE[c.tpl]=await call('contractTpl',{k:c.tpl}));
+async function ctBuild(){const c=S.ct,tp=ctTplOf(c.tpl),EN=ctEn();await ctLibs();
+  const tk=c.tpl+(EN?'_en':''),t=CT_CACHE[tk]||(CT_CACHE[tk]=await call('contractTpl',{k:tk}));
   const z=await window.JSZip.loadAsync(t.zip,{base64:true});if(!t.full)z.file('word/media/image1.png',t.img,{base64:true});   // a Drive-os (Wordben szerkesztett) sablon a saját képeivel jön
   let x=ctJoinTokens(await z.file('word/document.xml').async('string'));
   x=x.replace(/<w:tbl>[\s\S]*?<\/w:tbl>/g,t=>t.replace(/<w:jc w:val="(both|distribute)"\/>/g,'<w:jc w:val="left"/>'));   // táblázatban nincs sorkizárás (a nevek, címek ne húzódjanak szét)
   const X=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const fill=(s,o)=>s.replace(/\{(\w+)\}/g,(m,k)=>Object.prototype.hasOwnProperty.call(o,k)?X(o[k]):m);
   const rep=(s,tok,items)=>{const i=s.indexOf(tok);if(i<0)return s;const st=Math.max(s.lastIndexOf('<w:tr ',i),s.lastIndexOf('<w:tr>',i)),en=s.indexOf('</w:tr>',i)+7;const row=s.slice(st,en);return s.slice(0,st)+items.map(it=>fill(row,it)).join('')+s.slice(en);};
-  const fee=num(String(c.fee).replace(/\s/g,'')),dep=Math.round(fee/2);
+  const fee=num(String(c.fee).replace(/\s/g,'')),dep=Math.round(fee/2),Ft=EN?ctFtEn:ctFt,dd=v=>EN?ctDateEn(v):v;
   if(tp.hat){const L=c.locs.filter(l=>l.place||l.date),V=c.svcs.filter(s=>s.name);
-    x=rep(x,'{l_place}',(L.length?L:[{place:'',date:''}]).map((l,i)=>({l_n:(i+1)+'.',l_place:l.place,l_date:l.date})));
+    x=rep(x,'{l_place}',(L.length?L:[{place:'',date:''}]).map((l,i)=>({l_n:(i+1)+'.',l_place:l.place,l_date:dd(l.date)})));
     x=rep(x,'{s_name}',(V.length?V:[{name:'',qty:'',ext:''}]).map(s=>({s_name:s.name,s_qty:s.qty,s_ext:s.ext})));}
-  if(tp.sh)x=fill(x,ctShTokens());
+  if(tp.sh)x=fill(x,EN?ctShTokensEn():ctShTokens());
   x=x.replace(/<w:p[ >](?:(?!<w:p[ >])[\s\S])*?@@DEL@@(?:(?!<w:p[ >])[\s\S])*?<\/w:p>/g,'');   // kihagyott (opcionális) bekezdések
-  x=fill(x,{deliv:ctDlvText(tp),raw_buy:ctRawText('rb',tp),raw_keep:ctRawText('rk',tp),c_name:c.c_name,c_addr:c.c_addr,c_tax:c.c_tax,c_phone:c.c_phone,c_email:c.c_email,c_rep:c.c_rep,sig_name:c.sig_name||c.c_name,sig_rep:c.sig_rep||c.c_rep,date:c.date,fee_dep:ctFt(dep),fee_fin:ctFt(fee-dep),fee_tot:ctFt(fee)});
-  if(!(c.sig_rep||c.c_rep))x=x.replace(/képviseli: \{sig_rep\}/,'');
+  x=fill(x,{deliv:EN?ctDlvTextEn(tp):ctDlvText(tp),raw_buy:EN?ctRawTextEn('rb',tp):ctRawText('rb',tp),raw_keep:EN?ctRawTextEn('rk',tp):ctRawText('rk',tp),c_name:c.c_name,c_addr:c.c_addr,c_tax:c.c_tax,c_phone:c.c_phone,c_email:c.c_email,c_rep:c.c_rep,sig_name:c.sig_name||c.c_name,sig_rep:c.sig_rep||c.c_rep,date:dd(c.date),fee_dep:Ft(dep),fee_fin:Ft(fee-dep),fee_tot:Ft(fee)});
+  if(!(c.sig_rep||c.c_rep))x=x.replace(EN?/represented by: \{sig_rep\}/:/képviseli: \{sig_rep\}/,'');
+  if(EN){const v=ctVatEn();if(v!==' + VAT')x=x.replace(/ \+ VAT/g,v);}   // külföldi ügyfélnél nincs magyar áfa: „net, reverse charge” / „net, no Hungarian VAT”
   z.file('word/document.xml',x);
   const blob=await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
   const slug=x=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'');
-  const nm=(tp.sh?'Megbizasi_szerzodes_kiallitoi_videok':tp.hat?'Megbizasi_szerzodes':'Keretszerzodes')+'_'+(slug(c.c_name)||'ugyfel')+'_'+slug(tp.firm)+'.docx';   // pl. Keretszerzodes_Empatia_Sztori_Nonprofit_Kft_Lumos_Motion_Kft.docx
+  const nm=(EN?(tp.sh?'Service_agreement_exhibitor_videos':tp.hat?'Service_agreement':'Framework_agreement'):(tp.sh?'Megbizasi_szerzodes_kiallitoi_videok':tp.hat?'Megbizasi_szerzodes':'Keretszerzodes'))+'_'+(slug(c.c_name)||'ugyfel')+'_'+slug(tp.firm)+'.docx';   // pl. Keretszerzodes_Empatia_Sztori_Nonprofit_Kft_Lumos_Motion_Kft.docx
   return {blob,name:nm};}
 /* 3. lépés: minta (előnézet) */
 /* a Word-számozást (CSS counter / counter-set) a PDF-rajzoló nem ismeri jól („3.8.” „3.1.” helyett): kiszámoljuk, és szövegként írjuk be */
@@ -164,7 +166,11 @@ async function ctStep3(keep){const c=S.ct,tp=ctTplOf(c.tpl);c.step=3;if(!keep&&c
 /* 📨 Küldés: a szerződés PDF-je e-mailben az ügyfélnek – előtte a levél előnézete (a szöveg szerkeszthető), kérésre mentés az ügyfél mappájába is */
 const ctFirst=x=>{return huFirst(x);};
 async function ctSendPrev(){const c=S.ct,tp=ctTplOf(c.tpl);if(!c)return;
-  if(!c.mail)c.mail={to:c.c_email||'',cc:'',subject:tp.t+' – '+(c.c_name||''),save:true,
+  const EN=ctEn(),lg=EN?'en':'hu';if(c.mail&&c.mail.lang!==lg)c.mail=null;   // nyelvváltáskor a levél is az új nyelven készül
+  const enT=tp.sh?'service agreement for exhibitor videos':tp.hat?'service agreement':'framework agreement',enFirst=String(c.c_rep||'').split(',')[0].trim().split(/\s+/)[0]||'';
+  if(!c.mail)c.mail=EN?{lang:lg,to:c.c_email||'',cc:'',subject:enT.charAt(0).toUpperCase()+enT.slice(1)+' – '+(c.c_name||''),save:true,
+    body:`Dear ${enFirst||'Client'},\n\nPlease find attached the draft ${enT}. Please review it and, if everything is in order, return it to us signed.\n\nIf you have any questions, I am happy to help.`}
+   :{lang:lg,to:c.c_email||'',cc:'',subject:tp.t+' – '+(c.c_name||''),save:true,
     body:`Kedves ${ctFirst(c.c_rep)||'Ügyfelünk'}!\n\nCsatolva küldöm a ${tp.t.toLowerCase()} tervezetét. Kérlek, nézd át, és ha mindent rendben találsz, küldd vissza aláírva.\n\nHa bármi kérdés felmerül, szívesen segítek.`};
   if(!c.sig)try{c.sig=await call('contractSig',{});}catch(e){c.sig={};}
   const m=c.mail,sg=c.sig||{},fname=(await ctBuild()).name.replace(/\.docx$/i,'')+'.pdf';c._fname=fname;
@@ -224,7 +230,7 @@ function ctShFields(){const c=S.ct;if(c.sh_base===undefined){Object.assign(c,{sh
   return `<input type="hidden" name="sh_form" value="1"><h4 class="sub-h full" style="margin:10px 0 0">Rendezvény</h4>
     <div class="field full"><label for="ct-ev_name">Rendezvény neve</label><input class="inp" id="ct-ev_name" name="ev_name" value="${fv('ev_name')}" placeholder="pl. Vegan Summit 2026"></div>
     <div class="field"><label for="ct-ev_date">Dátum</label><input class="inp" type="date" id="ct-ev_date" name="ev_date" value="${fv('ev_date')}"></div>
-    <div class="field"><label for="ct-ev_place">Helyszín (így kerül a mondatba)</label><input class="inp" id="ct-ev_place" name="ev_place" value="${fv('ev_place')}" placeholder="a budapesti Europa Event Centerben"></div>
+    <div class="field"><label for="ct-ev_place">Helyszín (így kerül a mondatba)</label><input class="inp" id="ct-ev_place" name="ev_place" value="${fv('ev_place')}" placeholder="${ctEn()?'Europa Event Center, Budapest':'a budapesti Europa Event Centerben'}"></div>
     <h4 class="sub-h full" style="margin:10px 0 0">Ár és jutalék (videónként)</h4>
     <div class="field"><label for="ct-sh_price">Ár a kiállítóknak</label><div class="money"><input class="inp money-inp" id="ct-sh_price" name="sh_price" value="${mon('sh_price')}" inputmode="numeric" data-money="1"><span class="money-unit">Ft + ÁFA</span></div></div>
     <div class="field"><label for="ct-sh_comm">Szervező jutaléka</label><div class="money"><input class="inp money-inp" id="ct-sh_comm" name="sh_comm" value="${mon('sh_comm')}" inputmode="numeric" data-money="1"><span class="money-unit">Ft + ÁFA</span></div><span class="hint" id="ct-sh-lfee">Lumos díja: ${ctFt(lfee)} Ft + ÁFA / videó</span></div>
@@ -357,3 +363,37 @@ function alvMail(){const box=$('alv-mprev'),bd=$('alv-body');if(!box||!bd)return
       ed.addEventListener('input',()=>{const c=ed.cloneNode(true);c.querySelectorAll('br').forEach(x=>x.replaceWith(d.createTextNode('\n')));c.querySelectorAll('div,p').forEach(x=>x.prepend(d.createTextNode('\n')));
         bd.value=c.textContent.replace(/\u00a0/g,' ').replace(/^\n/,'').replace(/\n{3,}/g,'\n\n');fit();});});
     box.appendChild(f);});}
+
+/* ===== Angol nyelvű szerződés (külföldi ügyfélnek) – csak a Lumos Motion Kft. sablonjaihoz (…_en sablonok) ===== */
+const ctEnOk=tp=>/^lumos_/.test(tp.k);
+const ctEn=()=>!!(S.ct&&S.ct.lang==='en'&&ctEnOk(ctTplOf(S.ct.tpl)));
+const ctFtEn=n=>String(Math.round(num(n))).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const CT_MONTHS_EN=['January','February','March','April','May','June','July','August','September','October','November','December'],CT_WD_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const CT_NUMW_EN=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen'];
+/* „2026. 11. 07., szombat” / „2026-11-07” → „Saturday, 7 November 2026” (tartományt is: „… – …”); más szöveget változatlanul hagy */
+function ctDateEn(v){return String(v||'').replace(/(\d{4})(?:\.\s*|-)(\d{1,2})(?:\.\s*|-)(\d{1,2})\.?(?:,?\s*(hétfő|kedd|szerda|csütörtök|péntek|szombat|vasárnap))?/g,(m,y,mo,d,wd)=>{const dt=new Date(Date.UTC(+y,+mo-1,+d));if(isNaN(dt)||!CT_MONTHS_EN[+mo-1])return m;return (wd?CT_WD_EN[dt.getUTCDay()]+', ':'')+(+d)+' '+CT_MONTHS_EN[+mo-1]+' '+y;});}
+function ctVatEn(){const x=typeof clientIntl==='function'&&clientIntl(S.ct.client||S.ct.c_name);return !x?' + VAT':x.eu?' net (VAT reverse-charged)':' net (no Hungarian VAT)';}
+function ctRawTextEn(p,tp){const c=S.ct,m=c[p+'_mode']||'pct',v=' + VAT',n=x=>num(String(x||'').replace(/[^\d]/g,'')),pc=String(c[p+'_pct']||'10').replace(',','.'),mn=n(c[p+'_min']),am=n(c[p+'_amt']);
+  const price=m==='mail'?'for a fee agreed by the Parties by e-mail for each project':m==='fix'?`for a fee of HUF ${ctFtEn(am)}${v}`:`for a fee of ${pc}% of the net project fee${mn?`, but at least HUF ${ctFtEn(mn)}${v}`:''}`;
+  if(p==='rb')return `At the Client's request, the Service Provider hands over the complete raw footage created during the project to the Client ${price}.`;
+  const y=Math.max(1,Math.min(15,Math.round(n(c.rk_years)||5)));
+  return `The Service Provider archives the complete raw footage on its own NAS system for ${y} (${CT_NUMW_EN[y]}) year${y>1?'s':''} ${price}.`;}
+function ctDlvTextEn(tp){const c=S.ct,paid='once the full fee has been credited to the Service Provider\'s bank account';
+  return c.dlv==='wm'?`The Service Provider delivers the post-produced video materials created within the project to the Client with a watermark; it removes the watermark ${paid} and makes the final, watermark-free version available to the Client.`
+    :`The post-produced video materials created within the project are delivered ${paid}.`;}
+function ctShTokensEn(){const c=S.ct,ev=String(c.ev_name||'').trim()||'…',D='@@DEL@@';
+  const iso=String(c.ev_date||''),m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(iso),when=m?`${+m[3]} ${CT_MONTHS_EN[+m[2]-1]} ${m[1]}`:'…';
+  const n=k=>num(String(c[k]||'').replace(/\D/g,'')),price=n('sh_price'),comm=n('sh_comm'),st=c.sh_settle||'choose';
+  const p33=st==='credit'&&c.sh_base?'3.3. The Service Provider settles the Client commission as a credit against the final invoice of the base engagement.'
+    :st==='shorts'?'3.3. In return for the Client commission, the Service Provider produces videos for the Client based on a separate written specification.'
+    :st==='invoice'?'3.3. After the final settlement, the Service Provider pays the Client commission by bank transfer within 15 calendar days, based on an invoice issued by the Client.'
+    :`3.3. The Parties choose the method of settling the Client commission in writing: (a) ${c.sh_base?'a credit against the final invoice of the base engagement':'payment by bank transfer based on an invoice issued by the Client'}; or (b) an order of videos produced for the Client, with a separate written specification.`;
+  return {ev_name:ev,ev_when:when,ev_place:String(c.ev_place||'').trim()||'…',
+    p12:`1.2. This agreement is a one-off engagement relating to the ${ev} event.`+(c.sh_kf?' The Parties intend to set out the terms of their future cooperation in a separate framework agreement.':''),
+    p13:c.sh_base?`1.3. The performance and fee of the service agreement previously concluded between the Parties for the basic video services of the ${ev} event remain unchanged. This agreement covers only the additional videos ordered separately by exhibitors.`:D,
+    p21:c.sh_base?'2.1. The Service Provider performs the tasks undertaken in the base engagement with the original crew, with the content and under the conditions set out there. For the exhibitor videos it provides an additional camera operator at its own cost and takes care of sales, filming, post-production and delivery.'
+      :'2.1. For the exhibitor videos, the Service Provider provides a camera operator at its own cost and takes care of sales, filming, post-production and delivery.',
+    p22:'2.2. The additional service involves no separate staffing, technical or organisational fee and no further mandatory organisational task for the Client.'+(c.sh_promo?' The Client mentions the opportunity in its general information newsletters to exhibitors.':''),
+    p24:c.sh_base?'2.4. The primary condition of the additional filming is that the quality, filming and delivery schedule of the video materials undertaken in the base engagement are fully ensured.':D,
+    p31:`3.1. The price charged to exhibitors is HUF ${ctFtEn(price)} + VAT per video ordered, of which the Lumos Motion service fee is HUF ${ctFtEn(Math.max(0,price-comm))} + VAT per video and the commission due to the Client is HUF ${ctFtEn(comm)} + VAT per video.`,
+    p33};}

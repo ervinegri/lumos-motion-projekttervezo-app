@@ -405,7 +405,7 @@ function triggerStatus_() {
 /* ===================== SZERZŐDÉSSABLONOK A DRIVE-BAN =====================
  * A sablonok szerkeszthető .docx fájlként a Lumos főmappa „Szerződéssablonok” mappájában vannak; a fájlnévben zárójelben a kulcs,
  * pl. „Keretszerződés – Lumos Motion Kft. (lumos_keret).docx”. Ha nincs ilyen fájl, a kódba épített sablon (Templates.gs) az alap. */
-const CT_KEYS_ = { lumos_keret: 'Keretszerződés – Lumos Motion Kft.', lumos_hatarozott: 'Megbízási szerződés – Lumos Motion Kft.', lumos_shortok: 'Kiállítói videós megbízás – Lumos Motion Kft.', egri_keret: 'Kizárólagos keretmegállapodás – Egri Ervin E.V.', egri_hatarozott: 'Megbízási szerződés – Egri Ervin E.V.' };
+const CT_KEYS_ = { lumos_keret: 'Keretszerződés – Lumos Motion Kft.', lumos_hatarozott: 'Megbízási szerződés – Lumos Motion Kft.', lumos_shortok: 'Kiállítói videós megbízás – Lumos Motion Kft.', egri_keret: 'Kizárólagos keretmegállapodás – Egri Ervin E.V.', egri_hatarozott: 'Megbízási szerződés – Egri Ervin E.V.', lumos_keret_en: 'Framework agreement (EN) – Lumos Motion Kft.', lumos_hatarozott_en: 'Service agreement (EN) – Lumos Motion Kft.', lumos_shortok_en: 'Exhibitor videos agreement (EN) – Lumos Motion Kft.' };
 const DOCX_MIME_ = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 function ctTplFolder_(create) {
   const P = PropertiesService.getScriptProperties(), id = P.getProperty('CT_TPL_FOLDER');
