@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "2ec70c969a",
+"at": "2026-11-28T13:12:07+02:00",
+"msg": "Árajánlat euróban, ajánlatonként rögzített árfolyammal"
+},
+{
 "id": "ee1264252c",
 "at": "2026-11-28T11:00:41+01:00",
 "msg": "Árajánlat angolul külföldi ügyfélnek: nyelvválasztó, angol PDF/levél/aláírás, HUF, nettó árak fordított adózási megjegyzéssel"
@@ -132,14 +137,9 @@ const ITEMS = [
 "msg": "Lezajlott rendezvény: feloldáskor nincs értesítő-figyelmeztetés, utólag nem megy ki értesítő e-mail"
 },
 {
-"id": "18a71188f0",
-"at": "2026-11-28T09:24:49+01:00",
-"msg": "Stáb és eszközök: lezajlott rendezvénynél saját lakat (utólagos javítás), a szolgáltatásoktól függetlenül"
-},
-{
-"id": "45fd6f3dcf",
-"at": "2026-11-28T09:22:46+01:00",
-"msg": "Lezajlott rendezvény: a Szolgáltatások lakatjának feloldása a terepi feladatokat is szerkeszthetővé teszi (nem szürke)"
+"id": "029e1ee656",
+"at": "2026-11-28T08:25:02Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
