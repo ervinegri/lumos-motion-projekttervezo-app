@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7506d88d52",
+"at": "2026-11-28T09:13:17+01:00",
+"msg": "Lezajlott rendezvény: az utómunka (extra videók, vágó) feloldás után szerkeszthető, csak a terepi feladatok zártak"
+},
+{
 "id": "68aa337707",
 "at": "2026-11-28T09:07:49+01:00",
 "msg": "Instrukciók: „E-mailt kap:” – címzettenként pipálható lista (projektvezetőnek), a kipipáltak nem kapják meg"
@@ -137,14 +142,9 @@ const ITEMS = [
 "msg": "Projektlista: a mai projekt kerete miatt nem görgethető vízszintesen a lista"
 },
 {
-"id": "1817f52194",
-"at": "2026-11-27T15:07:40+02:00",
-"msg": "Szakember: a gomb a múlt hónap nevét viseli (pl. Októberi projektek)"
-},
-{
-"id": "a1c80702e8",
-"at": "2026-11-27T15:06:48+02:00",
-"msg": "Szakember: az e havi projektek lezárva is a listában; „Előző havi projektek” lenyitható gomb"
+"id": "cc63b4fd0a",
+"at": "2026-11-27T13:07:54Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
