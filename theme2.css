@@ -3866,3 +3866,6 @@ html body #mform .tax-hd .frn-chk input{width:14px;height:14px;margin:0}
   html body #mform.m-video .vv-body{flex:1 1 auto;min-height:0;align-items:stretch}
   html body #mform.m-video .vv-body>.vv-pcg{height:calc(100dvh - 150px)!important;max-height:calc(100dvh - 150px)!important;border-radius:12px}
 }
+/* árajánlat: nyelv + pénznem egy választóban – 3 (ritkán 4) egyforma gomb egy sorban */
+html body .q-evsel.q-langsel{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+@media (max-width:640px){html body .q-evsel.q-langsel{grid-template-columns:1fr}}
