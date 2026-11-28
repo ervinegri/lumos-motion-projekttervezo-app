@@ -584,7 +584,7 @@ ACT['rev-mail']=()=>{const txt='Kedves …!\n\nKöszönjük, hogy minket válasz
     {submitLabel:'✉️ Levél küldése',noDraft:true,submit:async fd=>{const to=String(fd.get('to')||'').trim(),text=String(fd.get('text')||'');if(!to){toast('Add meg a címzettet.',true);const i=$('m-rmTo');if(i)i.focus();return;}
       if(/Kedves …!/.test(text)&&!confirm('A megszólítás még „Kedves …!” – így küldöd el?'))return;if(!text.includes(REVIEW_URL)&&!confirm('A levélből kimaradt az értékelés linkje. Így is elküldöd?'))return;
       try{await call('reviewSend',{to,subject:String(fd.get('subject')||''),text});closeModal();toast('Elküldve: '+to);setTimeout(()=>{if(!$('mform'))ACT['gbp-open']();},50);}catch(e){handleErr(e);}}});
-  rvMailWire('rm','m-rmTo','m-rmSubj','m-rmText');};
+  rvMailWire('rm','m-rmTo','m-rmSubj','m-rmText');const ti=$('m-rmTo');if(ti){ti.setAttribute('autocomplete','off');ti.placeholder='Név, cég vagy e-mail – válassz ügyfelet vagy szereplőt';}};
 
 /* Projekt megnyitása új lapon (Ervin, 2026-11-28): jobb klikk a projektsoron → menü; Ctrl/⌘ + kattintás vagy középső gomb → azonnal új lap */
 const projTabUrl=id=>{const p=projById(id);return location.origin+location.pathname+'#p='+(p?projSlug(p):id);};
@@ -596,3 +596,22 @@ document.addEventListener('contextmenu',e=>{const row=e.target.closest&&e.target
 document.addEventListener('click',e=>{if(!(e.ctrlKey||e.metaKey))return;const row=e.target.closest&&e.target.closest('.pt-row[data-action="open-project"][data-id],.cal-chip[data-kind="p"]');if(!row)return;const inner=e.target.closest('button,a[href]');if(inner&&inner!==row)return;
   const id=row.dataset.id||row.dataset.tipid;if(!id)return;e.preventDefault();e.stopPropagation();window.open(projTabUrl(id),'_blank','noopener');},true);
 document.addEventListener('auxclick',e=>{if(e.button!==1)return;const row=e.target.closest&&e.target.closest('.pt-row[data-action="open-project"][data-id],.cal-chip[data-kind="p"]');if(!row)return;const id=row.dataset.id||row.dataset.tipid;if(!id)return;e.preventDefault();window.open(projTabUrl(id),'_blank','noopener');});
+
+/* Értékelés kérése: címzett választása az ügyfelek kapcsolattartói / képviselői és a szereplők (modell, statiszta) közül (Ervin, 2026-11-28).
+   Választáskor a „Kedves …!” megszólítás is kitöltődik a keresztnévvel. */
+let RM_ITEMS=[];
+function rmPeople(){const L=[],seen=new Set(),add=(name,email,sub,ic)=>{email=String(email||'').trim();if(!/^\S+@\S+\.\S+$/.test(email))return;const k=email.toLowerCase()+'|'+String(name||'').toLowerCase();if(seen.has(k))return;seen.add(k);L.push({name:String(name||'').trim(),email,sub,ic});};
+  (S.clients||[]).forEach(c=>{add(c.contactName||c.name,c.contactEmail,(c.name||'')+(c.contactName?' · kapcsolattartó':''),'🏢');if(c.repEmail)add(c.rep||c.name,c.repEmail,(c.name||'')+' · képviselő','🏢');});
+  (S.crew||[]).filter(c=>typeof isExtraCrew==='function'?isExtraCrew(c):(c.roles||[]).some(r=>/Szereplő|Statiszta/.test(r))).forEach(c=>add(c.name,c.email,'Szereplő / modell','🎭'));
+  return L;}
+function rmPick(el){const q=String(el.value||'').trim().toLowerCase(),nq=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''),Q=nq(q);
+  RM_ITEMS=rmPeople().filter(p=>!Q||nq(p.name+' '+p.email+' '+p.sub).includes(Q)).sort((a,b)=>(a.ic===b.ic?0:a.ic==='🏢'?-1:1)||a.name.localeCompare(b.name,'hu')).slice(0,14);
+  if(!RM_ITEMS.length){pickClose();return;}
+  pickShow(el,RM_ITEMS.map((p,i)=>`<button type="button" class="addr-item rm-item" data-rm="${i}"><b>${p.ic} ${esc(p.name||p.email)}</b><small>${esc(p.sub)} · ${esc(p.email)}</small></button>`).join(''));}
+document.addEventListener('focusin',e=>{if(e.target.id==='m-rmTo')rmPick(e.target);});
+document.addEventListener('input',e=>{if(e.target.id==='m-rmTo')rmPick(e.target);});
+document.addEventListener('focusout',e=>{if(e.target.id==='m-rmTo')setTimeout(()=>{if(document.activeElement&&document.activeElement.id==='m-rmTo')return;const b=$('hsBox');if(b&&b.querySelector('.rm-item'))pickClose();},150);});
+document.addEventListener('keydown',e=>{if(e.target.id==='m-rmTo'&&e.key==='Escape'&&$('hsBox')){e.stopPropagation();pickClose();}},true);
+document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.rm-item');if(!it)return;e.preventDefault();e.stopPropagation();const p=RM_ITEMS[Number(it.dataset.rm)];pickClose();if(!p)return;
+  const ti=$('m-rmTo');if(ti){ti.value=p.email;ti.dispatchEvent(new Event('input',{bubbles:true}));pickClose();}
+  const ta=$('m-rmText'),fn=huFirst(p.name);if(ta&&fn&&/Kedves …!/.test(ta.value)){ta.value=ta.value.replace('Kedves …!','Kedves '+fn+'!');rvMailBody('rm','m-rmText');}},true);
