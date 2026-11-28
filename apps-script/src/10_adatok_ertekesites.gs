@@ -549,6 +549,7 @@ function migRecSumPurge_() { const P = PropertiesService.getScriptProperties(), 
 function dealNoteDel_(u, a) {
   const did = str_(a && a.dealId, 64), at = String(a && a.at || '').slice(0, 16), head = String(a && a.head || '').trim().slice(0, 80);
   if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(at)) throw new Error('Hibás bejegyzés.');
+  if (/^📄 Árajánlat elküldve/.test(head)) throw new Error('A kiküldött árajánlat naplósora nem törölhető.');   // az app által írt napló védett
   let note = null;
   withLock_(() => { const sh = sheetFor_('deals'), row = findRow_(sh, did); if (!row) throw new Error('A lehetőség nem található.'); const x = readRow_('deals', sh, row); dealCan_(u, x);
     const L = String(x.note || '').split('\n'), out = []; let skip = false, done = false;
