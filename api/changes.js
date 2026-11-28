@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "33163fcd4e",
+"at": "2026-11-28T13:53:26+01:00",
+"msg": "Lehetőség: mentés után nyitva marad; kiküldött ajánlatok előtöltése; új projekt előfoglalásként a lehetőségből"
+},
+{
 "id": "4aced791e0",
 "at": "2026-11-28T13:32:20+01:00",
 "msg": "Teljes képernyős videó-/fotóablak: 861–1099px (keskenyebben a telefonos elrendezés marad)"
@@ -127,14 +132,9 @@ const ITEMS = [
 "msg": "Projektlista: lezárt projekt állapot-sávja is szürke"
 },
 {
-"id": "0b38c36812",
-"at": "2026-11-28T09:39:29+01:00",
-"msg": "Google-értékelés párosítása az értékelést kérő levél címzettje / megszólítása alapján is; mentetlen projektnél nem nyúlik meg a Szolgáltatások panel alja"
-},
-{
-"id": "56b8f18a14",
-"at": "2026-11-28T09:33:52+01:00",
-"msg": "Utómunka tábla a projektoldalon: a videók számának módosítása mentés előtt is azonnal látszik (új kártyák szaggatottan)"
+"id": "01027644cf",
+"at": "2026-11-28T08:39:37Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
