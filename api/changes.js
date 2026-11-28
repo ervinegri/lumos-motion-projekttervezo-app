@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "5a44072b43",
+"at": "2026-11-28T14:18:08+01:00",
+"msg": "Projektek fül: piros szám, ha videó vár belső ellenőrzésre (ügyvezető, termelési vezető)"
+},
+{
 "id": "e7d35b50e7",
 "at": "2026-11-28T14:16:24+01:00",
 "msg": "Értékelési QR: ügyfélnek mutatható kártya (logó, 5 csillag, kérés), nyomtatható PNG; a Link másolása gomb eltávolítva"
@@ -130,16 +135,6 @@ const ITEMS = [
 "id": "cd4194668a",
 "at": "2026-11-28T10:29:24+01:00",
 "msg": "Telefonszám: országhívószám választható (kereshető lista a zászlóra kattintva)"
-},
-{
-"id": "6da23309dc",
-"at": "2026-11-28T10:24:54+01:00",
-"msg": "Csengő javítása (egy megjegyzés kikommentelte a lista betöltését)"
-},
-{
-"id": "06c5c24d6a",
-"at": "2026-11-28T09:08:53Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
