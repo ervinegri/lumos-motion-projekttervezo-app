@@ -54,14 +54,14 @@
   /* fotógaléria: a szövegek fotókra szólnak */
   /* fotók a jóváhagyó oldalon (Ervin, 2026-11-27): bélyegképek, nagyítás, lapozás; a nagyított képből „[fájlnév.jpg]” kerül az üzenetbe */
   function fotoGal(i){const el=document.querySelector('#player .pcg-host');if(!el)return;
-    PCG.mount(el,i.link,{noHead:true,onCount:n=>{const sub=document.querySelector('#ttl .sub');if(!sub)return;let sp=document.getElementById('fcount');if(!sp){sp=document.createElement('span');sp.id='fcount';sub.appendChild(sp);}sp.textContent=' · 📷 '+n+' fotó';},   /* a darabszám a cím alatti sorban (projekt · link másolása · N fotó) */
+    PCG.mount(el,i.link,{noHead:true,onCount:n=>{const sub=document.querySelector('#ttl .sub');if(!sub)return;let sp=document.getElementById('fcount');if(!sp){sp=document.createElement('span');sp.id='fcount';const pj=document.getElementById('project');if(pj&&pj.parentNode===sub)pj.after(sp);else sub.appendChild(sp);}sp.textContent=' · '+n+' fotó';},   /* a darabszám a cím alatti sorban (projekt · link másolása · N fotó) */
       wm:i.wm?(i.wmName||true):false,onNote:i.state==='wait'?nm=>{const om=$('okMsg'),ta=om&&!om.hidden?$('okNote'):$('fb');if(!ta)return;
         if(ta.id==='fb'&&!$('modBox').classList.contains('open'))$('bSend').click();   // a módosítás-doboz kinyílik
         const pre=ta.value.replace(/\s+$/,''),ins=(pre?pre+'\n':'')+'['+nm+'] ';ta.value=ins;ta.dispatchEvent(new Event('input',{bubbles:true}));setTimeout(()=>{ta.focus();try{ta.setSelectionRange(ins.length,ins.length);}catch(e){}},60);}:null,
       onFail:()=>{}});}
   document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-pcg-ref]');if(!b)return;const el=document.querySelector('#player .pcg-host');if(el&&el._pcg){e.preventDefault();el._pcg.open(b.dataset.pcgRef);}});
   const fotoWording=on=>{const t=(id,v,f)=>{const el=document.getElementById(id);if(el){if(!el.dataset.v)el.dataset.v=el.textContent;el.textContent=on?f:el.dataset.v;}};
-    t('askH','','💬 Tetszenek a fotók?');t('cpLink','','🔗 Fotók linkjének másolása');t('dl','','⬇ Fotók letöltése');const d=document.querySelector('p.done');if(d){if(!d.dataset.v)d.dataset.v=d.textContent;d.textContent=on?'Köszönjük! A fotókat jóváhagytad.':d.dataset.v;}};
+    t('askH','','💬 Tetszenek a fotók?');t('cpLink','',matchMedia('(max-width:700px)').matches?'🔗 Link másolása':'🔗 Fotók linkjének másolása');t('dl','','⬇ Fotók letöltése');const d=document.querySelector('p.done');if(d){if(!d.dataset.v)d.dataset.v=d.textContent;d.textContent=on?'Köszönjük! A fotókat jóváhagytad.':d.dataset.v;}};
   const noEmbed=(u,why)=>`<div class="noembed">${why?esc(why)+'<br>':''}A videó itt nem játszható le.${u?`<a href="${esc(u)}" target="_blank" rel="noopener">▶ Videó megnyitása</a>`:''}</div>`;
   /* külön „Letöltés” gomb (a lejátszó saját menüjéből a letöltés ki van véve) */
   let noDl=false;   /* vízjeles (még nem kifizetett) videó: nincs letöltés */

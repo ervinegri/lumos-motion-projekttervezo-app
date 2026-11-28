@@ -216,6 +216,16 @@ html,body{overflow-x:clip}
 .fb-row{white-space:nowrap}.fb-row button{display:inline-flex!important}.fb-list button{display:flex!important;align-items:center;gap:8px}.fb-list svg{fill:#444746}
 
 #ask{position:relative}#ask.cfm-on.cfm-keep .modbox{display:grid!important}#ask.cfm-on.cfm-keep .row{display:flex!important;visibility:hidden}#ask.cfm-keep .cfm{position:absolute;left:0;right:0;margin:0!important;z-index:6;box-shadow:0 10px 30px rgba(20,30,40,.18)}
+
+/* telefonon kompakt fejléc (Ervin, 2026-11-28): kis logó balra, mellette a cím és egy sorban az adatok */
+@media (max-width:700px){
+  .card>.head{display:grid!important;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:12px;row-gap:0;margin-bottom:10px!important}
+  .card>.head .logo{height:30px!important;width:auto}
+  .card>.head .ttl{margin:0!important;min-width:0}
+  .card>.head .ttl h1{font-size:17px!important;line-height:1.2;margin:0 0 2px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card>.head .ttl .sub{font-size:12.5px!important;line-height:1.35;gap:0!important}
+  .card>.head .ttl .sub .cplink{font-size:12.5px}
+}
 </style>
 <link rel="preload" href="logo-jovahagyas.png" as="image">
 <style>html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}.cplink{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}.cplink:hover{opacity:.8}</style>
