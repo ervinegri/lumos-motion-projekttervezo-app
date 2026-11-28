@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "523dd7104f",
+"at": "2026-11-28T10:04:12+01:00",
+"msg": "Csengő: a látott/olvasott értesítések eszközök között szinkronban (iPaden se jönnek elő a régiek)"
+},
+{
 "id": "7e218cd192",
 "at": "2026-11-28T10:01:55+01:00",
 "msg": "Tablet: szélek nélkül (a panelek a képernyő széléig); videóablak fejléce az iPad állapotsora alatt olvasható"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "987aa08e2f",
 "at": "2026-11-28T08:47:37+01:00",
 "msg": "Fotógaléria: hasábos elrendezés eredeti arányokkal; jóváhagyó oldal: projekt · Fotók linkjének másolása · N fotó egy sorban"
-},
-{
-"id": "7115c7847c",
-"at": "2026-11-28T07:31:06Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
