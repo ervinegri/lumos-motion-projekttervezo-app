@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "580a2fd334",
+"at": "2026-11-28T14:10:19+01:00",
+"msg": "Kompakt fejléc a lehetőség ablakában és a jegyzetek teljes képernyős nézetében; az ajánlatsorban nincs külön „Ajánlat kiküldve” szakasz"
+},
+{
 "id": "50014a3d9e",
 "at": "2026-11-28T14:07:39+01:00",
 "msg": "Lehetőség jegyzetei: a kiküldött árajánlat naplósora nem törölhető (felület + háttér)"
@@ -130,16 +135,6 @@ const ITEMS = [
 "id": "d270677a1b",
 "at": "2026-11-28T10:07:56+01:00",
 "msg": "Csengő betöltés közben is látszik; Fizetések táblázat kerete pontosan a képernyő aljáig (iPad)"
-},
-{
-"id": "523dd7104f",
-"at": "2026-11-28T10:04:12+01:00",
-"msg": "Csengő: a látott/olvasott értesítések eszközök között szinkronban (iPaden se jönnek elő a régiek)"
-},
-{
-"id": "87d14b8b38",
-"at": "2026-11-28T09:02:05Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
