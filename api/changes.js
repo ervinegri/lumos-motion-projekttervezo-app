@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8e26fdba5c",
+"at": "2026-11-28T08:50:54+01:00",
+"msg": "Utómunka előtti projekt megnyitásakor a Stáb és eszközök szakasz nyitva"
+},
+{
 "id": "01abb31716",
 "at": "2026-11-28T08:49:45+01:00",
 "msg": "Utómunkában lévő projekt megnyitásakor az Utómunka szakasz nyitva"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "2df2c2ed8c",
 "at": "2026-11-27T15:01:46+02:00",
 "msg": "Szakember: a lezajlott projekt nem szürkül el, amíg van rajta saját, nem jóváhagyott utómunkája"
-},
-{
-"id": "6fd8d5ad95",
-"at": "2026-11-27T14:59:31+02:00",
-"msg": "Szakember: a lezajlott, de még Helyszíni munka lépésben lévő projekt is látszik, ha övé az utómunka (pl. fotók)"
 }
 ];
 const allowed = require('./_auth.js');
