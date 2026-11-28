@@ -353,6 +353,7 @@ const ACT={
   'eqp-open':b=>{const d=S.draft;if(!d)return;const cid=b.dataset.cid,c=crewById(cid);confirmModal('Eszközök módosítása',`${c?c.name:'A szakember'} már elfogadta a meghívót ezzel az eszközlistával. Ha végeztél (🔓 visszazárás vagy a projekt elhagyása), megmutatom az értesítő e-mailt, és te döntöd el, elküldöd-e.`,'✏️ Módosítom',()=>{noticeSnapTake(d.id);(S.eqPersonEdit=S.eqPersonEdit||{})[d.id+'|'+cid]=true;render(true);});},
   'eqp-close':b=>{const d=S.draft;if(!d||!S.eqPersonEdit)return;delete S.eqPersonEdit[d.id+'|'+b.dataset.cid];render(true);toast('Visszazárva');noticeMaybe(d.id);},
   'svc-lock-open':b=>{const d=S.draft;if(!d)return;const K=String(b.dataset.k||'').split(',').filter(Boolean);
+    if(crewPast(d)){K.forEach(k=>{svcEditMap(k)[d.id]=true;});render(true);toast('A forgatás már megtörtént – a módosításról nem megy ki értesítő e-mail.');return;}   /* utólag nem küldünk értesítőt (Ervin, 2026-11-28) */
     if(K.length>1){const who=[...new Set(K.flatMap(k=>svcLockWho(d,k)))].map(id=>(crewById(id)||{}).name||'?').join(', ');   /* Szolgáltatások: egy lakat a terepi feladatokra és az utómunkára */
       const openAll=()=>{K.forEach(k=>{svcEditMap(k)[d.id]=true;});render(true);};if(!who){openAll();return;}
       confirmModal('Feladatok módosítása',`${who} már megkapta / elfogadta a meghívót ezekkel a feladatokkal. Ha végeztél (🔓 visszazárás vagy a projekt elhagyása), megmutatom az értesítő e-mailt (mi került le, mi jött hozzá), és te döntöd el, elküldöd-e.`,'✏️ Módosítom',()=>{noticeSnapTake(d.id);openAll();});return;}

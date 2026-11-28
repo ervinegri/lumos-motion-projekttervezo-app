@@ -503,7 +503,7 @@ ACT['co-pick']=b=>coPick(b);   /* azonnali cégkereső találata (actions-ablako
    és ha valakit érint, megmutatjuk a leveleket: elküldöd vagy nem. Magától semmi nem megy ki. */
 function noticeSnapTake(pid){S.noticeSnap=S.noticeSnap||{};if(!S.noticeSnap[pid]){const p=projById(pid);if(p)S.noticeSnap[pid]=clone(p);}}
 function noticeOpen(pid){const ks=['postEdit','fieldEdit','basicEdit'].some(k=>S[k]&&S[k][pid]);return ks||Object.keys(S.eqPersonEdit||{}).some(k=>k.indexOf(pid+'|')===0);}
-function noticeMaybe(pid){if(!noticeOpen(pid))noticeCheck(pid);}
+function noticeMaybe(pid){const p=projById(pid);if(p&&crewPast(p))return;if(!noticeOpen(pid))noticeCheck(pid);}   // lezajlott rendezvény: utólag nem megy értesítő
 async function noticeCheck(pid,next){const snap=S.noticeSnap&&S.noticeSnap[pid];const done=()=>{if(next)next();};if(!snap){done();return;}
   const clear=()=>{delete S.noticeSnap[pid];['postEdit','fieldEdit','basicEdit'].forEach(k=>{if(S[k])delete S[k][pid];});Object.keys(S.eqPersonEdit||{}).forEach(k=>{if(k.indexOf(pid+'|')===0)delete S.eqPersonEdit[k];});};
   try{if(S.dirty&&S.draft&&S.draft.id===pid&&!ro())saveDraft();await SAVE_Q;
