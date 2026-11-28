@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "724cec3e9c",
+"at": "2026-11-28T10:37:49+01:00",
+"msg": "Külföldi ügyfél: kapcsoló + ország, EU VIES-ellenőrzés, pénzügyi jelzés (fordított adózás / EU-n kívül), számla: EUFAD37/HO kulcs, közösségi adószám, angol nyelvű számla"
+},
+{
 "id": "adebb2f06a",
 "at": "2026-11-28T10:32:02+01:00",
 "msg": "Csengő: az értesítések lenyílója közvetlenül a csengő alatt"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Instrukciók: „E-mailt kap:” – címzettenként pipálható lista (projektvezetőnek), a kipipáltak nem kapják meg"
 },
 {
-"id": "32a1cc067e",
-"at": "2026-11-28T09:06:49+01:00",
-"msg": "Stáb-instrukciók a lakaton kívül: zárolt stábnál is bármikor írható és küldhető"
-},
-{
-"id": "9c2a13b6a5",
-"at": "2026-11-28T07:53:11Z",
+"id": "0f3b678e7f",
+"at": "2026-11-28T08:07:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
