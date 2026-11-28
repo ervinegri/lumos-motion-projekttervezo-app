@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "7a4bcb2bee",
+"at": "2026-11-28T14:24:24+01:00",
+"msg": "MNB: ideiglenes diagnosztika a font-árfolyamhoz"
+},
+{
 "id": "8855de2e08",
 "at": "2026-11-28T14:22:43+01:00",
 "msg": "Ajánlat PDF: a készítőnél cím helyett e-mail-cím; az alsó aláírás-blokk törölve"
@@ -130,11 +135,6 @@ const ITEMS = [
 "id": "1b7d0f38ec",
 "at": "2026-11-28T10:48:51+01:00",
 "msg": "Szerződés: angol nyelvű változat külföldi ügyfélnek (Lumos sablonok _en, nyelvválasztó, angol szövegek, dátum, áfa-megjegyzés, levél)"
-},
-{
-"id": "e12ef9dd5c",
-"at": "2026-11-28T10:43:05+01:00",
-"msg": "Videótábla: húzás közben automatikus görgetés a szélek felé (telefonon a képen kívüli oszlopba is)"
 }
 ];
 const allowed = require('./_auth.js');
