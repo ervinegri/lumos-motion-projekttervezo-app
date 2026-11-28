@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "8eab205f11",
+"at": "2026-11-28T09:46:06+01:00",
+"msg": "Videónevek rendbetétele a háttérben: egyetlen azonos fajtánál sorszám nélkül, többnél az azonosító szerinti sorszám (egyszeri javítás a futó projekteken)"
+},
+{
 "id": "462b752734",
 "at": "2026-11-28T09:44:48+01:00",
 "msg": "Táblán: egyetlen azonos fajta videónál sorszám nélküli név"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Fotógaléria gépen: a bal oszlop teljes magasságát kitölti"
 },
 {
-"id": "eecaaf4c6c",
-"at": "2026-11-27T21:58:13+01:00",
-"msg": "Fekvő telefon: a projekt videótábla ablaka kitölti a képernyő magasságát"
-},
-{
-"id": "b12afede8f",
-"at": "2026-11-27T20:56:59Z",
+"id": "48f5fd0e39",
+"at": "2026-11-27T20:58:23Z",
 "msg": "Változásnapló frissítése"
 }
 ];
