@@ -15,6 +15,8 @@
 .pcg-head a:hover{text-decoration:underline;opacity:1}
 .pcg-fold{margin:14px 0 6px;font-size:12px;font-weight:700;color:#56656f;text-transform:uppercase;letter-spacing:.04em}
 .pcg-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.pcg-mas{display:flex;align-items:flex-start;gap:6px}.pcg-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:6px}
+.pcg-mas .pcg-t{aspect-ratio:auto;min-height:60px}.pcg-mas .pcg-t img{height:auto;object-fit:contain}.pcg-mas .pcg-t.noimg{aspect-ratio:1!important}
 .pcg-t{position:relative;aspect-ratio:1;border:0;padding:0;margin:0;border-radius:8px;overflow:hidden;background:#e6ecf1;cursor:zoom-in;display:block;width:100%}
 .pcg-t img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s;-webkit-user-drag:none;user-select:none}
 .pcg-t:hover img{transform:scale(1.04)}
@@ -63,7 +65,7 @@
 .pcg-lb-fail{font-size:14px;opacity:.8;text-align:center;line-height:1.5;padding:0 20px}
 @media(hover:none){.pcg-t:hover img{transform:none}.pcg-t:hover .pcg-nm{opacity:0}.pcg-t.noimg .pcg-nm{opacity:1}}
 @media(max-width:700px){.pcg-head{flex-wrap:nowrap;margin:0 0 8px}.pcg-head span{display:none}.pcg-head a{white-space:nowrap}}
-@media(max-width:700px){.pcg-grid{gap:4px}.pcg-lb-nav{width:22%}.pcg-lb-nav.p{padding-left:8px}.pcg-lb-nav.n{padding-right:8px}.pcg-lb-nav i{width:62px;height:62px;font-size:42px}.pcg-lb-note{padding:8px 10px;font-size:12px}}
+@media(max-width:700px){.pcg-grid,.pcg-mas,.pcg-col{gap:4px}.pcg-lb-nav{width:22%}.pcg-lb-nav.p{padding-left:8px}.pcg-lb-nav.n{padding-right:8px}.pcg-lb-nav i{width:62px;height:62px;font-size:42px}.pcg-lb-note{padding:8px 10px;font-size:12px}}
 `;
   function css(){if(document.getElementById('pcg-css'))return;const s=document.createElement('style');s.id='pcg-css';s.textContent=CSS;document.head.appendChild(s);}
   const CACHE={};
@@ -74,8 +76,8 @@
     return CACHE[p.code]=(async()=>{let why='';for(const h of p.hosts){try{const sj=await (await tmo(`https://${h}.pcloud.com/showpublink?code=${encodeURIComponent(p.code)}`)).json();
         if(!sj||sj.result!==0){why=why||(sj&&sj.error)||'';continue;}const m=sj.metadata||{},L=[];
         const isImg=x=>/^image\//.test(x.contenttype||'')||IMG.test(x.name||'');
-        if(!m.isfolder){if(isImg(m))L.push({id:m.fileid,name:m.name,folder:'',single:true});}
-        else (function w(c,path){(c||[]).slice().sort((a,b)=>(a.isfolder-b.isfolder)||String(a.name).localeCompare(String(b.name),'hu',{numeric:true})).forEach(x=>{if(x.isfolder)w(x.contents,path?path+' / '+x.name:x.name);else if(isImg(x))L.push({id:x.fileid,name:x.name,folder:path});});})(m.contents,'');
+        if(!m.isfolder){if(isImg(m))L.push({id:m.fileid,name:m.name,folder:'',single:true,w:+m.width||0,h:+m.height||0});}
+        else (function w(c,path){(c||[]).slice().sort((a,b)=>(a.isfolder-b.isfolder)||String(a.name).localeCompare(String(b.name),'hu',{numeric:true})).forEach(x=>{if(x.isfolder)w(x.contents,path?path+' / '+x.name:x.name);else if(isImg(x))L.push({id:x.fileid,name:x.name,folder:path,w:+x.width||0,h:+x.height||0});});})(m.contents,'');
         if(!L.length)return {err:'A megosztásban nem találtunk fotót.'};return {h,code:p.code,items:L,title:m.name||''};}
       catch(e){why=why||(e&&e.name==='AbortError'?'A pCloud nem válaszolt időben.':'A pCloud most nem érhető el.');}}
       delete CACHE[p.code];return {err:/traffic|limit/i.test(why)?'A pCloud megosztás forgalmi kerete elfogyott.':/időben|nem érhető el/.test(why)?why:'A galériát nem sikerült betölteni (lehet, hogy a megosztást törölték).'};})();}
@@ -88,10 +90,15 @@
     const ext=opts.wm?'':`<a href="${esc(link)}" target="_blank" rel="noopener">Megnyitás a pCloudban ↗</a>`;
     list(link).then(g=>{if(!el.isConnected)return;
       if(!g||g.err){el.innerHTML=`<div class="pcg-err">${esc(g&&g.err||'A galériát nem sikerült betölteni.')}${opts.wm?'':`<a href="${esc(link)}" target="_blank" rel="noopener">📷 Fotók megnyitása</a>`}</div>`;if(opts.onFail)try{opts.onFail(g&&g.err);}catch(e){}return;}
-      ctl.g=g;const multi=new Set(g.items.map(x=>x.folder)).size>1;let h='',last=null;
-      g.items.forEach((it,i)=>{if(multi&&it.folder!==last){if(last!==null)h+='</div>';h+=`<div class="pcg-fold">${esc(it.folder||'Fő mappa')}</div><div class="pcg-grid">`;last=it.folder;}else if(i===0)h+='<div class="pcg-grid">';
-        h+=`<button type="button" class="pcg-t" data-i="${i}" title="${esc(it.name)}"><img loading="lazy" decoding="async" alt="${esc(it.name)}" referrerpolicy="no-referrer" draggable="false" src="${esc(thumb(g,it,'480x480',1))}">${opts.wm?wmHtml(opts.wm,6):''}<span class="pcg-nm">${esc(it.name)}</span></button>`;});
-      el.innerHTML=`<div class="pcg-head"><b>📷 ${g.items.length} fotó</b>${ext}</div>${h}</div>`;
+      ctl.g=g;const multi=new Set(g.items.map(x=>x.folder)).size>1,NC=3;let h='';
+      /* hasábos elrendezés (Ervin, 2026-11-28): 3 oszlop, a képek eredeti arányban; mindig a legrövidebb oszlop kapja a következőt (így az olvasási sorrend is soronként halad) */
+      const tile=(it,i)=>{const ar=it.w&&it.h?it.w/it.h:0;return `<button type="button" class="pcg-t" data-i="${i}" title="${esc(it.name)}"${ar?` style="aspect-ratio:${ar.toFixed(4)}"`:''}><img loading="lazy" decoding="async" alt="${esc(it.name)}" referrerpolicy="no-referrer" draggable="false" src="${esc(thumb(g,it,'640x640',0))}">${opts.wm?wmHtml(opts.wm,6):''}<span class="pcg-nm">${esc(it.name)}</span></button>`;};
+      const group=list=>{const cols=Array.from({length:NC},()=>({h:0,s:''}));list.forEach(([it,i])=>{const c=cols.reduce((m,x)=>x.h<m.h-0.01?x:m,cols[0]);c.s+=tile(it,i);c.h+=it.w&&it.h?it.h/it.w:0.75;});return '<div class="pcg-grid pcg-mas">'+cols.map(c=>`<div class="pcg-col">${c.s}</div>`).join('')+'</div>';};
+      const groups=[];g.items.forEach((it,i)=>{const L=groups[groups.length-1];if(!L||L.f!==it.folder)groups.push({f:it.folder,l:[[it,i]]});else L.l.push([it,i]);});
+      groups.forEach(G=>{h+=(multi?`<div class="pcg-fold">${esc(G.f||'Fő mappa')}</div>`:'')+group(G.l);});
+      if(opts.onCount)try{opts.onCount(g.items.length);}catch(e){}
+      el.innerHTML=(opts.noHead?'':`<div class="pcg-head"><b>📷 ${g.items.length} fotó</b>${ext}</div>`)+h;
+      el.querySelectorAll('.pcg-t img').forEach(im=>im.addEventListener('load',()=>{const b=im.closest('.pcg-t');if(b&&!b.style.aspectRatio&&im.naturalWidth)b.style.aspectRatio=(im.naturalWidth/im.naturalHeight).toFixed(4);},{once:true}));
       el.querySelectorAll('.pcg-t img').forEach(im=>im.addEventListener('error',()=>{const b=im.closest('.pcg-t');if(b)b.classList.add('noimg');im.remove();},{once:true}));
       if(opts.wm)el.addEventListener('contextmenu',e=>{if(e.target.closest('.pcg-t'))e.preventDefault();});
       el.addEventListener('click',e=>{const b=e.target.closest('.pcg-t');if(b&&el.contains(b))lightbox(g,+b.dataset.i,opts);});
