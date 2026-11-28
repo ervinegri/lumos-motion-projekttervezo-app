@@ -461,11 +461,15 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_valid
 /* Kiküldött ajánlat: a lehetőség kártyáján / ablakában – a PDF megnyitása, vagy új verzió az elküldött ajánlatból */
 /* a kiküldött ajánlat PDF-je: rámutatáskor előre letöltjük, és megjegyezzük – kattintásra azonnal nyílik */
 const QS_C={};const qsGet=id=>QS_C[id]||(QS_C[id]=call('quoteSent',{dealId:id,op:'pdf'}).catch(e=>{delete QS_C[id];throw e;}));
+/* egy adott kiküldés PDF-je (a lehetőség ablakának „Kiküldött ajánlatok” sorai): megjegyezzük, és már a sorok megjelenésekor / rámutatáskor előtöltjük – kattintásra azonnal nyílik */
+const QS_A={};const qsGetAt=(id,at)=>{const k=id+'|'+at;return QS_A[k]||(QS_A[k]=call('quoteSent',{dealId:id,op:'pdf',at}).catch(e=>{delete QS_A[k];throw e;}));};
+function qsPrefetchRows(root){[...(root||document).querySelectorAll('[data-action="q-sent-open"][data-at]:not([data-msg])')].slice(0,4).forEach(b=>{if(b.dataset.id&&b.dataset.at)qsGetAt(b.dataset.id,b.dataset.at).catch(()=>{});});}
+document.addEventListener('pointerover',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-action="q-sent-open"][data-at]:not([data-msg])');if(b&&b.dataset.id)qsGetAt(b.dataset.id,b.dataset.at).catch(()=>{});},{passive:true});
 document.addEventListener('pointerover',e=>{const c=e.target&&e.target.closest&&e.target.closest('.dl-card'),b=(c&&c.querySelector('[data-action="q-sent-open"]'))||(e.target&&e.target.closest&&e.target.closest('[data-action="q-sent-open"]'));   /* már a kártyára mutatva előtölt */if(b&&b.dataset.id&&!QS_C[b.dataset.id])qsGet(b.dataset.id).catch(()=>{});},{passive:true});
 ACT['q-sent-open']=async b=>{const d=(S.deals||[]).find(x=>x.id===b.dataset.id);if(!d)return;const AT=b.dataset&&b.dataset.at||'',MSG=b.dataset&&b.dataset.msg||'';
   /* betöltés közben egy másik ajánlatra kattintva: mindig az utoljára kért nyílik meg (a korábbi betöltés eredménye elvész, nem ugrik fel később) */
   const tok=S._qsTok=(S._qsTok||0)+1;document.querySelectorAll('.dl-qsent.qs-loading').forEach(x=>x.classList.remove('qs-loading'));if(b.classList)b.classList.add('qs-loading');
-  let r=null;try{r=Object.assign({},await (MSG?call('quoteSent',{dealId:d.id,op:'mailpdf',msg:MSG}):AT?call('quoteSent',{dealId:d.id,op:'pdf',at:AT}):qsGet(d.id)));}catch(e){if(tok===S._qsTok){if(b.classList)b.classList.remove('qs-loading');handleErr(e);}return;}
+  let r=null;try{r=Object.assign({},await (MSG?call('quoteSent',{dealId:d.id,op:'mailpdf',msg:MSG}):AT?qsGetAt(d.id,AT):qsGet(d.id)));}catch(e){if(tok===S._qsTok){if(b.classList)b.classList.remove('qs-loading');handleErr(e);}return;}
   if(b.classList)b.classList.remove('qs-loading');if(tok!==S._qsTok)return;
   if((AT||MSG)&&(!r||!r.b64)){toast('Ennek a korábbi kiküldésnek a PDF-jét nem találtam (a levélből tölthető le).',true);return;}
   if(!r||!r.b64){delete QS_C[d.id];   /* nem találtuk: a PDF feltölthető (pl. az értékesítő elküldött leveléből letöltve) */
