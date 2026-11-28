@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "49dbc49a23",
+"at": "2026-11-28T09:13:34+01:00",
+"msg": "svcCanPost egyszerűsítése"
+},
+{
 "id": "7506d88d52",
 "at": "2026-11-28T09:13:17+01:00",
 "msg": "Lezajlott rendezvény: az utómunka (extra videók, vágó) feloldás után szerkeszthető, csak a terepi feladatok zártak"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Projektlista: a lezajlott / lezárt sorok olvashatóbbak"
 },
 {
-"id": "4cf575e81b",
-"at": "2026-11-27T15:08:47+02:00",
-"msg": "Projektlista: a mai projekt kerete miatt nem görgethető vízszintesen a lista"
-},
-{
-"id": "cc63b4fd0a",
-"at": "2026-11-27T13:07:54Z",
+"id": "17f17678b1",
+"at": "2026-11-27T13:09:01Z",
 "msg": "Változásnapló frissítése"
 }
 ];
