@@ -534,7 +534,7 @@ function roContentPanel(p){
 /* Zárolt (véglegesített) csapatnál a név / „nincs beosztva” gomb: kattintásra a „Csapat módosítása”, utána rögtön lenyílik a választó */
 function svcUnlockBtn(p,attr,txt,none){const can=!ro()&&!projLocked()&&!crewPast(p)&&!!S.draft&&S.draft.id===p.id&&crewLocked(p);
   return can?`<button type="button" class="op-cut op-unl${none?' none':''}" data-action="svc-unlock" ${attr} data-tip="A csapat véglegesítve van – kattints a módosításhoz">${esc(txt)} ▾</button>`:`<span class="op-cut${none?' none':''}">${esc(txt)}</span>`;}
-function svcCanPost(p){return !ro()&&!projLocked()&&crewPast(p)&&!(S.crewEdit||{}).__x&&!!S.draft&&S.draft.id===p.id;}   /* lezajlott rendezvény: az utómunkás (vágó) még kijelölhető – utólag kért extra videóhoz */
+function svcCanPost(p){return !ro()&&!projLocked()&&crewPast(p)&&!!S.draft&&S.draft.id===p.id;}   /* lezajlott rendezvény: az utómunkás (vágó) még kijelölhető – utólag kért extra videóhoz */
 function svcCan(p){return !ro()&&!projLocked()&&!crewLocked(p)&&!!S.draft&&S.draft.id===p.id;}
 function fieldAsg(p,k,role,label,n,only){const ids=slotOwners(p,k),nm=id=>(crewById(id)||{}).name||'?',slots=Math.max(1,n||1,ids.length);   // annyi választó, ahány ember kell (pl. 2 kamera → 2 operatőr)
   if(!svcCan(p))return svcUnlockBtn(p,`data-pick="f:${esc(k)}"`,ids.length?'👥 '+ids.map(nm).join(', '):'👥 nincs beosztva',!ids.length);
