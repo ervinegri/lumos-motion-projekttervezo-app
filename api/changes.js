@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "c815f23d56",
+"at": "2026-11-28T13:32:10+01:00",
+"msg": "Videó-/fotóablak közepes szélességen (701–1099px) is teljes képernyős"
+},
+{
 "id": "ff13088044",
 "at": "2026-11-28T13:41:48+02:00",
 "msg": "Fizetendő forintösszeg és fizetési feltételek az eurós ajánlat PDF-jén"
@@ -127,13 +132,8 @@ const ITEMS = [
 "msg": "Utómunka tábla a projektoldalon: a videók számának módosítása mentés előtt is azonnal látszik (új kártyák szaggatottan)"
 },
 {
-"id": "71be14431b",
-"at": "2026-11-28T09:31:46+01:00",
-"msg": "Helyszínen kért feladat rögzítése: megerősítő ablak nélkül"
-},
-{
-"id": "7cce3b8e7d",
-"at": "2026-11-28T08:30:34Z",
+"id": "28814f1178",
+"at": "2026-11-28T08:31:55Z",
 "msg": "Változásnapló frissítése"
 }
 ];
