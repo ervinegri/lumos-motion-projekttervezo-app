@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "a6a5c62489",
+"at": "2026-11-28T09:26:31+01:00",
+"msg": "Lezajlott rendezvény feloldásakor nincs felugró üzenet"
+},
+{
 "id": "10c3f72522",
 "at": "2026-11-28T09:26:11+01:00",
 "msg": "Projekt szakaszok: Utómunka lilás, Stáb és eszközök kék"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Fotónagyítás: a léptető nyilak gyors dupla nyomása két lapozás, nem nagyítás"
 },
 {
-"id": "db2d6c61fc",
-"at": "2026-11-27T21:47:05+01:00",
-"msg": "Lehúzásos frissítés: csak a nagyított fotón tiltva; a nagyítás bezárul az ablakkal; actions-dijcsokkentes betöltési hiba javítva"
-},
-{
-"id": "06d54898a2",
-"at": "2026-11-27T20:44:47Z",
+"id": "f31217f696",
+"at": "2026-11-27T20:47:19Z",
 "msg": "Változásnapló frissítése"
 }
 ];
