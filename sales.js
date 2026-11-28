@@ -460,9 +460,14 @@ const dNoteFb=d=>{const t=String((d&&(d.createdAt||d.updatedAt))||'').replace('T
 function dNoteFix(t,fb,by){if(!fb)return String(t||'');const L=dNotesParse(t);if(!L.some(x=>!x.at))return String(t||'');L.forEach(x=>{if(!x.at){x.at=fb;x.by=x.by||by||'';}});return dNotesJoin(L);}
 /* az app által írt naplósorok (pl. kiküldött árajánlat) nem törölhetők – csak a kézzel írt jegyzetek */
 const DN_LOCK_RE=/^\s*📄 Árajánlat elküldve/;
-function dNotesHtml(t,hs){const own=dNotesParse(t).map(x=>x.text);hs=(hs||[]).filter(x=>!(x.kind==='Jegyzet'&&/^\[Projekttervező/.test(String(x.text||''))&&own.some(o=>String(x.text).includes(o))));   /* az appból átküldött jegyzet ne látsszon kétszer */
-  const L=dNotesParse(t).concat((hs||[]).map(x=>({at:x.at,by:x.by,text:x.text,hs:1,kind:x.kind||''}))).sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));if(!L.length)return '<p class="hint" style="margin:6px 0 0">Még nincs jegyzet.</p>';
-  return L.map((x,i)=>`<div class="dn-item${x.hs?' dn-hs':''}"><div class="dn-h">${x.hs?`<span class="hs-tag" style="margin:0">HubSpot${x.kind&&x.kind!=='Jegyzet'?' · '+esc(x.kind):''}</span>`:''}<span class="dn-at">${x.at?esc(fmtDay(x.at.slice(0,10))+(x.at.slice(11)&&x.at.slice(11)!=='00:00'?' '+x.at.slice(11):'')):'Korábbi jegyzet'}</span>${x.by?`<span class="dn-by">${esc(x.by)}</span>`:''}${!x.hs&&x.at&&!DN_LOCK_RE.test(String(x.text||''))?`<button type="button" class="dn-del" data-action="dn-del" data-at="${esc(x.at)}" data-h="${esc(String(x.text||'').split('\n')[0].slice(0,80))}" title="Bejegyzés törlése" aria-label="Bejegyzés törlése">🗑</button>`:''}</div><div class="dn-t">${esc(x.text).replace(/\n/g,'<br>')}</div></div>`).join('');}
+function dNotesHtml(t,hs,did){const own=dNotesParse(t).map(x=>x.text);hs=(hs||[]).filter(x=>!(x.kind==='Jegyzet'&&/^\[Projekttervező/.test(String(x.text||''))&&own.some(o=>String(x.text).includes(o))));   /* az appból átküldött jegyzet ne látsszon kétszer */
+  let L=dNotesParse(t).concat((hs||[]).map(x=>({at:x.at,by:x.by,text:x.text,hs:1,kind:x.kind||''}))).sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));
+  /* kiküldött ajánlat (Ervin, 2026-11-28): az app naplósora és a HubSpotba bekerült e-mail egy bejegyzés – az e-mail alján a csatolt PDF (kattintásra megnyílik) */
+  {const mins=a=>{const d=Date.parse(String(a||'').replace(' ','T'));return isNaN(d)?NaN:d/60000;};
+    L.filter(x=>!x.hs&&DN_LOCK_RE.test(String(x.text||''))).forEach(x=>{const m0=mins(x.at),em=L.find(y=>y.hs&&!y.att&&/mail/i.test(y.kind||'')&&Math.abs(mins(y.at)-m0)<=5&&/Árajánlat|Quotation|Angebot/i.test(String(y.text||'').split('\n')[0]));if(!em)return;
+      const amt=(String(x.text).match(/ – (.+)$/)||[])[1]||'';em.att={at:x.at,amt};x._merged=1;});
+    L=L.filter(x=>!x._merged);}if(!L.length)return '<p class="hint" style="margin:6px 0 0">Még nincs jegyzet.</p>';
+  return L.map((x,i)=>`<div class="dn-item${x.hs?' dn-hs':''}"><div class="dn-h">${x.hs?`<span class="hs-tag" style="margin:0">HubSpot${x.kind&&x.kind!=='Jegyzet'?' · '+esc(x.kind):''}</span>`:''}<span class="dn-at">${x.at?esc(fmtDay(x.at.slice(0,10))+(x.at.slice(11)&&x.at.slice(11)!=='00:00'?' '+x.at.slice(11):'')):'Korábbi jegyzet'}</span>${x.by?`<span class="dn-by">${esc(x.by)}</span>`:''}${!x.hs&&x.at&&!DN_LOCK_RE.test(String(x.text||''))?`<button type="button" class="dn-del" data-action="dn-del" data-at="${esc(x.at)}" data-h="${esc(String(x.text||'').split('\n')[0].slice(0,80))}" title="Bejegyzés törlése" aria-label="Bejegyzés törlése">🗑</button>`:''}</div><div class="dn-t">${esc(x.text).replace(/\n/g,'<br>')}</div>${x.att?`<button type="button" class="dn-att" ${did?`data-action="q-sent-open" data-id="${esc(did)}" data-at="${esc(x.att.at)}"`:'disabled'} data-work="Ajánlat betöltése">📎 <b>Csatolt árajánlat (PDF)</b>${x.att.amt?' · '+esc(x.att.amt):''}</button>`:''}</div>`).join('');}
 
 /* jegyzet-bejegyzés törlése (pl. próba-összefoglaló) – azonnal, a háttérben; az ablak és a kártya is frissül */
 ACT['dn-del']=b=>{const box=b.closest('#m-dNotes'),did=box&&box.dataset.did;if(!did)return;const at=b.dataset.at,h=b.dataset.h||'',item=b.closest('.dn-item');
@@ -485,7 +490,7 @@ ACT['hs-contact']=async(b,e)=>{if(e){e.stopPropagation();e.preventDefault();}
 let DN_HS_SEQ=0;
 async function dNotesLoadHs(){const box=$('m-dNotes'),h=$('m-dNote');if(!box||!h)return;const name=String(($('m-dCName')||{}).value||'').trim(),email=String(($('m-dCEmail')||{}).value||'').trim(),company=String(($('m-dClient')||{}).value||'').trim();
   if(!name&&!email&&!company)return;const my=++DN_HS_SEQ;const st=$('m-dHsSt');if(st)st.textContent='HubSpot-tevékenységek betöltése…';
-  try{const r=await call('hubspotNotes',{name,email,company});if(my!==DN_HS_SEQ||!$('m-dNotes'))return;box.innerHTML=dNotesHtml(dNoteFix(h.value,box.dataset.fb,box.dataset.by),r.notes||[]);
+  try{const r=await call('hubspotNotes',{name,email,company});if(my!==DN_HS_SEQ||!$('m-dNotes'))return;box.innerHTML=dNotesHtml(dNoteFix(h.value,box.dataset.fb,box.dataset.by),r.notes||[],box.dataset.did);
     if(st)st.textContent=(r.notes||[]).length?`${r.notes.length} HubSpot-tevékenység betöltve (jegyzetek, feladatok, e-mailek, hívások, megbeszélések)`:'A HubSpotban nincs tevékenység ehhez a kapcsolattartóhoz / céghez';}
   catch(e){if(st)st.textContent='A HubSpot-jegyzetek most nem érhetők el';}}
 

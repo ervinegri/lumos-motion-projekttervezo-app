@@ -3914,3 +3914,5 @@ html body .rq-tools .btn{background:#fff!important;color:#111!important;opacity:
 /* nincs mit menteni (letiltott Mentés): rámutatáskor sem változik a gomb */
 html body .mfoot button[type=submit]:disabled,html body .mfoot button[type=submit]:disabled:hover{pointer-events:none!important;cursor:default!important;filter:none!important;transform:none!important;box-shadow:none!important}
 .q-seg .q-sym{font-weight:800;color:#7b8794;min-width:1.1em;text-align:center}.q-seg label.on .q-sym{color:#111}
+.dn-att{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:7px 12px;border:1px solid #d8dee6;border-radius:9px;background:#fff;font:13px/1.3 inherit;color:#1f2a37;cursor:pointer;text-align:left}.dn-att:hover{background:#f3f6fa;border-color:#c5ceda}
+html body .qp .qp-parties b .qp-tax{color:#111!important}

@@ -133,17 +133,25 @@ function qMnbHtml(q){
     ? 'Az MNB-árfolyam lekérése sikertelen. <button type="button" class="linkbtn" data-action="q-rate-retry">Újrapróbálom</button>'
     : 'MNB-árfolyam lekérése…';
 }
+/* MNB-árfolyamok előre (Ervin, 2026-11-28): az app indulásakor és az ajánlat megnyitásakor mindhárom deviza árfolyama letöltődik, így devizaváltáskor nincs várakozás */
+const MNB_C={},MNB_P={};
+/* egy deviza árfolyama: közös (előtöltés és ajánlat ugyanazt használja), hibánál magától újrapróbálja (3×) */
+function qMnbGet(c){const x=MNB_C[c];if(x&&Date.now()-x.t<3*3600e3)return Promise.resolve(x);if(MNB_P[c])return MNB_P[c];
+  const wait=ms=>new Promise(r=>typeof setTimeout==='function'?setTimeout(r,ms):r());
+  MNB_P[c]=(async()=>{for(let i=0;i<3;i++){try{const r=await fetch('/api/mnb-eur?c='+c,{signal:AbortSignal.timeout?.(15000)});if(r.ok){const j=await r.json();if(j&&j.rate>0&&/^\d{4}-\d{2}-\d{2}$/.test(j.date||'')){MNB_C[c]={rate:j.rate,date:j.date,t:Date.now()};return MNB_C[c];}}}catch(e){}if(i<2)await wait(800*(i+1));}throw new Error('MNB');})().finally(()=>{delete MNB_P[c];});
+  return MNB_P[c];}
+function qMnbPrefetch(){Q_FX.forEach(c=>{qMnbGet(c).catch(()=>{});});}
+function qMnbApply(q){const c=qCurrency(q);if(c==='HUF'||qMnbRate(q))return;const x=MNB_C[c];if(x){q.eurRate=x.rate;q.eurRateDate=x.date;q.eurRateCur=c;}}
+if(typeof setTimeout==='function')setTimeout(function pf(){if(typeof S==='undefined'||!S.me){setTimeout(pf,3000);return;}if(isAdmin()||isSales())qMnbPrefetch();},4000);
 function qLoadMnb(q){
-  if(qMnbRate(q))return Promise.resolve();
+  qMnbApply(q);if(qMnbRate(q))return Promise.resolve();
   const pending=qMnbRequests.get(q);
   if(pending)return pending.promise;
   const state={failed:false};
   qMnbRequests.set(q,state);
   state.promise=(async()=>{
     try{
-      const cur=qCurrency(q),response=await fetch('/api/mnb-eur?c='+cur,{signal:AbortSignal.timeout?.(12000)});
-      if(!response.ok)throw new Error('MNB');
-      const {rate,date}=await response.json();
+      const cur=qCurrency(q),{rate,date}=await qMnbGet(cur);
       if(!qMnbRate({eurRate:rate,eurRateDate:date,eurRateCur:cur,currency:cur})||qCurrency(q)!==cur)throw new Error('MNB');
       if(S.q===q&&$('q-rate-status'))qRead(new FormData($('mform')));
       q.eurRate=rate;q.eurRateDate=date;q.eurRateCur=cur;
@@ -209,7 +217,7 @@ function qDnd(){const box=document.querySelector('#mform .q-rows')||document.que
     h.addEventListener('dragend',()=>{box.querySelectorAll('.q-row').forEach(x=>x.classList.remove('q-dragging','q-over-top','q-over-bot'));from=-1;});});
   box.querySelectorAll('.q-row[data-qi]').forEach(r=>{r.addEventListener('dragover',e=>{if(from<0)return;e.preventDefault();const rc=r.getBoundingClientRect(),top=e.clientY<rc.top+rc.height/2;box.querySelectorAll('.q-row').forEach(x=>x.classList.remove('q-over-top','q-over-bot'));r.classList.add(top?'q-over-top':'q-over-bot');});
     r.addEventListener('drop',e=>{if(from<0)return;e.preventDefault();const rc=r.getBoundingClientRect(),top=e.clientY<rc.top+rc.height/2;let to=+r.dataset.qi+(top?0:1);const f=$('mform');if(f)qRead(new FormData(f));const it=S.q.items.splice(from,1)[0];if(to>from)to--;S.q.items.splice(to,0,it);from=-1;qEdit(true);});});}
-function qEdit(keep){const SK=keep?qScrollKeep():null;const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},currency=qCurrency(q),eur=currency!=='HUF',amounts=qAmounts(q),intl=qQuoteIntl(q,d),showGross=!intl;
+function qEdit(keep){if(S.q){qMnbApply(S.q);qMnbPrefetch();}const SK=keep?qScrollKeep():null;const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},currency=qCurrency(q),eur=currency!=='HUF',amounts=qAmounts(q),intl=qQuoteIntl(q,d),showGross=!intl;
   openModal('📄 Árajánlat – '+(d.title||''),`<div class="fields">
     <div class="field"><label>Az ajánlat nyelve</label><div class="q-seg" role="radiogroup" aria-label="Az ajánlat nyelve">${[['hu','🇭🇺 Magyar'],['en','🇬🇧 Angol'],['de','🇩🇪 Német']].map(([v,l])=>`<label class="${qLang(q)===v?'on':''}"><input type="radio" name="q_lang" value="${v}"${qLang(q)===v?' checked':''}> ${l}</label>`).join('')}</div></div>
     <div class="field"><label>Deviza</label><div class="q-seg" role="radiogroup" aria-label="Az ajánlat devizája">${[['HUF','Forint','Ft'],['EUR','Euró','€'],['USD','Dollár','$'],['GBP','Font','£']].map(([v,l,sy])=>`<label class="${currency===v?'on':''}" title="${v}"><input type="radio" name="q_cur" value="${v}"${currency===v?' checked':''}> <span class="q-sym">${sy}</span> ${l}</label>`).join('')}</div></div>
@@ -576,7 +584,7 @@ function qLangSwitch(to){const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{
 /* két választó (Ervin, 2026-11-28): nyelv (magyar / angol / német) és deviza (forint / euró / dollár / font) */
 document.addEventListener('change',e=>{const t=e.target;if(!t||!S.q||(t.name!=='q_lang'&&t.name!=='q_cur'))return;const f=$('mform');if(f)qRead(new FormData(f));
   if(t.name==='q_lang')qLangSwitch(['en','de'].includes(t.value)?t.value:'hu');
-  else{const to=Q_FX.includes(t.value)?t.value:'HUF',from=qCurrency(S.q);if(to!==from){(S.q.opts||[]).forEach(o=>(o.items||[]).forEach(it=>{delete it.eurPrice;}));S.q.currency=to;}}   // másik devizánál a kézzel beírt devizaárak újraszámolódnak a forintárból
+  else{const to=Q_FX.includes(t.value)?t.value:'HUF',from=qCurrency(S.q);if(to!==from){(S.q.opts||[]).forEach(o=>(o.items||[]).forEach(it=>{it.fx=it.fx||{};if(from!=='HUF'){if(it.eurPrice!=null){it.fx[from]=it.eurPrice;const rt=qMnbRate(S.q),c=qEurCents(it.eurPrice);if(!String(it.price??'').trim()&&rt&&c!=null)it.price=String(Math.round(c*rt/100));}else delete it.fx[from];}delete it.eurPrice;if(to!=='HUF'&&it.fx[to]!=null)it.eurPrice=it.fx[to];}));S.q.currency=to;}}   // devizánként megmarad a kézzel beírt ár: visszaváltáskor visszajön; másik devizánál a forintárból számol
   qEdit(true);});
 
 /* a lehetőség ablakából nyitott kiküldött ajánlat: bezáráskor a lehetőség ablaka (változatlanul) visszajön */
