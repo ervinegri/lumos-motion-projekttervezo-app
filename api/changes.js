@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4aced791e0",
+"at": "2026-11-28T13:32:20+01:00",
+"msg": "Teljes képernyős videó-/fotóablak: 861–1099px (keskenyebben a telefonos elrendezés marad)"
+},
+{
 "id": "c815f23d56",
 "at": "2026-11-28T13:32:10+01:00",
 "msg": "Videó-/fotóablak közepes szélességen (701–1099px) is teljes képernyős"
@@ -130,11 +135,6 @@ const ITEMS = [
 "id": "56b8f18a14",
 "at": "2026-11-28T09:33:52+01:00",
 "msg": "Utómunka tábla a projektoldalon: a videók számának módosítása mentés előtt is azonnal látszik (új kártyák szaggatottan)"
-},
-{
-"id": "28814f1178",
-"at": "2026-11-28T08:31:55Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
