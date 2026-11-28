@@ -234,7 +234,8 @@ function bellRevs(){if(!isAdmin()||crewBell()||salesBell())return [];try{if(type
 let BELL_SRV=null,BELL_T=0;function bellSrvPush(){clearTimeout(BELL_T);BELL_T=setTimeout(()=>{let s0=0,r0=0;try{s0=Number(localStorage.getItem('lpm_bell_seenAt')||0);r0=Number(localStorage.getItem('lpm_bell_readAt')||0);}catch(e){}call('bellState',{s:s0,r:r0}).then(o=>{BELL_SRV=o||BELL_SRV;}).catch(()=>{});},1500);}
 function bellRender(){const w=$('bellW');if(!w)return;
   if(BELL_SRV===null&&S.me&&!S.me.viewAs){BELL_SRV='l';call('bellState',{}).then(o=>{BELL_SRV=o||{};try{if((o.s||0)>Number(localStorage.getItem('lpm_bell_seenAt')||0))localStorage.setItem('lpm_bell_seenAt',String(o.s));if((o.r||0)>Number(localStorage.getItem('lpm_bell_readAt')||0))localStorage.setItem('lpm_bell_readAt',String(o.r));}catch(e){}bellRender();}).catch(()=>{BELL_SRV={};bellRender();});}
-  const BW=BELL_SRV==='l';   // amíg nem jött meg a szerver állapota, nincs felugró értesítés (a csengő látszik)const L=bellItems(),on=crewBell()||salesBell()||(!ro()&&!isSales()&&(isAdmin()||(S.me&&S.me.role==='editor')));w.classList.toggle('hidden',!on);if(!on)return;
+  const BW=BELL_SRV==='l';   // amíg nem jött meg a szerver állapota, nincs felugró értesítés (a csengő látszik)
+  const L=bellItems(),on=crewBell()||salesBell()||(!ro()&&!isSales()&&(isAdmin()||(S.me&&S.me.role==='editor')));w.classList.toggle('hidden',!on);if(!on)return;
   const myMail=String(S.me&&S.me.email||'').toLowerCase(),dot=w.querySelector('.bell-dot');
   let read=[];try{read=JSON.parse(localStorage.getItem('lpm_bell_read')||'[]');}catch(e){}
   const rAt=Number(localStorage.getItem('lpm_bell_readAt')||0),tOf=x=>cmTk((x.v&&x.v.rvAt)||(x.x&&x.x.paidAt)||(x.r&&x.r.createdAt)||x.at||'')-3600000,   /* időzóna-tűrés */
