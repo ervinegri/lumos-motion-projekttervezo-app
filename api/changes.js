@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "56b8f18a14",
+"at": "2026-11-28T09:33:52+01:00",
+"msg": "Utómunka tábla a projektoldalon: a videók számának módosítása mentés előtt is azonnal látszik (új kártyák szaggatottan)"
+},
+{
 "id": "71be14431b",
 "at": "2026-11-28T09:31:46+01:00",
 "msg": "Helyszínen kért feladat rögzítése: megerősítő ablak nélkül"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Fotógaléria: belső ellenőrzésben nincs megjegyzés gomb; elforgatáskor újraillesztés; fekvő telefonon nagyobb terület"
 },
 {
-"id": "4f22449588",
-"at": "2026-11-27T21:51:03+01:00",
-"msg": "Fotók küldése az ügyfélnek: „Fotók megtekintése” gomb és fotós alapszöveg (a videós minta nem íródik felül)"
-},
-{
-"id": "0240bffabf",
-"at": "2026-11-27T20:50:15Z",
+"id": "4517611382",
+"at": "2026-11-27T20:51:16Z",
 "msg": "Változásnapló frissítése"
 }
 ];
