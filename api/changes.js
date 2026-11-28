@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "dc3ac54d21",
+"at": "2026-11-28T09:18:50+01:00",
+"msg": "Lezajlott rendezvény: a helyszínen kért, teljesített terepi feladat utólag rögzíthető (csak a helyszíni stábhoz)"
+},
+{
 "id": "da64b28331",
 "at": "2026-11-28T09:15:50+01:00",
 "msg": "Videótábla telefonon: keskenyebb oszlopok, a kártyán is lehet görgetni"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Fotógaléria mobilon: tömörebb fejléc (nem ragad), érintésnél nem marad kint a fájlnév"
 },
 {
-"id": "b49a0ab91f",
-"at": "2026-11-27T22:28:03+02:00",
-"msg": "Lezárt Alapadatok: a Térkép link és a másoló gombok kattinthatók maradnak"
-},
-{
-"id": "66a472194e",
-"at": "2026-11-27T19:56:30Z",
+"id": "cfc9196659",
+"at": "2026-11-27T20:28:14Z",
 "msg": "Változásnapló frissítése"
 }
 ];
