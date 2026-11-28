@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "adebb2f06a",
+"at": "2026-11-28T10:32:02+01:00",
+"msg": "Csengő: az értesítések lenyílója közvetlenül a csengő alatt"
+},
+{
 "id": "cd4194668a",
 "at": "2026-11-28T10:29:24+01:00",
 "msg": "Telefonszám: országhívószám választható (kereshető lista a zászlóra kattintva)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Stáb-instrukciók a lakaton kívül: zárolt stábnál is bármikor írható és küldhető"
 },
 {
-"id": "56af77a674",
-"at": "2026-11-28T08:53:02+01:00",
-"msg": "Értékelés kérése: címzett választható az ügyfelek kapcsolattartói/képviselői és a szereplők közül, a megszólítás kitöltődik"
-},
-{
-"id": "c352cb1be9",
-"at": "2026-11-28T07:51:03Z",
+"id": "9c2a13b6a5",
+"at": "2026-11-28T07:53:11Z",
 "msg": "Változásnapló frissítése"
 }
 ];
