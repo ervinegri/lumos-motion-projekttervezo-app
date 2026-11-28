@@ -30,12 +30,17 @@ const Q_SRC={rendezvenyvideok:'Kreatív videózás és fotózás','eloadas-rogzi
 const qFt=n=>String(Math.round(num(n))).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
 const qNum=v=>num(String(v==null?'':v).replace(/[^\d.,-]/g,'').replace(',','.'));
 const qCurrency=q=>q.currency==='EUR'?'EUR':'HUF';
-function qEurRate(value){
-  const raw=String(value||'').trim();
-  if(!/^\d+(?:[.,]\d{1,6})?$/.test(raw))return 0;
-  const rate=qNum(raw);
-  return rate>0&&rate<=1000000?rate:0;
+function qMnbRate(q){
+  const rate=Number(q.eurRate);
+  return /^\d{4}-\d{2}-\d{2}$/.test(q.eurRateDate||'')&&rate>0&&rate<=1000000?rate:0;
 }
+function qEurCents(value){
+  const m=/^(-?)(\d*)(?:[.,](\d{0,2}))?$/.exec(String(value??'').replace(/\s/g,''));
+  if(!m||!(m[2]||m[3]))return null;
+  const cents=Number(m[2]+(m[3]||'').padEnd(2,'0'));
+  return Number.isSafeInteger(cents)?(m[1]?-cents:cents):null;
+}
+const qRoundCents=n=>Math.sign(n)*Math.round(Math.abs(n)*(1+Number.EPSILON));
 const qMoneyEn=new Intl.NumberFormat('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
 const qMoneyHu=new Intl.NumberFormat('hu-HU',{minimumFractionDigits:2,maximumFractionDigits:2});
 function qMoney(n,currency,en=false){
@@ -45,7 +50,7 @@ function qMoney(n,currency,en=false){
 function qSentMoney(r,hufSuffix=' + ÁFA'){
   return r.currency==='EUR'&&Number(r.eurCents)
     ?qMoney(Number(r.eurCents),'EUR')+' (nettó)'
-    :Number(r.total)?qMoney(r.total,'HUF')+hufSuffix:'';
+    :Number(r.total)?qMoney(r.total,'HUF')+(r.netOnly?' (nettó)':hufSuffix):'';
 }
 const qDate=d=>d.getFullYear()+'. '+String(d.getMonth()+1).padStart(2,'0')+'. '+String(d.getDate()).padStart(2,'0')+'.';
 let H2P=null;const h2pLib=()=>H2P||(H2P=new Promise((ok,no)=>{if(window.html2pdf)return ok(window.html2pdf);const s=document.createElement('script');s.src='vendor/html2pdf.bundle.min.js';s.onload=()=>ok(window.html2pdf);s.onerror=()=>{H2P=null;no(new Error('A PDF-készítő nem tölthető be.'));};document.head.appendChild(s);}));
@@ -73,28 +78,85 @@ function qSetOpt(i){const q=S.q;q.oi=Math.max(0,Math.min(q.opts.length-1,i));q.i
 function qAuto(d,ev,nm,val,lang){const T=nm!=null?nm:d.title,V=Math.max(1,parseInt(val,10)||20);if((lang||(S.q&&S.q.lang))==='en')return {subject:ev&&T?'Quotation – '+T:'Quotation – Lumos Motion',
   body:`Dear ${String(d.contactName||'').trim().split(/\s+/)[0]||'Sir or Madam'},\n\nThank you for your enquiry! Please find attached our quotation${ev&&T?' for the “'+T+'” event':''}. The quotation is valid for ${V} days. If you have any questions, I am happy to help.`};return {subject:ev&&T?'Árajánlat – '+T:'Árajánlat – Lumos Motion',
   body:`Kedves ${qFirst(d.contactName)||'Ügyfelünk'}!\n\nKöszönöm az érdeklődést! Csatolva küldöm az árajánlatunkat${ev&&T?' '+huArt(T)+' „'+T+'” rendezvényhez':''}. Az ajánlat ${V} napig érvényes. Ha bármi kérdés felmerül, szívesen segítek.`};}
-function qRead(fd){const q=S.q;if(!q.rc)q.rc={name:'',person:'',addr:'',email:''};['name','person','addr','email'].forEach(k=>{if(fd.has('qrc_'+k))q.rc[k]=String(fd.get('qrc_'+k)||'').trim();});if(fd.has('q_rate'))q.eurRate=String(fd.get('q_rate')||'').trim();if(fd.has('q_ev'))q.ev=fd.get('q_ev')==='1';if(fd.has('q_evname'))q.evName=String(fd.get('q_evname')||'').trim();if($('q-discOn'))qO().discOn=fd.has('q_discOn');if($('q-totOn'))qO().noTot=!fd.has('q_totOn');if(fd.has('q_cc'))q.cc=fd.getAll('q_cc').map(x=>String(x||'').trim()).filter(Boolean).join(', ');['to','subject','valid','note','body'].forEach(k=>{if(fd.has('q_'+k))q[k]=String(fd.get('q_'+k)||'').trim();});['disc','discLbl'].forEach(k=>{if(fd.has('q_'+k))qO()[k]=String(fd.get('q_'+k)||'').trim();});
+function qRead(fd,changedPrice){const q=S.q;if(!q.rc)q.rc={name:'',person:'',addr:'',email:''};['name','person','addr','email'].forEach(k=>{if(fd.has('qrc_'+k))q.rc[k]=String(fd.get('qrc_'+k)||'').trim();});if(fd.has('q_ev'))q.ev=fd.get('q_ev')==='1';if(fd.has('q_evname'))q.evName=String(fd.get('q_evname')||'').trim();if($('q-discOn'))qO().discOn=fd.has('q_discOn');if($('q-totOn'))qO().noTot=!fd.has('q_totOn');if(fd.has('q_cc'))q.cc=fd.getAll('q_cc').map(x=>String(x||'').trim()).filter(Boolean).join(', ');['to','subject','valid','note','body'].forEach(k=>{if(fd.has('q_'+k))q[k]=String(fd.get('q_'+k)||'').trim();});['disc','discLbl'].forEach(k=>{if(fd.has('q_'+k))qO()[k]=String(fd.get('q_'+k)||'').trim();});
   (q.opts||[]).forEach(o=>{if(o.discLbl==='Mennyiségi '+'kedvezmény')o.discLbl='Csomagkedvezmény';});   // a régi alapfelirat helyett
   if(fd.has('q_otitle'))q.opts[q.oi].title=String(fd.get('q_otitle')||'').trim();
-  if(fd.has('qi_name_0')){const old=q.items||[];q.items=[];q.opts[q.oi].items=q.items;for(let i=0;fd.has('qi_name_'+i);i++)q.items.push({name:String(fd.get('qi_name_'+i)||'').trim(),qty:String(fd.get('qi_qty_'+i)||'').trim(),price:String(fd.get('qi_price_'+i)||'').replace(/\s/g,''),desc:String(fd.get('qi_desc_'+i)||'').trim(),src:(old[i]||{}).src||'',...((old[i]||{}).hu?{hu:old[i].hu,en:old[i].en}:{})});}}
-// A kalkulátor és a beviteli mező HUF-ban marad. Az EUR-számítás egész centben történik.
-function qAmounts(q){
-  const rate=qCurrency(q)==='EUR'?qEurRate(q.eurRate):0;
-  const round=n=>rate?Math.sign(n)*Math.round(Math.abs(n)*(1+Number.EPSILON)):Math.round(n);
-  const unit=it=>rate?round(qNum(it.price)*100/rate):qNum(it.price);
-  const row=it=>{const n=qNum(it.qty||1)*unit(it);return rate?round(n):n;};
-  const vat=n=>round(n*Q_VAT/100);
-  const option=o=>{const full=o.items.reduce((sum,it)=>sum+row(it),0),pct=qDiscPct(o);
-    const discount=round(full*pct/100),total=full-discount;
-    return {full,pct,discount,total};};
-  return {rate,unit,row,vat,option};
+  if(fd.has('qi_name_0')){
+    const old=q.items||[],a=qAmounts(q),items=[];
+    for(let i=0;fd.has('qi_name_'+i);i++){
+      const prev=old[i]||{},it={...prev,
+        name:String(fd.get('qi_name_'+i)||'').trim(),qty:String(fd.get('qi_qty_'+i)||'').trim(),
+        desc:String(fd.get('qi_desc_'+i)||'').trim()};
+      const eurField='qi_eurprice_'+i;
+      if(fd.has(eurField)){
+        const value=String(fd.get(eurField)||'').trim();
+        if(!value)delete it.eurPrice;
+        else if(prev.eurPrice!=null||eurField===changedPrice||value!==qEurPriceInput(prev,a))it.eurPrice=value;
+      }else it.price=String(fd.get('qi_price_'+i)||'').replace(/\s/g,'');
+      items.push(it);
+    }
+    q.items=q.opts[q.oi].items=items;
+  }
 }
+// A forintárak és a kézzel beírt euróárak külön mezők. Átváltáskor az MNB jegyzése az alap, az EUR-számítás egész centben történik.
+function qAmounts(q){
+  const eur=qCurrency(q)==='EUR',rate=eur?qMnbRate(q):0,round=eur?qRoundCents:Math.round;
+  const unit=it=>{
+    if(!eur)return qNum(it.price);
+    if(it.eurPrice!=null)return qEurCents(it.eurPrice);
+    return rate&&String(it.price??'').trim()?round(qNum(it.price)*100/rate):null;
+  };
+  const row=it=>{const price=unit(it);if(price===null)return null;const n=qNum(it.qty||1)*price;return eur?round(n):n;};
+  const vat=n=>round(n*Q_VAT/100);
+  const option=o=>{
+    const full=o.items.reduce((sum,it)=>sum+(row(it)??0),0),pct=qDiscPct(o);
+    const discount=round(full*pct/100),total=full-discount;
+    return {full,pct,discount,total};
+  };
+  return {eur,rate,unit,row,vat,option};
+}
+function qEurPriceInput(it,a){
+  const price=a.unit(it);
+  return price===null?String(it.eurPrice??''):qMoneyHu.format(price/100);
+}
+const qMnbRequests=new WeakMap();
+function qMnbHtml(q){
+  const rate=qMnbRate(q);
+  if(rate)return 'MNB-árfolyam · 1 EUR = '+qMoneyHu.format(rate)+' HUF · '+qDate(new Date(q.eurRateDate+'T12:00:00'));
+  return qMnbRequests.get(q)?.failed
+    ? 'Az MNB-árfolyam lekérése sikertelen. <button type="button" class="linkbtn" data-action="q-rate-retry">Újrapróbálom</button>'
+    : 'MNB-árfolyam lekérése…';
+}
+function qLoadMnb(q){
+  if(qMnbRate(q))return Promise.resolve();
+  const pending=qMnbRequests.get(q);
+  if(pending)return pending.promise;
+  const state={failed:false};
+  qMnbRequests.set(q,state);
+  state.promise=(async()=>{
+    try{
+      const response=await fetch('/api/mnb-eur',{signal:AbortSignal.timeout?.(12000)});
+      if(!response.ok)throw new Error('MNB');
+      const {rate,date}=await response.json();
+      if(!qMnbRate({eurRate:rate,eurRateDate:date}))throw new Error('MNB');
+      if(S.q===q&&$('q-rate-status'))qRead(new FormData($('mform')));
+      q.eurRate=rate;q.eurRateDate=date;
+    }catch(e){state.failed=true;}
+    const status=S.q===q&&$('q-rate-status');
+    if(status){status.innerHTML=qMnbHtml(q);qRefreshRows($('mform'),true);}
+  })();
+  return state.promise;
+}
+ACT['q-rate-retry']=()=>{
+  const q=S.q,status=$('q-rate-status');if(!q||!status)return;
+  qMnbRequests.delete(q);status.innerHTML=qMnbHtml(q);qLoadMnb(q);
+};
 const Q_DISC_MAX=20;
 const qDiscPct=o=>o.discOn?Math.min(Q_DISC_MAX,Math.max(0,qNum(o.disc))):0;
 function qQuoteTotals(q){
   if(q.opts.length>1)return {total:0,eurCents:0};
   const amounts=qAmounts(q),total=amounts.option(q.opts[0]).total;
-  return amounts.rate?{total:Math.round(total*amounts.rate/100),eurCents:total}:{total,eurCents:0};
+  return amounts.eur?{total:Math.round(total*amounts.rate/100),eurCents:total}:{total,eurCents:0};
 }
 /* az árajánlat az árkalkulátorral indul: a kiszámolt tételek kerülnek az ajánlatba (vagy kihagyható) */
 /* a lehetőség ablakából indított ajánlatkészítés: bezáráskor (küldés nélkül) vissza a lehetőséghez, nem a listára */
@@ -128,7 +190,7 @@ window.addEventListener('message',e=>{if(e.origin!=='https://kalkulator.lumosmot
   /* több kalkulátorból is gyűjthetsz egy ajánlatba: az ugyanebből a kalkulátorból korábban átvett tételek frissülnek, a többi (másik kalkulátor, kézzel írt) megmarad */
   const fr=$('ark-frame'),pg=((fr&&fr.src)||'').replace(/^.*\.hu\//,'').replace(/[?#].*$/,'').replace(/\/$/,'')||'ark';items.forEach(it=>it.src=pg);if(S.q.lang==='en')items.forEach(qItemToEn);
   /* minden kalkulátor a saját opciójába kerül (Kreatív videózás és fotózás / Előadás rögzítés / Short videók) – egy levélben több szolgáltatás is mehet */
-  const q=S.q,real=it=>it.src!=='init'&&(String(it.name||'').trim()||qNum(it.price));let k=q.opts.findIndex(o=>o.src===pg);
+  const q=S.q,real=it=>it.src!=='init'&&(String(it.name||'').trim()||qNum(it.price)||it.eurPrice);let k=q.opts.findIndex(o=>o.src===pg);
   if(k<0){k=q.opts.findIndex(o=>!o.src&&!o.items.some(real));if(k<0){q.opts.push({title:'',items:[]});k=q.opts.length-1;}else if(q.opts.length>1||q.opts.some(o=>o.src))setTimeout(()=>toast('Új opció: '+(Q_SRC[pg]||pg)),300);}
   else if(q.opts.length>1)setTimeout(()=>toast((Q_SRC[pg]||pg)+' – frissítve'),300);
   const o=q.opts[k],all=o.items.filter(it=>it.src!==pg&&real(it)).concat(items);o.items=all;o.src=pg;{const at=pg==='rendezvenyvideok'?(items.some(it=>/fot[oó]/i.test(it.name))?'Kreatív videózás és fotózás':'Kreatív videózás'):(Q_SRC[pg]||'');if(!o.title||o.title===Q_SRC[pg]||o.title==='Kreatív videózás')o.title=at;}qSetOpt(k);if(rooms>1)S.q.note=(S.q.note?S.q.note+'\n':'')+'A tételek termenként értendők ('+rooms+' terem).';qEdit();});
@@ -141,12 +203,12 @@ function qDnd(){const box=document.querySelector('#mform .q-rows')||document.que
     h.addEventListener('dragend',()=>{box.querySelectorAll('.q-row').forEach(x=>x.classList.remove('q-dragging','q-over-top','q-over-bot'));from=-1;});});
   box.querySelectorAll('.q-row[data-qi]').forEach(r=>{r.addEventListener('dragover',e=>{if(from<0)return;e.preventDefault();const rc=r.getBoundingClientRect(),top=e.clientY<rc.top+rc.height/2;box.querySelectorAll('.q-row').forEach(x=>x.classList.remove('q-over-top','q-over-bot'));r.classList.add(top?'q-over-top':'q-over-bot');});
     r.addEventListener('drop',e=>{if(from<0)return;e.preventDefault();const rc=r.getBoundingClientRect(),top=e.clientY<rc.top+rc.height/2;let to=+r.dataset.qi+(top?0:1);const f=$('mform');if(f)qRead(new FormData(f));const it=S.q.items.splice(from,1)[0];if(to>from)to--;S.q.items.splice(to,0,it);from=-1;qEdit(true);});});}
-function qEdit(keep){const SK=keep?qScrollKeep():null;const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},currency=qCurrency(q),eur=currency==='EUR',amounts=qAmounts(q);
+function qEdit(keep){const SK=keep?qScrollKeep():null;const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},currency=qCurrency(q),eur=currency==='EUR',amounts=qAmounts(q),intl=qQuoteIntl(q,d),showGross=!intl;
   openModal('📄 Árajánlat – '+(d.title||''),`<div class="fields">
-    <div class="field full"><label>Az ajánlat nyelve</label><div class="q-evsel q-langsel" role="radiogroup"><label class="${q.lang==='en'?'':'on'}"><input type="radio" name="q_lang" value="hu"${q.lang==='en'?'':' checked'}> 🇭🇺 Magyar</label><label class="${q.lang==='en'?'on':''}"><input type="radio" name="q_lang" value="en"${q.lang==='en'?' checked':''}> 🇬🇧 English <small>külföldi ügyfélnek – a PDF és a levél is angol</small></label></div>${(()=>{const x=qIntlOf((q.rc&&q.rc.name)||d.client,d.contactPhone);return x?`<span class="hint">${x.flag||'🌍'} Külföldi ügyfél: az ajánlaton nettó árak szerepelnek, bruttó (27% áfa) oszlop nélkül, ${x.eu?'„reverse charge” (fordított adózás)':'„no Hungarian VAT”'} megjegyzéssel.</span>`:'';})()}${q.lang==='en'?'<span class="hint">A kalkulátorból átvett tételek angolul jelennek meg; a kézzel írt tételeket és a megjegyzést angolul írd be.</span>':''}</div>
+    <div class="field full"><label>Az ajánlat nyelve</label><div class="q-evsel q-langsel" role="radiogroup"><label class="${q.lang==='en'?'':'on'}"><input type="radio" name="q_lang" value="hu"${q.lang==='en'?'':' checked'}> 🇭🇺 Magyar</label><label class="${q.lang==='en'?'on':''}"><input type="radio" name="q_lang" value="en"${q.lang==='en'?' checked':''}> 🇬🇧 English <small>külföldi ügyfélnek – a PDF és a levél is angol</small></label></div>${intl?`<span class="hint">${intl.flag||'🌍'} Külföldi ügyfél · nettó árak${intl.eu?' · fordított adózás':''}</span>`:''}${q.lang==='en'?'<span class="hint">A kalkulátorból átvett tételek angolul jelennek meg; a kézzel írt tételeket és a megjegyzést angolul írd be.</span>':''}</div>
     <div class="field full"><label>Az ajánlat pénzneme</label>
       <div class="q-evsel" role="radiogroup" aria-label="Az ajánlat pénzneme">${['HUF','EUR'].map(c=>`<label class="${currency===c?'on':''}"><input type="radio" name="q_currency" value="${c}"${currency===c?' checked':''}> ${c}</label>`).join('')}</div>
-      ${eur?`<div class="q-otitle"><label for="q-rate">Ajánlati árfolyam (HUF / EUR)</label><input class="inp" id="q-rate" name="q_rate" inputmode="decimal" maxlength="14" value="${esc(q.eurRate||'')}" placeholder="pl. 400,50"><span class="hint">Add meg, hány forinttal számoljunk 1 euróra. Az egységárakat forintban adod meg, a PDF euróban készül.</span></div>`:''}
+      ${eur?`<span class="hint" id="q-rate-status" role="status">${qMnbHtml(q)}</span>`:''}
     </div>
     <div class="field"><label for="q-to">Címzett</label><input class="inp" id="q-to" name="q_to" type="email" value="${esc(q.to)}" placeholder="ugyfel@ceg.hu"></div>
     <div class="field"><label for="q-cc" class="q-cclbl">Másolat (nem kötelező)<button type="button" class="linkbtn q-ccadd" data-action="q-cc-add">＋ Újabb másolat</button></label>${(()=>{const L=String(q.cc||'').split(',').map(x=>x.trim()).filter(Boolean);while(L.length<Math.max(1,q.ccN||0))L.push('');return L.map((v,i)=>`<span class="q-ccw"><input class="inp q-ccin"${i?'':' id="q-cc"'} name="q_cc" type="email" value="${esc(v)}" placeholder="${i?'további címzett másolatban':''}" aria-label="Másolat ${i+1}">${L.length>1?`<button type="button" class="q-ccdel" data-action="q-cc-del" data-i="${i}" aria-label="Másolat törlése" title="Eltávolítás">✕</button>`:''}</span>`).join('');})()}</div>
@@ -154,46 +216,67 @@ function qEdit(keep){const SK=keep?qScrollKeep():null;const q=S.q,d=(S.deals||[]
     <div class="field full"><label>Ajánlatot kapja <small class="muted">(így szerepel a PDF-en)</small></label><div class="q-rc"><input class="inp" name="qrc_name" value="${esc((q.rc||{}).name||'')}" placeholder="Cég neve" aria-label="Cég neve"><input class="inp" name="qrc_person" value="${esc((q.rc||{}).person||'')}" placeholder="Kapcsolattartó (nem kötelező)" aria-label="Kapcsolattartó"><input class="inp" name="qrc_addr" value="${esc((q.rc||{}).addr||'')}" placeholder="Cím (nem kötelező)" aria-label="Cím" style="grid-column:1/-1"${q.ev?'':' hidden'}></div></div>
     <div class="field"><label for="q-subject">Tárgy</label><input class="inp" id="q-subject" name="q_subject" value="${esc(q.subject)}"></div>
     <div class="field"><label for="q-valid">Érvényesség (nap)</label><input class="inp" id="q-valid" name="q_valid" value="${esc(q.valid)}" inputmode="numeric"></div>
-    <div class="field full"><div class="q-opts"><span class="q-opts-l">Opciók:</span>${q.opts.length>1?`<button type="button" class="q-nav" data-action="q-opt" data-i="${q.oi-1}"${q.oi?'':' disabled'} aria-label="Előző opció" title="Előző opció">‹</button>`:''}${q.opts.map((o,i)=>`<button type="button" class="chip${i===q.oi?' on':''}" data-action="q-opt" data-i="${i}">${o.title?esc(o.title):(i+1)+'. opció'}<small data-q-opt-total="${i}">${qEditorMoney(amounts.option(o).total)}</small></button>`).join('')}${q.opts.length>1?`<button type="button" class="q-nav" data-action="q-opt" data-i="${q.oi+1}"${q.oi<q.opts.length-1?'':' disabled'} aria-label="Következő opció" title="Következő opció">›</button>`:''}<button type="button" class="chip q-opt-add" data-action="q-opt-add" title="Az aktív opció másolata – pl. más darabszámmal">⧉ Opció másolása</button><span class="q-cat"><button type="button" class="chip q-opt-add" data-action="q-cat-menu" aria-haspopup="true">＋ Új kategória ▾</button><span class="q-cat-menu" hidden>${Object.keys(Q_SRC).map(k=>`<button type="button" data-action="q-cat-add" data-p="${k}"${q.opts.some(o=>o.src===k)?' disabled title="Már van ilyen opció"':''}>${esc(Q_SRC[k])} <small>– kalkulátorból</small></button>`).join('')}<button type="button" data-action="q-cat-add" data-p="">Üres opció <small>– kézi tételek</small></button></span></span>${q.opts.length>1?`<button type="button" class="linkbtn q-opt-del" data-action="q-opt-del">Opció törlése</button>`:''}</div>
+    <div class="field full"><div class="q-opts"><span class="q-opts-l">Opciók:</span>${q.opts.length>1?`<button type="button" class="q-nav" data-action="q-opt" data-i="${q.oi-1}"${q.oi?'':' disabled'} aria-label="Előző opció" title="Előző opció">‹</button>`:''}${q.opts.map((o,i)=>`<button type="button" class="chip${i===q.oi?' on':''}" data-action="q-opt" data-i="${i}">${o.title?esc(o.title):(i+1)+'. opció'}<small data-q-opt-total="${i}">${qEditorMoney(amounts.option(o).total,currency)}</small></button>`).join('')}${q.opts.length>1?`<button type="button" class="q-nav" data-action="q-opt" data-i="${q.oi+1}"${q.oi<q.opts.length-1?'':' disabled'} aria-label="Következő opció" title="Következő opció">›</button>`:''}<button type="button" class="chip q-opt-add" data-action="q-opt-add" title="Az aktív opció másolata – pl. más darabszámmal">⧉ Opció másolása</button><span class="q-cat"><button type="button" class="chip q-opt-add" data-action="q-cat-menu" aria-haspopup="true">＋ Új kategória ▾</button><span class="q-cat-menu" hidden>${Object.keys(Q_SRC).map(k=>`<button type="button" data-action="q-cat-add" data-p="${k}"${q.opts.some(o=>o.src===k)?' disabled title="Már van ilyen opció"':''}>${esc(Q_SRC[k])} <small>– kalkulátorból</small></button>`).join('')}<button type="button" data-action="q-cat-add" data-p="">Üres opció <small>– kézi tételek</small></button></span></span>${q.opts.length>1?`<button type="button" class="linkbtn q-opt-del" data-action="q-opt-del">Opció törlése</button>`:''}</div>
       ${q.opts.length>1?`<div class="q-otitle"><label for="q-otitle">Az opció neve <small class="muted">(kötelező · a PDF-ben is látszik)</small></label><input class="inp" id="q-otitle" name="q_otitle" required value="${esc(q.opts[q.oi].title)}" placeholder="pl. 3 short videó" maxlength="80"></div>`:''}
-      <label for="q-nolbl">Tételek (nettó)${q.opts.length>1?' – '+(q.opts[q.oi].title?esc(q.opts[q.oi].title):(q.oi+1)+'. opció'):''} <span aria-hidden="true">🧮</span> <button type="button" class="linkbtn" data-action="q-calc">Árkalkulátorból</button></label><div class="q-items q-pdfl"><div class="q-row q-hd"><span>#</span><span>Megnevezés</span><span>Menny.</span><span>Egységár (nettó)${eur?' · HUF':''}</span><span>Nettó</span><span class="q-bh">Bruttó <span class="nw">(${Q_VAT}%&nbsp;ÁFA)</span></span><span></span></div>
-      ${q.items.map((it,i)=>`<div class="q-row" data-qi="${i}"><span class="q-no" draggable="true" title="Fogd meg és húzd a sorrend módosításához" aria-label="${i+1}. tétel – húzással áthelyezhető"><i class="q-grip" aria-hidden="true">⠿</i><b>${i+1}.</b></span><span class="q-namew"><input class="inp" name="qi_name_${i}" value="${esc(it.name)}" placeholder="pl. Aftermovie"><input class="inp q-desc" name="qi_desc_${i}" value="${esc(it.desc||'')}" placeholder="Leírás (nem kötelező) – pl. 1 db, 90–120 másodperces videó" maxlength="160"></span><input class="inp" name="qi_qty_${i}" value="${esc(it.qty)}" inputmode="decimal"><input class="inp q-price" name="qi_price_${i}" value="${esc(it.price?qFt(it.price):'')}" inputmode="numeric" placeholder="0"><span class="q-sum">${qEditorMoney(amounts.row(it))}</span><span class="q-sumb">${qEditorMoney(qGrossWithVat(amounts.row(it),amounts))}</span>${q.items.length>1?`<button type="button" class="mini" data-action="q-del" data-i="${i}" aria-label="Tétel törlése" title="Tétel törlése">✕</button>`:'<span></span>'}</div>`).join('')}
-      <div class="q-foot"><button type="button" class="linkbtn" data-action="q-add">+ Tétel</button></div><div class="q-sumg" id="q-sumg">${qSumRows()}</div></div></div>
+      <label for="q-nolbl">Tételek (nettó)${q.opts.length>1?' – '+(q.opts[q.oi].title?esc(q.opts[q.oi].title):(q.oi+1)+'. opció'):''} <span aria-hidden="true">🧮</span> <button type="button" class="linkbtn" data-action="q-calc">Árkalkulátorból</button></label><div class="q-items q-pdfl${showGross?'':' q-netonly'}"><div class="q-row q-hd"><span>#</span><span>Megnevezés</span><span>Menny.</span><span class="q-unit-h">Egységár (nettó) · ${currency}</span><span class="q-net-h">Nettó</span>${showGross?`<span class="q-bh">Bruttó <span class="nw">(${Q_VAT}%&nbsp;ÁFA)</span></span>`:''}<span></span></div>
+      ${q.items.map((it,i)=>`<div class="q-row" data-qi="${i}"><span class="q-no" draggable="true" title="Fogd meg és húzd a sorrend módosításához" aria-label="${i+1}. tétel – húzással áthelyezhető"><i class="q-grip" aria-hidden="true">⠿</i><b>${i+1}.</b></span><span class="q-namew"><input class="inp" name="qi_name_${i}" value="${esc(it.name)}" placeholder="pl. Aftermovie"><input class="inp q-desc" name="qi_desc_${i}" value="${esc(it.desc||'')}" placeholder="Leírás (nem kötelező) – pl. 1 db, 90–120 másodperces videó" maxlength="160"></span><input class="inp" name="qi_qty_${i}" value="${esc(it.qty)}" inputmode="decimal"><input class="inp q-price" name="qi_${eur?'eurprice':'price'}_${i}" value="${esc(eur?qEurPriceInput(it,amounts):(it.price?qFt(it.price):''))}" inputmode="${eur?'decimal':'numeric'}" placeholder="${eur?'0,00':'0'}" aria-label="${i+1}. tétel nettó egységára (${currency})"><span class="q-sum">${qEditorMoney(amounts.row(it),currency)}</span>${showGross?`<span class="q-sumb">${qEditorMoney(qGrossWithVat(amounts.row(it),amounts),currency)}</span>`:''}${q.items.length>1?`<button type="button" class="mini" data-action="q-del" data-i="${i}" aria-label="Tétel törlése" title="Tétel törlése">✕</button>`:'<span></span>'}</div>`).join('')}
+      <div class="q-foot"><button type="button" class="linkbtn" data-action="q-add">+ Tétel</button></div><div class="q-sumg" id="q-sumg">${qSumRows(showGross)}</div></div></div>
     <div class="field full"><div class="q-disc-on"><input type="checkbox" id="q-totOn" name="q_totOn"${qO().noTot?'':' checked'}><span aria-hidden="true">🧮</span><label for="q-totOn">Összesen sor az ajánlatban</label></div><div class="muted q-tot-h" style="font-size:12.5px;margin-top:4px"${qO().noTot?'':' hidden'}>Az ajánlatban csak a tételek és az egységárak látszanak (pl. napidíj, ha még nem tudni, hány nap lesz).</div></div>
     <div class="field full"><div class="q-disc-on"><input type="checkbox" id="q-discOn" name="q_discOn"${qO().discOn?' checked':''}><span aria-hidden="true">💸</span><label for="q-discOn">${q.opts.length>1?'Kedvezmény erre az opcióra':'Kedvezmény az ajánlatban'}</label></div><div class="q-disc"${qO().discOn?'':' hidden'}><input class="inp" id="q-discLbl" name="q_discLbl" value="${esc(qO().discLbl||'Csomagkedvezmény')}" maxlength="60" aria-label="A kedvezmény megnevezése"><span class="q-disc-p"><input class="inp" id="q-disc" name="q_disc" value="${esc(qO().disc||'')}" inputmode="decimal" placeholder="0" aria-label="Kedvezmény százalékban (legfeljebb 20%)" title="Legfeljebb 20%"><em>%</em></span>${[5,10,15,20].map(x=>`<button type="button" class="chip" data-action="q-discset" data-v="${x}">${x}%</button>`).join('')}</div><span class="hint q-disc-h"${qO().discOn?'':' hidden'}>A tételek összegéből vonjuk le (legfeljebb 20%); az ajánlaton külön sorban látszik.</span></div>
     <div class="field full"><label for="q-note">Megjegyzés az ajánlatban (nem kötelező)</label><textarea class="inp" maxlength="2000" id="q-note" name="q_note" rows="2" placeholder="pl. Az ár tartalmazza a stáb utazását Budapesten belül.">${esc(q.note)}</textarea></div>
     </div>`,
     {submitLabel:'Előnézet →',noDraft:true,left:`<button type="button" class="btn ghost" data-action="q-back">← Vissza az árkalkulátorhoz</button><button type="button" class="btn outline" data-action="q-save">💾 Mentés</button>`,submit:fd=>{qRead(fd);
-      if(eur&&!qEurRate(q.eurRate)){toast('Adj meg érvényes ajánlati árfolyamot (HUF / EUR).',true);$('q-rate').focus();return;}
+      if(eur){
+        const issue=qEurPriceIssue(q);
+        if(issue){
+          toast((q.opts.length>1?(issue.option+1)+'. opció: ':'')+issue.message,true);
+          if(issue.option!==q.oi){qSetOpt(issue.option);qEdit(true);}
+          if(issue.field)document.querySelector('#mform [name="'+issue.field+'"]')?.focus();
+          return;
+        }
+      }
       if(!/@/.test(q.to)){toast('Add meg a címzett e-mail-címét.',true);return;}{const nt=q.opts.length>1?q.opts.findIndex(o=>!String(o.title||'').trim()):-1;if(nt>=0){toast((nt+1)+'. opció: add meg az opció nevét.',true);if(nt!==q.oi){qSetOpt(nt);qEdit();}setTimeout(()=>{const i=$('q-otitle');if(i){i.classList.add('err');i.focus();}},60);return;}}{const bad=q.opts.findIndex(o=>!o.items.some(it=>it.name&&qAmounts(q).unit(it)));if(bad>=0){toast((q.opts.length>1?(bad+1)+'. opció: ':'')+'adj meg legalább egy tételt árral.',true);if(bad!==q.oi){qSetOpt(bad);qEdit();}return;}}qPreview();}});
-  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');qScrollBack(SK);qDnd();}
+  const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll');qScrollBack(SK);qDnd();if(eur)qLoadMnb(q);}
 /* összesítő a PDF-fel azonos szerkezetben: teljes ár → kedvezmény → kedvezményes ár (vagy csak Összesen) */
-function qEditorMoney(n){
-  const q=S.q,currency=qCurrency(q);
-  return currency==='EUR'&&!qEurRate(q.eurRate)?'–':qMoney(n,currency);
+function qEurPriceIssue(q){
+  const a=qAmounts(q);
+  for(const [option,o] of q.opts.entries()){
+    for(const [i,it] of o.items.entries()){
+      if(it.name&&!Number.isSafeInteger(a.row(it)))return {option,field:'qi_eurprice_'+i,message:(i+1)+'. tétel: adj meg eurós egységárat, legfeljebb két tizedesjeggyel.'};
+      if(!it.name&&a.unit(it)!==null)return {option,field:'qi_name_'+i,message:(i+1)+'. tétel: add meg a megnevezést.'};
+    }
+    const total=a.option(o).total;
+    if(!Number.isSafeInteger(total)||total<0)return {option,message:'Ellenőrizd az opció eurós végösszegét.'};
+  }
+  return null;
 }
-const qGrossWithVat=(n,a)=>a.rate?n+a.vat(n):Math.round(n*(1+Q_VAT/100));
-function qSumRows(){
-  const a=qAmounts(S.q),{full,pct,discount,total}=a.option(qO());
-  const r=(c,label,n,gross=qGrossWithVat(n,a))=>`<div class="q-row q-srow ${c}"><span></span><span>${label}</span><span></span><span></span><span class="q-sum">${qEditorMoney(n)}</span><span class="q-sumb">${qEditorMoney(gross)}</span><span></span></div>`;
+const qEditorMoney=(n,currency)=>n===null?'–':qMoney(n,currency);
+const qGrossWithVat=(n,a)=>n===null?null:a.eur?n+a.vat(n):Math.round(n*(1+Q_VAT/100));
+function qSumRows(showGross){
+  const q=S.q,currency=qCurrency(q),a=qAmounts(q),{full,pct,discount,total}=a.option(qO());
+  const r=(c,label,n,gross=qGrossWithVat(n,a))=>`<div class="q-row q-srow ${c}"><span></span><span>${label}</span><span></span><span></span><span class="q-sum">${qEditorMoney(n,currency)}</span>${showGross?`<span class="q-sumb">${qEditorMoney(gross,currency)}</span>`:''}<span></span></div>`;
   return pct?r('q-s-full','Teljes ár',full)+r('q-s-disc',esc(qO().discLbl||'Csomagkedvezmény')+' ('+String(pct).replace('.',',')+'%)',-discount)+r('q-s-fin','Kedvezményes ár',total,total+a.vat(total)):r('q-s-full','Összesen',total,total+a.vat(total));
 }
 function qTotUi(){
-  const el=$('q-sumg');if(el)el.innerHTML=qSumRows();
-  const a=qAmounts(S.q);
-  document.querySelectorAll('[data-q-opt-total]').forEach(el=>{el.textContent=qEditorMoney(a.option(S.q.opts[+el.dataset.qOptTotal]).total);});
+  const q=S.q,currency=qCurrency(q),a=qAmounts(q),el=$('q-sumg');
+  if(el)el.innerHTML=qSumRows(!el.closest('.q-netonly'));
+  document.querySelectorAll('#mform [data-q-opt-total]').forEach(el=>{el.textContent=qEditorMoney(a.option(q.opts[+el.dataset.qOptTotal]).total,currency);});
+}
+function qRefreshRows(form,refreshPrices=false){
+  const q=S.q,currency=qCurrency(q),a=qAmounts(q);
+  form.querySelectorAll('.q-row[data-qi]').forEach(row=>{
+    const it=q.items[+row.dataset.qi],n=a.row(it),gross=row.querySelector('.q-sumb');
+    row.querySelector('.q-sum').textContent=qEditorMoney(n,currency);
+    if(gross)gross.textContent=qEditorMoney(qGrossWithVat(n,a),currency);
+    if(refreshPrices&&it.eurPrice==null)row.querySelector('.q-price').value=qEurPriceInput(it,a);
+  });
+  qTotUi();
 }
 document.addEventListener('input',e=>{
   const t=e.target;
-  if(!t||!S.q||!t.name||!/^(qi_(qty|price)_|q_disc$|q_rate$)/.test(t.name))return;
-  const f=$('mform');if(!f)return;qRead(new FormData(f));
-  const a=qAmounts(S.q);
-  f.querySelectorAll('.q-row[data-qi]').forEach(row=>{
-    const n=a.row(S.q.items[+row.dataset.qi]);
-    row.querySelector('.q-sum').textContent=qEditorMoney(n);
-    row.querySelector('.q-sumb').textContent=qEditorMoney(qGrossWithVat(n,a));
-  });
-  qTotUi();
+  if(!t||!S.q||!t.name||!/^(qi_(qty|price|eurprice)_|q_disc$)/.test(t.name))return;
+  const f=$('mform');if(!f)return;
+  qRead(new FormData(f),t.name);qRefreshRows(f);
 });
 document.addEventListener('change',e=>{
   const t=e.target;if(!t||t.name!=='q_currency'||!S.q)return;
@@ -206,7 +289,14 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||(t.name!=='q_ev'&
   const sj=$('q-subject'),bd=$('q-body');if(sj)sj.value=q.subject;if(bd)bd.value=q.body;document.querySelectorAll('.q-evsel label').forEach(l=>l.classList.toggle('on',l.querySelector('input').checked));const en=document.querySelector('.q-evname');if(en)en.hidden=!q.ev;const ad=document.querySelector('#mform [name=qrc_addr]');if(ad)ad.hidden=!q.ev;});   /* általános ajánlatnál cím sincs */
 document.addEventListener('change',e=>{const t=e.target;if(t&&t.id==='q-totOn'&&S.q){qO().noTot=!t.checked;document.querySelectorAll('.q-tot-h').forEach(x=>x.hidden=t.checked);}});
 document.addEventListener('change',e=>{const t=e.target;if(t&&t.id==='q-discOn'&&S.q){const o=qO();o.discOn=t.checked;document.querySelectorAll('.q-disc,.q-disc-h').forEach(x=>x.hidden=!t.checked);if(t.checked&&!qNum(o.disc)){o.disc='10';const i=$('q-disc');if(i)i.value='10';}qTotUi();if(t.checked){const i=$('q-disc');if(i)i.focus();}return;}if(t&&t.name==='q_disc'&&S.q&&qNum(t.value)>Q_DISC_MAX){t.value=String(Q_DISC_MAX);S.q.disc=t.value;qTotUi();toast('A kedvezmény legfeljebb '+Q_DISC_MAX+'% lehet.');}});
-document.addEventListener('change',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('q-price')){const n=qNum(t.value);t.value=n?qFt(n):'';}});
+document.addEventListener('change',e=>{
+  const t=e.target;if(!t?.classList?.contains('q-price')||!S.q)return;
+  if(t.name.startsWith('qi_eurprice_')){
+    const f=$('mform');qRead(new FormData(f),t.name);
+    t.value=qEurPriceInput(S.q.items[Number(t.name.split('_').pop())],qAmounts(S.q));
+    qRefreshRows(f);
+  }else{const n=qNum(t.value);t.value=n?qFt(n):'';}
+});
 Object.assign(ACT,{
   'q-cc-del':b=>{const L=[...document.querySelectorAll('.q-ccin')].map(x=>x.value.trim());L.splice(Number(b.dataset.i),1);const f=$('mform');if(f)qRead(new FormData(f));S.q.cc=L.filter(Boolean).join(', ');S.q.ccN=Math.max(1,L.length);qEdit();},
   'q-cc-add':()=>{const f=$('mform');if(f)qRead(new FormData(f));const q=S.q;q.ccN=String(q.cc||'').split(',').filter(x=>x.trim()).length+1;qEdit();setTimeout(()=>{const a=document.querySelectorAll('.q-ccin');if(a.length)a[a.length-1].focus();},50);},
@@ -232,7 +322,7 @@ Object.assign(ACT,{
 const qFileName=()=>{const d=(S.deals||[]).find(x=>x.id===S.q.dealId)||{},evn=S.q.evName!=null?S.q.evName:d.title,who=S.q.ev&&evn?evn:((S.q.rc&&S.q.rc.name)||d.client||'');   // rendezvényre szóló: a rendezvény neve; általános: a cég neve
   return (S.q.lang==='en'?'Quotation_':'Arajanlat_')+(who?String(who).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w]+/g,'_').replace(/^_|_$/g,'').slice(0,50)+'_':'')+'Lumos_Motion.pdf';};
 /* az ajánlat A4-es oldala (a PDF és az előnézet ugyanez) */
-function qPageHtml(){const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},EN=q.lang==='en',T=(h,e)=>EN?e:h,M=n=>qMoney(n,qCurrency(q),EN),a=qAmounts(q),IX=qIntlOf((q.rc&&q.rc.name)||d.client,d.contactPhone),BR=!IX,s=q.sig||{},now=new Date(),until=new Date(Date.now()+Math.max(1,qNum(q.valid)||20)*864e5);
+function qPageHtml(){const q=S.q,d=(S.deals||[]).find(x=>x.id===q.dealId)||{},EN=q.lang==='en',T=(h,e)=>EN?e:h,M=n=>qMoney(n,qCurrency(q),EN),a=qAmounts(q),IX=qQuoteIntl(q,d),BR=!IX,s=q.sig||{},now=new Date(),until=new Date(Date.now()+Math.max(1,qNum(q.valid)||20)*864e5);
   const row=(it,i)=>`<tr><td>${i+1}.</td><td>${esc(qDash(it.name))}${it.desc?`<small class="qp-desc">${esc(qDash(it.desc))}</small>`:''}</td><td class="r">${esc(EN?qQtyEn(it.qty||'1'):(it.qty||'1'))}</td><td class="r">${M(a.unit(it))}</td><td class="r"><b>${M(a.row(it))}</b></td>${BR?`<td class="r qp-br">${M(qGrossWithVat(a.row(it),a))}</td>`:''}</tr>`;
   return `<div class="qp"><div class="qp-head"><img src="mail/lumos-motion-stacked.png?v=2" alt="Lumos Motion" class="qp-logo"><div class="qp-meta"><b>${T('ÁRAJÁNLAT','QUOTATION')}</b><span>${esc(q.no)}</span><span class="qp-dates"><i>${T('Kelt:','Date:')}</i><i>${EN?qDateEn(now):qDate(now)}</i></span></div></div>
     <div class="qp-parties">${(()=>{const rc=q.rc||{name:d.client||d.contactName||'',person:d.client&&d.contactName?d.contactName:''},em=q.to;return `<div><small>${T('Ajánlatot kapja','Prepared for')}</small><b>${esc(rc.name||'')}</b>${rc.person?`<span>${esc(rc.person)}</span>`:''}${rc.addr&&q.ev?`<span>${esc(rc.addr)}</span>`:''}${em?`<span>${esc(em)}</span>`:''}</div>`;})()}
@@ -287,13 +377,19 @@ function qPdfCached(){
   q._pdfP=pending;
   return pending;
 }
-function qPreview(){const q=S.q;if(qCurrency(q)==='EUR'&&!qEurRate(q.eurRate)){qEdit();return;}const s=q.sig||{};q._pdf=null;q._pdfP=null;if(!s.name&&q.dealId){q.sig=null;qSig(q.dealId).then(()=>{if(S.q===q&&q.sig&&q.sig.name&&document.querySelector('.q-prev'))qPreview();});}   /* ha még nincs meg az aláírás (pl. mentett vagy korábbi ajánlatból nyitva), lekérjük, és az előnézet frissül */
+function qPreview(){const q=S.q;if(qCurrency(q)==='EUR'&&qEurPriceIssue(q)){qEdit();return;}const s=q.sig||{};q._pdf=null;q._pdfP=null;if(!s.name&&q.dealId){q.sig=null;qSig(q.dealId).then(()=>{if(S.q===q&&q.sig&&q.sig.name&&document.querySelector('.q-prev'))qPreview();});}   /* ha még nincs meg az aláírás (pl. mentett vagy korábbi ajánlatból nyitva), lekérjük, és az előnézet frissül */
   openModal('📄 Árajánlat – előnézet',`<div class="q-prev"><div class="q-mail"><div class="q-mh"><div><span>Feladó:</span> ${esc((s.name||'')+' · Lumos Motion')} &lt;${esc(s.from||s.email||'')}&gt;${s.from&&s.email&&s.from.toLowerCase()!==s.email.toLowerCase()?` <small class="q-from-note">(a válaszok ${esc(s.email)} címre mennek – a saját címéről küldéshez „Küldés másként” álnév kell)</small>`:''}</div><div><span>Címzett:</span> ${esc(q.to)}${q.cc?' · Másolat: '+esc(q.cc):''}</div><div><span>Tárgy:</span> <b>${esc(q.subject)}</b></div><div><span>Melléklet:</span> 📎 ${esc(qFileName())}</div></div>
       <div class="q-mb"><div id="q-mbody" class="q-mbody" contenteditable="true" spellcheck="true" title="Kattints bele és írd át – így megy ki">${esc(q.body).replace(/\n/g,'<br>')}</div><br>${q.lang==='en'?qSigEn(s.sigHtml||'',s.name):(s.sigHtml||'')}</div></div>
     <div class="q-pdf"><div class="q-pdf-h"><span>📎 A csatolt PDF</span><button type="button" class="linkbtn" data-action="q-open">↗ Megnyitás új lapon</button></div><div class="q-pdf-page">${qPages().join('')}</div></div></div>`,
     {submitLabel:'📨 Küldés',noDraft:true,
      submit:async()=>{const btn=document.querySelector('#mform button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Küldés…';}
-       try{const pdf=await qPdfCached();modalStashDrop();const r=await call('dealQuoteSend',{lang:q.lang==='en'?'en':'hu',dealId:q.dealId,to:q.to,cc:q.cc,subject:q.subject,body:q.body,pdf,fileName:qFileName(),...qQuoteTotals(q),currency:qCurrency(q),opts:q.opts.length,q:(()=>{const st=Object.assign({},q);delete st._pdf;delete st._pdfP;delete st.sig;return st;})()});
+       try{
+         const currency=qCurrency(q),[pdf]=await Promise.all([qPdfCached(),currency==='EUR'?qLoadMnb(q):null]);
+         const {_pdf,_pdfP,sig,...state}=q;
+         if(!qMnbRate(q)){delete state.eurRate;delete state.eurRateDate;}
+         const d=(S.deals||[]).find(x=>x.id===q.dealId)||{};
+         modalStashDrop();
+         const r=await call('dealQuoteSend',{lang:q.lang==='en'?'en':'hu',dealId:q.dealId,to:q.to,cc:q.cc,subject:q.subject,body:q.body,pdf,fileName:qFileName(),...qQuoteTotals(q),currency,netOnly:!!qQuoteIntl(q,d),opts:q.opts.length,q:state});
          if(r&&r.deals)S.deals=r.deals;delete QS_C[q.dealId];closeModal();S.q=null;render(true);toast(r&&r.test?'TESZT: az ajánlat csak neked ment ki':'Árajánlat elküldve: '+q.to);}
        catch(e){if(btn){btn.disabled=false;btn.textContent='📨 Küldés';}handleErr(e);}}});
   const mb=document.querySelector('#modalRoot .mbox');if(mb)mb.classList.add('mbox-wide','mbox-scroll','mbox-q');
@@ -390,6 +486,7 @@ const qQtyEn=x=>String(x).replace(/^(\d+)\s*nap$/i,(m,n)=>n+(n==='1'?' day':' da
 function qIntlOf(client,phone){const x=typeof clientIntl==='function'&&clientIntl(client);if(x)return x;
   const p=String(phone||'').replace(/\s/g,'');if(!/^\+/.test(p)||/^\+36/.test(p))return null;const L=(typeof PH_CC!=='undefined'?PH_CC:[]).filter(c=>p.startsWith(c[2])).sort((a,b)=>b[2].length-a[2].length);
   if(!L.length)return null;const cc=L[0][0];return cc==='HU'?null:{cc,eu:(typeof EU_CC!=='undefined'?EU_CC:[]).includes(cc),flag:L[0][1]};}
+const qQuoteIntl=(q,d)=>qIntlOf(q.rc?.name,'')||qIntlOf(d.client,d.contactPhone);
 const Q_TITLE_EN=[[/^ügyvezető igazgató$/i,'Managing Director'],[/^ügyvezető$/i,'Managing Director'],[/^értékesítő$/i,'Sales Manager'],[/^értékesítési vezető$/i,'Head of Sales'],[/^termelési vezető$/i,'Head of Production'],[/^produkciós vezető$/i,'Head of Production']];
 const qTitleEn=t=>{const x=String(t||'').trim();const m=Q_TITLE_EN.find(([r])=>r.test(x));return m?m[1]:x;};
 /* magyar névsorrend → angol (Egri Ervin → Ervin Egri) */

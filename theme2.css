@@ -1041,7 +1041,10 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 @media (max-width:600px){html body .q-row{grid-template-columns:1fr 60px 1fr 30px}html body .q-row .q-sumb,html body .q-row.q-hd .q-bh{display:none}}
 .qp-tbl tfoot .qp-fullbig td{border-top:2px solid #1d2a38;font-weight:700;font-size:14px;color:#1d2a38;padding:8px 6px 4px}:where(html.ax-stone) .qp-tbl tfoot .qp-fullbig td{border-top:2px solid #28282d;color:#28282d}.qp-tbl tfoot .qp-fullbig td:last-child{color:#36414d;font-weight:600}:where(html.ax-stone) .qp-tbl tfoot .qp-fullbig td:last-child{color:#404045}.qp-tbl tfoot .qp-fullbig+.qp-disc td{padding-top:3px}.qp-tbl tfoot .qp-final td{border-top:1px solid #c5ced8;font-size:12px;color:#4b5563;font-weight:600;padding:6px}:where(html.ax-stone) .qp-tbl tfoot .qp-final td{border-top:1px solid #cdcdd3;color:#545459}
 /* árajánlat-szerkesztő tételei: a PDF táblázatával azonos megjelenés */
-@media (min-width:601px){html body .q-pdfl .q-row{grid-template-columns:26px 2.3fr 56px 1.1fr .95fr .95fr 26px;gap:0 8px}}
+@media (min-width:601px){
+  html body .q-pdfl .q-row{grid-template-columns:26px 2.3fr 56px 1.1fr .95fr .95fr 26px;gap:0 8px}
+  html body .q-pdfl.q-netonly .q-row{grid-template-columns:26px 2.3fr 56px 1.1fr .95fr 26px}
+}
 .q-pdfl .q-row.q-hd{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#7b8794;font-weight:700;border-bottom:2px solid #1d2a38;padding:0 0 6px;align-items:end}:where(html.ax-stone) .q-pdfl .q-row.q-hd{color:#85858a;border-bottom:2px solid #28282d}
 .q-pdfl .q-row.q-hd span:nth-child(n+3){text-align:right}.q-pdfl .q-row.q-hd span:nth-child(2){text-align:left}
 .q-pdfl .q-row:not(.q-hd):not(.q-srow){border-bottom:1px solid #e3e8ee;padding:3px 0}:where(html.ax-stone) .q-pdfl .q-row:not(.q-hd):not(.q-srow){border-bottom:1px solid #e7e7ed}
@@ -1057,7 +1060,12 @@ html body .stage .t-row .stage-board b{color:inherit!important}
 .q-sumg .q-s-full{border-top:2px solid #1d2a38;padding-top:8px;margin-top:4px}:where(html.ax-stone) .q-sumg .q-s-full{border-top:2px solid #28282d}.q-sumg .q-s-full span{font-weight:700;font-size:14px;color:#1d2a38}:where(html.ax-stone) .q-sumg .q-s-full span{color:#28282d}.q-sumg .q-s-full .q-sumb{font-weight:600;color:#36414d}:where(html.ax-stone) .q-sumg .q-s-full .q-sumb{color:#404045}
 .q-sumg .q-s-disc span{color:#b45309!important;font-size:12.5px;font-weight:500!important}
 .q-sumg .q-s-fin{border-top:1px solid #c5ced8}:where(html.ax-stone) .q-sumg .q-s-fin{border-top:1px solid #cdcdd3}.q-sumg .q-s-fin span{font-size:12.5px;color:#4b5563!important;font-weight:600!important}:where(html.ax-stone) .q-sumg .q-s-fin span{color:#545459!important}
-@media (max-width:600px){html body .q-pdfl .q-row{grid-template-columns:20px 1fr 50px 1fr 26px}html body .q-pdfl .q-row .q-sumb,html body .q-pdfl .q-row.q-hd .q-bh{display:none}}
+@media (max-width:600px){
+  html body .q-pdfl .q-row{grid-template-columns:20px minmax(0,1fr) 50px minmax(0,1fr) 26px}
+  html body .q-pdfl .q-row .q-sumb,html body .q-pdfl .q-row.q-hd .q-bh,html body .q-pdfl .q-row.q-hd .q-net-h{display:none}
+  html body .q-pdfl .q-row.q-hd .q-unit-h,html body .q-pdfl .q-srow .q-sum{display:block}
+  html body .q-pdfl .q-srow span:nth-child(2){grid-column:2/4}
+}
 .nw{white-space:nowrap}.q-sumg .q-srow span:nth-child(2),.qp-tbl tfoot td[colspan]{font-variant-numeric:normal!important;font-feature-settings:normal!important}
 .q-nav{width:30px;height:30px;border-radius:999px;border:1px solid var(--line,#dde4eb);background:#fff;font-size:18px;line-height:1;cursor:pointer;color:#1d2a38;display:inline-flex;align-items:center;justify-content:center;padding:0 0 2px}:where(html.ax-stone) .q-nav{border:1px solid var(--line,#e3e3e9);color:#28282d}.q-nav:hover:not(:disabled){background:var(--bg,#f0f4f7)}:where(html.ax-stone) .q-nav:hover:not(:disabled){background:var(--bg,#f3f3fa)}.q-nav:disabled{opacity:.35;cursor:default}
 .q-ccw{position:relative;display:block}.q-ccw+.q-ccw{margin-top:6px}.q-ccw .q-ccin{padding-right:36px}.q-ccw .q-ccin+.q-ccin{margin-top:0}.q-ccdel{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:#9aa4ae;font-size:13px;cursor:pointer;padding:5px 7px;border-radius:6px}:where(html.ax-stone) .q-ccdel{color:#a3a3a8}.q-ccdel:hover{color:#b42318;background:#fdecec}
