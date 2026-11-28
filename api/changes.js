@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "75c7010ca1",
+"at": "2026-11-28T14:19:31+01:00",
+"msg": "Visszatérő ablak villanás nélkül; letiltott Mentés nem reagál rámutatásra; HubSpot: mentéskor Legitimate interest – Lead jogalap a kapcsolattartónál"
+},
+{
 "id": "5a44072b43",
 "at": "2026-11-28T14:18:08+01:00",
 "msg": "Projektek fül: piros szám, ha videó vár belső ellenőrzésre (ügyvezető, termelési vezető)"
@@ -130,11 +135,6 @@ const ITEMS = [
 "id": "adebb2f06a",
 "at": "2026-11-28T10:32:02+01:00",
 "msg": "Csengő: az értesítések lenyílója közvetlenül a csengő alatt"
-},
-{
-"id": "cd4194668a",
-"at": "2026-11-28T10:29:24+01:00",
-"msg": "Telefonszám: országhívószám választható (kereshető lista a zászlóra kattintva)"
 }
 ];
 const allowed = require('./_auth.js');
