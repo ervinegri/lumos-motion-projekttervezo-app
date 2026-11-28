@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "cd4194668a",
+"at": "2026-11-28T10:29:24+01:00",
+"msg": "Telefonszám: országhívószám választható (kereshető lista a zászlóra kattintva)"
+},
+{
 "id": "6da23309dc",
 "at": "2026-11-28T10:24:54+01:00",
 "msg": "Csengő javítása (egy megjegyzés kikommentelte a lista betöltését)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Értékelés kérése: címzett választható az ügyfelek kapcsolattartói/képviselői és a szereplők közül, a megszólítás kitöltődik"
 },
 {
-"id": "8e26fdba5c",
-"at": "2026-11-28T08:50:54+01:00",
-"msg": "Utómunka előtti projekt megnyitásakor a Stáb és eszközök szakasz nyitva"
-},
-{
-"id": "c9733ed906",
-"at": "2026-11-28T07:49:53Z",
+"id": "c352cb1be9",
+"at": "2026-11-28T07:51:03Z",
 "msg": "Változásnapló frissítése"
 }
 ];
