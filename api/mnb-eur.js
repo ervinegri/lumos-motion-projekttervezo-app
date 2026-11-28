@@ -41,6 +41,7 @@ module.exports = async (req, res) => {
     res.setHeader('Allow', 'GET');
     return send(405, { error: 'GET' });
   }
+  if (req.query && req.query.debug === 'soap1') { try { const body = '<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><GetCurrentExchangeRates xmlns="http://www.mnb.hu/webservices/"/></soap:Body></soap:Envelope>'; const r = await fetch('https://www.mnb.hu/arfolyamok.asmx', { method: 'POST', headers: { 'Content-Type': 'text/xml; charset=utf-8', SOAPAction: '"http://www.mnb.hu/webservices/MNBArfolyamServiceSoap/GetCurrentExchangeRates"' }, body, signal: AbortSignal.timeout(8000) }); const t = await r.text(); const p2 = await (await fetch(MNB_RATES_URL)).text(); const i = p2.indexOf('GBP'); return send(200, { st: r.status, t: t.slice(0, 1500), page: i >= 0 ? p2.slice(i - 300, i + 300) : 'no GBP' }); } catch (e) { return send(200, { err: String(e) }); } }
   const cur = ['EUR', 'USD', 'GBP'].includes(String((req.query && req.query.c) || '').toUpperCase()) ? String(req.query.c).toUpperCase() : 'EUR';   // ?c=EUR|USD|GBP
   /* weboldal → (újra) weboldal → SOAP: egy-egy kiesés miatt ne kelljen várni */
   for (const get of [pageRate, pageRate, soapRate]) {
