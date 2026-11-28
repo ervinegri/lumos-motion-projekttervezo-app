@@ -462,7 +462,10 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||t.name!=='q_valid
 /* a kiküldött ajánlat PDF-je: rámutatáskor előre letöltjük, és megjegyezzük – kattintásra azonnal nyílik */
 const QS_C={};const qsGet=id=>QS_C[id]||(QS_C[id]=call('quoteSent',{dealId:id,op:'pdf'}).catch(e=>{delete QS_C[id];throw e;}));
 /* egy adott kiküldés PDF-je (a lehetőség ablakának „Kiküldött ajánlatok” sorai): megjegyezzük, és már a sorok megjelenésekor / rámutatáskor előtöltjük – kattintásra azonnal nyílik */
-const QS_A={};const qsGetAt=(id,at)=>{const k=id+'|'+at;return QS_A[k]||(QS_A[k]=call('quoteSent',{dealId:id,op:'pdf',at}).catch(e=>{delete QS_A[k];throw e;}));};
+const QS_A={};const qsGetAt=(id,at)=>{const k=id+'|'+at;if(QS_A[k])return QS_A[k];
+  /* a legutóbbi kiküldés ugyanaz, mint a lehetőség „kiküldött ajánlata”: ha az már betöltődött / töltődik, azt használjuk (nincs második letöltés) */
+  const viaLatest=QS_C[id]?QS_C[id].then(r=>String(r&&r.at||'').slice(0,16)===at?r:call('quoteSent',{dealId:id,op:'pdf',at})):call('quoteSent',{dealId:id,op:'pdf',at});
+  return QS_A[k]=viaLatest.catch(e=>{delete QS_A[k];throw e;});};
 function qsPrefetchRows(root){[...(root||document).querySelectorAll('[data-action="q-sent-open"][data-at]:not([data-msg])')].slice(0,4).forEach(b=>{if(b.dataset.id&&b.dataset.at)qsGetAt(b.dataset.id,b.dataset.at).catch(()=>{});});}
 document.addEventListener('pointerover',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-action="q-sent-open"][data-at]:not([data-msg])');if(b&&b.dataset.id)qsGetAt(b.dataset.id,b.dataset.at).catch(()=>{});},{passive:true});
 document.addEventListener('pointerover',e=>{const c=e.target&&e.target.closest&&e.target.closest('.dl-card'),b=(c&&c.querySelector('[data-action="q-sent-open"]'))||(e.target&&e.target.closest&&e.target.closest('[data-action="q-sent-open"]'));   /* már a kártyára mutatva előtölt */if(b&&b.dataset.id&&!QS_C[b.dataset.id])qsGet(b.dataset.id).catch(()=>{});},{passive:true});
