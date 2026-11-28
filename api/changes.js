@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "0b38c36812",
+"at": "2026-11-28T09:39:29+01:00",
+"msg": "Google-értékelés párosítása az értékelést kérő levél címzettje / megszólítása alapján is; mentetlen projektnél nem nyúlik meg a Szolgáltatások panel alja"
+},
+{
 "id": "56b8f18a14",
 "at": "2026-11-28T09:33:52+01:00",
 "msg": "Utómunka tábla a projektoldalon: a videók számának módosítása mentés előtt is azonnal látszik (új kártyák szaggatottan)"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "9975f9f022",
 "at": "2026-11-27T21:53:35+01:00",
 "msg": "Fotógaléria: belső ellenőrzésben nincs megjegyzés gomb; elforgatáskor újraillesztés; fekvő telefonon nagyobb terület"
-},
-{
-"id": "4517611382",
-"at": "2026-11-27T20:51:16Z",
-"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
