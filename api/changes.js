@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "68aa337707",
+"at": "2026-11-28T09:07:49+01:00",
+"msg": "Instrukciók: „E-mailt kap:” – címzettenként pipálható lista (projektvezetőnek), a kipipáltak nem kapják meg"
+},
+{
 "id": "32a1cc067e",
 "at": "2026-11-28T09:06:49+01:00",
 "msg": "Stáb-instrukciók a lakaton kívül: zárolt stábnál is bármikor írható és küldhető"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "a1c80702e8",
 "at": "2026-11-27T15:06:48+02:00",
 "msg": "Szakember: az e havi projektek lezárva is a listában; „Előző havi projektek” lenyitható gomb"
-},
-{
-"id": "abacdd52c8",
-"at": "2026-11-27T15:05:39+02:00",
-"msg": "Szakember, Lezárt projektek: csak az előző hónap elejétől"
 }
 ];
 const allowed = require('./_auth.js');
