@@ -3827,5 +3827,9 @@ html body .pt-row.pt-st-atadva .pt-status{filter:grayscale(1);opacity:.72}
 html body .pt-row.pt-st-atadva:hover .pt-status{opacity:.9}
 /* tablet: keskenyebb oldalsó margó, a panelek szinte a szélig érnek (Ervin, 2026-11-28) */
 @media (min-width:701px) and (max-width:1180px){
-  html body main.content,html body #view{padding-left:10px!important;padding-right:10px!important}
+  html body main.content,html body #view{padding-left:0!important;padding-right:0!important}
+  html body main.content>.dhead,html body #view>.dhead{padding-left:12px!important;padding-right:12px!important}
+  html body main.content .dfull>.panel,html body main.content .dfull details.panel,html body main.content>.panel,html body main.content .crew-wide>.panel,html body main.content .crew-wide>details{border-radius:0!important;border-left-width:0!important;border-right-width:0!important;margin-left:0!important;margin-right:0!important}
 }
+/* teljes képernyős videó/fotó ablak iPaden / telefonon: a fejléc ne csússzon a rendszer állapotsora alá (biztonsági sáv) */
+html body #mform.m-video>.mhead{margin-top:env(safe-area-inset-top,0px)!important}
