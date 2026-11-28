@@ -91,7 +91,7 @@
       ctl.g=g;const multi=new Set(g.items.map(x=>x.folder)).size>1;let h='',last=null;
       g.items.forEach((it,i)=>{if(multi&&it.folder!==last){if(last!==null)h+='</div>';h+=`<div class="pcg-fold">${esc(it.folder||'Fő mappa')}</div><div class="pcg-grid">`;last=it.folder;}else if(i===0)h+='<div class="pcg-grid">';
         h+=`<button type="button" class="pcg-t" data-i="${i}" title="${esc(it.name)}"><img loading="lazy" decoding="async" alt="${esc(it.name)}" referrerpolicy="no-referrer" draggable="false" src="${esc(thumb(g,it,'480x480',1))}">${opts.wm?wmHtml(opts.wm,6):''}<span class="pcg-nm">${esc(it.name)}</span></button>`;});
-      el.innerHTML=`<div class="pcg-head"><b>📷 ${g.items.length} fotó</b>${opts.onNote?'<span>Kattints egy képre a nagyításhoz – onnan megjegyzést is fűzhetsz hozzá.</span>':'<span>Kattints egy képre a nagyításhoz.</span>'}${ext}</div>${h}</div>`;
+      el.innerHTML=`<div class="pcg-head"><b>📷 ${g.items.length} fotó</b>${ext}</div>${h}</div>`;
       el.querySelectorAll('.pcg-t img').forEach(im=>im.addEventListener('error',()=>{const b=im.closest('.pcg-t');if(b)b.classList.add('noimg');im.remove();},{once:true}));
       if(opts.wm)el.addEventListener('contextmenu',e=>{if(e.target.closest('.pcg-t'))e.preventDefault();});
       el.addEventListener('click',e=>{const b=e.target.closest('.pcg-t');if(b&&el.contains(b))lightbox(g,+b.dataset.i,opts);});

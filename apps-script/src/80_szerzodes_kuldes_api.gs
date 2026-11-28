@@ -523,6 +523,7 @@ function rpcInner_(token, name, arg) {
     case 'videoReview': return videoReview_(u, arg);
     case 'videoReviewBatch': return videoReviewBatch_(u, arg);
     case 'videoClient': return videoClient_(u, arg);
+    case 'clientMailGet': return clientMailGet_(u, arg);
     case 'videoComment': return videoComment_(u, arg);
     case 'recList': return recList_(u, arg);   // beszélgetésrögzítés (Értékesítés) – a jogosultságot a lehetőség (dealCan_) dönti el
     case 'recUpStart': return recUpStart_(u, arg);

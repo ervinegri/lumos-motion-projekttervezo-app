@@ -225,6 +225,26 @@ function videoClient_(u, a) {
   logEvent_(u, 'Videó ügyfélnek elküldve', p.name, (ids.length > 1 ? names.join(', ') : (v ? v.name : '')) + ' → ' + to);
   return { project: projectView_(fullProject_(p), u), mail: mail, test: !live, apprNote: apprOk };
 }
+/** A kiküldött ügyfél-levél előkeresése a hozzászólás-bejegyzéshez (Ervin, 2026-11-28): a levelek a szkript tulajdonosának postafiókjából mennek ki (álnévvel is),
+ *  így az „Elküldött” mappában a címzett + időpont alapján megtalálható – a régebbi küldéseknél is. Csak projektvezető / ügyvezető. */
+function clientMailGet_(u, a) {
+  if (u.role !== 'admin' && u.role !== 'editor') throw new Error('FORBIDDEN: Ezt csak a projektvezető láthatja.');
+  const pid = str_(a.projectId, 64), vid = str_(a.id, 40), at = String(a.at || '').slice(0, 19);
+  const ck = 'cmail_' + sha256hex_(pid + '|' + vid + '|' + at).slice(0, 32), C = CacheService.getScriptCache();
+  try { const h = C.get(ck); if (h) return JSON.parse(h); } catch (e) { }
+  const p = readAll_('projects').find(x => String(x.id) === pid); if (!p) throw new Error('A projekt nem található.');
+  const v = parseVideos_(p.videos).find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
+  const c = (v.cm || []).find(x => String(x.at || '').slice(0, 19) === at && /^(Ügyfélnek elküldve|TESZT: az ügyfélnek)/.test(String(x.t || ''))); if (!c) throw new Error('A küldés bejegyzése nem található.');
+  const m = /\(([^)]*@[^)]*)\)/.exec(String(c.t || '')), to = m ? m[1].split(/\s*,\s*/)[0] : '';
+  const t0 = Utilities.parseDate(String(c.at).slice(0, 16).replace('T', ' '), SHEET_TZ, 'yyyy-MM-dd HH:mm').getTime(), day = ms => Utilities.formatDate(new Date(ms), SHEET_TZ, 'yyyy/MM/dd');
+  const q = 'in:sent ' + (to && !/^TESZT/.test(String(c.t)) ? 'to:' + to + ' ' : '') + 'after:' + day(t0 - 864e5) + ' before:' + day(t0 + 2 * 864e5);
+  let best = null, bd = Infinity;
+  GmailApp.search(q, 0, 30).forEach(th => th.getMessages().forEach(msg => { const d = Math.abs(msg.getDate().getTime() - t0); if (d < bd && d <= 20 * 60000) { bd = d; best = msg; } }));
+  if (!best) throw new Error('A levél nem található az elküldött levelek között (lehet, hogy törölték).');
+  const out = { subject: best.getSubject(), from: best.getFrom(), to: best.getTo(), date: Utilities.formatDate(best.getDate(), SHEET_TZ, 'yyyy-MM-dd HH:mm'), html: best.getBody() };
+  try { const js = JSON.stringify(out); if (js.length < 95000) C.put(ck, js, 21600); } catch (e) { }
+  return out;
+}
 /* Az ügyfél jóváhagyó oldala (jovahagyas.html): aláírt, 60 napig érvényes kulcs – bejelentkezés nélkül csak ezt az egy videót látja és döntheti el. */
 /** Ügyfél-levelek élesen mennek (Ervin, 2026-11-09). Tesztüzem visszakapcsolása: Script Property LUMOS_CLIENT_MAIL_LIVE = '0' */
 function clientMailLive_() { return PropertiesService.getScriptProperties().getProperty('LUMOS_CLIENT_MAIL_LIVE') !== '0'; }
