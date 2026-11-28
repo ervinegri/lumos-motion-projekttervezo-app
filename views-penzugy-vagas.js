@@ -661,9 +661,10 @@ function topicCards(p,{camRow,dlRow,D}){
 }
 /* Videó rövid neve a táblán (Ervin, 2026-11-28): a terjedelem nélkül – „Short videó 2”; ha a projektben többféle hosszúságú short is van, a terjedelem marad (különben összekeverhetők) */
 const DUR_RE=/\s*\(\s*\d+\s*[–-]\s*\d+\s*mp\s*\)/;
-function vNameShort(v,p){const n=String((v&&v.name)||'');if(!DUR_RE.test(n))return n;const base=x=>String(x||'').replace(DUR_RE,'').replace(/\s+\d+$/,'').replace(/\s+\d+(?=\s|$)/,'').trim();
+function vNameShort(v,p){const n=String((v&&v.name)||'');if(!DUR_RE.test(n)){const same=((p&&p.videos)||[]).filter(x=>x.k===v.k&&x.k).length;return same===1&&!v.cn?n.replace(/\s+\d+$/,''):n;}const base=x=>String(x||'').replace(DUR_RE,'').replace(/\s+\d+$/,'').replace(/\s+\d+(?=\s|$)/,'').trim();
   const durs=new Set(((p&&p.videos)||[]).filter(x=>base(x.name)===base(n)&&DUR_RE.test(String(x.name||''))).map(x=>(DUR_RE.exec(String(x.name))||[''])[0].replace(/\s+/g,'')));
-  return durs.size>1?n:n.replace(DUR_RE,'').replace(/\s{2,}/g,' ').trim();}
+  const out=durs.size>1?n:n.replace(DUR_RE,'').replace(/\s{2,}/g,' ').trim(),same=((p&&p.videos)||[]).filter(x=>x.k===v.k&&x.k).length;
+  return same===1&&!v.cn?out.replace(/\s+\d+(?=\s*(\(|$))/,'').trim():out;}   // egyetlen ilyen videó: sorszám nélkül (pl. csökkentett darabszám után megmaradt „… 2”)
 /* Vágó kártyáján: mely munkákat készíti el */
 /* a vágás sávjára mutatva: milyen videókat kell elkészíteni (a vágó csak a sajátjait látja) */
 function cutWhat(p,kind=''){
