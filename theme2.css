@@ -3806,3 +3806,7 @@ html body details.crew-fin>.pn-box{margin-bottom:12px}
 .pn-rc-i.off{opacity:.45;cursor:not-allowed;text-decoration:none}
 html body .vv-meta .vv-fcnt{white-space:nowrap}
 html body .vv-meta .vv-fcnt a{color:inherit;opacity:.8}
+/* telefon (álló): a projekt videótáblájának oszlopai keskenyebbek, több látszik egyszerre */
+@media (max-width:560px){
+  html body #mform .bd-modal .bl-single .bl-row{grid-template-columns:repeat(var(--bl-n),minmax(150px,44vw))!important;min-width:calc(var(--bl-n) * 156px)!important;gap:6px!important}
+}

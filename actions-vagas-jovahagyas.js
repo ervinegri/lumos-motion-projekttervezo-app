@@ -860,3 +860,11 @@ ACT['cl-mail-view']=async b=>{const vid=b.dataset.vid,at=b.dataset.at,p=(S.proje
     const close=()=>{d.remove();document.removeEventListener('keydown',k,true);},k=e=>{if(e.key==='Escape'){e.stopPropagation();e.preventDefault();close();}};document.addEventListener('keydown',k,true);
     d.addEventListener('click',e=>{if(e.target===d||e.target.closest('.cl-mail-x'))close();});}
   catch(e){toast(String(e&&e.message||e).replace(/^[A-Z_]+:\s*/,''),true);}finally{b.disabled=false;b.textContent=o;}};
+/* Telefonon a húzható kártyán is lehessen görgetni (Ervin, 2026-11-28): iPhone-on a húzható kártya elnyeli a görgetést – ha a böngésző nem görget, mi görgetjük a tábla sorát (vízszintesen) és a lapot (függőlegesen). A hosszú nyomás továbbra is húzást indít. */
+{let T=null;const scroller=el=>{for(let n=el&&el.parentElement;n&&n!==document.body;n=n.parentElement){const cs=getComputedStyle(n);if(/(auto|scroll)/.test(cs.overflowX)&&n.scrollWidth>n.clientWidth+2)return n;}return null;};
+  const vscroller=el=>{for(let n=el&&el.parentElement;n&&n!==document.body;n=n.parentElement){const cs=getComputedStyle(n);if(/(auto|scroll)/.test(cs.overflowY)&&n.scrollHeight>n.clientHeight+2)return n;}return document.scrollingElement;};
+  document.addEventListener('touchstart',e=>{const c=e.target.closest&&e.target.closest('.bd-card[draggable]');if(!c||e.touches.length!==1){T=null;return;}const t=e.touches[0],h=scroller(c),v=vscroller(c);T={x:t.clientX,y:t.clientY,h,v,hl:h?h.scrollLeft:0,vt:v?v.scrollTop:0,ax:null};},{passive:true});
+  document.addEventListener('touchmove',e=>{if(!T||typeof BD_DRAG!=='undefined'&&BD_DRAG)return;const t=e.touches[0],dx=t.clientX-T.x,dy=t.clientY-T.y;if(T.ax===null){if(Math.abs(dx)+Math.abs(dy)<8)return;T.ax=Math.abs(dx)>Math.abs(dy)?'x':'y';}
+    if(T.ax==='x'&&T.h){const want=T.hl-dx;if(Math.abs(T.h.scrollLeft-want)>3)T.h.scrollLeft=want;}
+    else if(T.ax==='y'&&T.v){const want=T.vt-dy;if(Math.abs(T.v.scrollTop-want)>3)T.v.scrollTop=want;}},{passive:true});
+  document.addEventListener('touchend',()=>{T=null;},{passive:true});document.addEventListener('dragstart',()=>{T=null;},true);}
