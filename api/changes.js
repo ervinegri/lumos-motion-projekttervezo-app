@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "66604ec685",
+"at": "2026-11-28T08:30:58+01:00",
+"msg": "Kiküldött levél: a küldés bejegyzését rugalmasan keresi (korábbi változatok, időformátum), a címzett tartalékként a bejegyzésből"
+},
+{
 "id": "f4216f24de",
 "at": "2026-11-28T08:26:54+01:00",
 "msg": "Kiküldött ügyfél-levél megtekintése a hozzászólásokból; fotógaléria: lejjebb ér, lekerekített alj, nincs súgószöveg"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "56caf36ba1",
 "at": "2026-11-26T22:39:45+02:00",
 "msg": "Telefon, Stáb lista: egyforma magas sorok (név+cég, szerepek+részletek egy-egy sorban, a többi …)"
-},
-{
-"id": "6e6d7b9fd6",
-"at": "2026-11-26T22:38:27+02:00",
-"msg": "Projektlista: vastagabb videó-állapotsáv"
 }
 ];
 const allowed = require('./_auth.js');
