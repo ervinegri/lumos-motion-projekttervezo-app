@@ -14,7 +14,7 @@ async function test() {
     document: { addEventListener() {}, getElementById() {}, querySelector() {} },
     openModal: (_, html) => { editor = html; },
     fetch: async url => {
-      assert.equal(url, '/api/mnb-eur');
+      assert.equal(url, '/api/mnb-eur?c=EUR');
       rateRequests++;
       return { ok: true, json: async () => ({ date: '2026-11-27', rate: 369.7 }) };
     }
@@ -78,6 +78,14 @@ async function test() {
   await mnbEur({ method: 'GET' }, res);
   assert.equal(res.statusCode, 200);
   assert.deepEqual(result, { rate: 369.7, date: '2026-11-27' });
+  global.fetch = async () => new Response(`
+    <table><caption class="ttl">Napi árfolyamok: 2026. november 27., péntek</caption>
+    <tbody><tr><td class="fw-b">EUR</td><td>euro</td><td>1</td><td>369,70</td></tr><tr><td class="fw-b">USD</td><td>USA-dollár</td><td>1</td><td>355,12</td></tr><tr><td class="fw-b">GBP</td><td>angol font</td><td>1</td><td>440,05</td></tr></tbody></table>
+  `);
+  await mnbEur({ method: 'GET', query: { c: 'USD' } }, res);
+  assert.deepEqual(result, { rate: 355.12, date: '2026-11-27' });
+  await mnbEur({ method: 'GET', query: { c: 'gbp' } }, res);
+  assert.deepEqual(result, { rate: 440.05, date: '2026-11-27' });
   console.log('PASS direct EUR, MNB payable amount, HUF payment terms, and tax display');
 }
 test().catch(error => { console.error(error); process.exitCode = 1; });

@@ -3,13 +3,13 @@
 const MNB_RATES_URL = 'https://www.mnb.hu/arfolyamok';
 const MONTHS = ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'];
 
-function readMnbEur(html) {
+function readMnbEur(html, cur = 'EUR') {
   // A napi árfolyamtáblából ugyanahhoz a jegyzéshez olvassuk ki a dátumot és az EUR sort.
   const table = /<caption\b[^>]*>\s*Napi árfolyamok:\s*(\d{4})\.\s*([^\s<]+)\s+(\d{1,2})\.[^<]*<\/caption>([\s\S]*?)<\/table>/iu.exec(html);
   if (!table) return null;
   const [, year, monthName, day, rows] = table;
   const month = MONTHS.indexOf(monthName.toLowerCase()) + 1;
-  const eur = /<tr\b[^>]*>\s*<td\b[^>]*>\s*EUR\s*<\/td>\s*<td\b[^>]*>[^<]*<\/td>\s*<td\b[^>]*>\s*1\s*<\/td>\s*<td\b[^>]*>\s*(\d+(?:[,.]\d{1,2})?)\s*<\/td>/iu.exec(rows);
+  const eur = new RegExp('<tr\\b[^>]*>\\s*<td\\b[^>]*>\\s*' + cur + '\\s*<\\/td>\\s*<td\\b[^>]*>[^<]*<\\/td>\\s*<td\\b[^>]*>\\s*1\\s*<\\/td>\\s*<td\\b[^>]*>\\s*(\\d+(?:[,.]\\d{1,2})?)\\s*<\\/td>', 'iu').exec(rows);
   if (!month || !eur) return null;
   const date = year + '-' + String(month).padStart(2, '0') + '-' + day.padStart(2, '0');
   const parsed = new Date(date);
@@ -27,7 +27,8 @@ module.exports = async (req, res) => {
   }
   try {
     const upstream = await fetch(MNB_RATES_URL, { signal: AbortSignal.timeout(8000) });
-    const quote = upstream.ok && readMnbEur(await upstream.text());
+    const cur = ['EUR', 'USD', 'GBP'].includes(String((req.query && req.query.c) || '').toUpperCase()) ? String(req.query.c).toUpperCase() : 'EUR';   // ?c=EUR|USD|GBP
+    const quote = upstream.ok && readMnbEur(await upstream.text(), cur);
     if (quote) {
       res.setHeader('Vercel-CDN-Cache-Control', 'public, s-maxage=300');
       return send(200, quote);

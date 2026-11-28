@@ -672,7 +672,7 @@ function quoteSentRecover_(d) {
   const m = quoteSends_(d)[0]; if (!m) return null;
   const to = m.to.split(/\s*,\s*/).filter(x => /@/.test(x)); if (!to.length) return null;
   const day = m.at.slice(0, 10).replace(/-/g, '/'), next = Utilities.formatDate(new Date(new Date(m.at.slice(0, 10) + 'T12:00:00').getTime() + 2 * 864e5), SHEET_TZ, 'yyyy/MM/dd');
-  const th = GmailApp.search('to:' + to[0] + ' {subject:Árajánlat subject:Quotation} has:attachment filename:pdf after:' + day + ' before:' + next, 0, 5);
+  const th = GmailApp.search('to:' + to[0] + ' {subject:Árajánlat subject:Quotation subject:Angebot} has:attachment filename:pdf after:' + day + ' before:' + next, 0, 5);
   for (const t of th) for (const msg of t.getMessages().reverse()) {
     const att = msg.getAttachments().find(a => /pdf$/i.test(a.getName()) || a.getContentType() === 'application/pdf'); if (!att) continue;
     const fid = quoteFolder_().createFile(att.copyBlob().setName(m.at.slice(0, 10) + ' ' + att.getName())).getId();
@@ -755,9 +755,9 @@ function quoteAll_(u, d, extra) {
 }
 /* A lehetőség összes kiküldött ajánlata a napló sorai alapján (újabb elöl); amelyiknek a PDF-je megvan, az megnyitható. */
 function quoteSends_(d) {
-  const re = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})(?: · ([^\]]*))?\] 📄 Árajánlat elküldve \(([^)]*)\)(?: – ([\d \u00a0\u202f]+) Ft(?: (\+ ÁFA|\(ajánlati árfolyamon\)|nettó))?)?(?: – (\d+)\.(\d{2}) EUR nettó)?/g;
+  const re = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})(?: · ([^\]]*))?\] 📄 Árajánlat elküldve \(([^)]*)\)(?: – ([\d \u00a0\u202f]+) Ft(?: (\+ ÁFA|\(ajánlati árfolyamon\)|nettó))?)?(?: – (\d+)\.(\d{2}) (EUR|USD|GBP) nettó)?/g;
   const out = []; let m; const t = String(d.note || '');
-  while ((m = re.exec(t))) out.push({ at: m[1], by: m[2] || '', to: m[3] || '', total: Number(String(m[4] || '').replace(/\s/g, '')) || 0, currency: m[6] ? 'EUR' : 'HUF', eurCents: m[6] ? Number(m[6] + m[7]) : 0, netOnly: m[5] === 'nettó' });
+  while ((m = re.exec(t))) out.push({ at: m[1], by: m[2] || '', to: m[3] || '', total: Number(String(m[4] || '').replace(/\s/g, '')) || 0, currency: m[6] ? (m[8] || 'EUR') : 'HUF', eurCents: m[6] ? Number(m[6] + m[7]) : 0, netOnly: m[5] === 'nettó' });
   return out;
 }
 function quoteStore_(d) { const L = []; const c = qGet_('QS_' + d.id); if (c) L.push(c); const H = qGet_('QSH_' + d.id); ((H && H.list) || []).forEach(x => L.push(x)); return L; }
@@ -781,25 +781,25 @@ function quoteDraft_(u, a) {
   qPut_(k, JSON.parse(json)); try { dataBump_(); } catch (e) {} return { ok: true, at: now_() };
 }
 function dealQuoteSend_(u, a) {
-  a = a || {}; const r = dealQuoteSender_(u, a), d = r.d; if (a.lang === 'en') r.sig = sigEn_(r.sig, r.f && r.f.name);   // angol ajánlat: az aláírás is angol
+  a = a || {}; const r = dealQuoteSender_(u, a), d = r.d; if (a.lang === 'en' || a.lang === 'de') r.sig = sigEn_(r.sig, r.f && r.f.name, a.lang);   // angol / német ajánlat: az aláírás is azon a nyelven
   const tos = str_(a.to, 600).split(/\s*,\s*/).filter(Boolean).slice(0, 8); if (!tos.length || !tos.every(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))) throw new Error('Adj meg érvényes e-mail címet.');
   const b64 = String(a.pdf || ''); if (!b64 || b64.length > 12 * 1024 * 1024) throw new Error('Hiányzik az ajánlat PDF-je.');
   const subj = str_(a.subject, 200).trim() || ('Árajánlat – ' + d.title), body = str_(a.body, 6000);
-  const currency = a.currency === 'EUR' ? 'EUR' : 'HUF', multiple = Number(a.opts) > 1, netOnly = a.netOnly === true;
+  const currency = ['EUR', 'USD', 'GBP'].indexOf(a.currency) >= 0 ? a.currency : 'HUF', multiple = Number(a.opts) > 1, netOnly = a.netOnly === true;
   const q = a.q && typeof a.q === 'object' ? a.q : null;
   let total = Number(a.total) || 0, eurCents = 0;
-  if (currency === 'EUR') {
+  if (currency !== 'HUF') {
     const rateText = String(q && q.eurRate || '').trim(), rate = Number(rateText.replace(',', '.'));
     eurCents = Number(a.eurCents);
     const validRate = rateText === '' || (/^\d+(?:[.,]\d{1,6})?$/.test(rateText) && rate > 0 && rate <= 1000000);
-    if (!q || q.currency !== currency || !validRate || !Number.isSafeInteger(eurCents) || eurCents < 0 || (multiple && eurCents !== 0)) throw new Error('Ellenőrizd az eurós ajánlat végösszegét.');
+    if (!q || q.currency !== currency || !validRate || !Number.isSafeInteger(eurCents) || eurCents < 0 || (multiple && eurCents !== 0)) throw new Error('Ellenőrizd a devizás (' + currency + ') ajánlat végösszegét.');
     // A kézzel megadott EUR-ár árfolyamkieséskor is küldhető. A lehetőség forintértékéhez árfolyam kell.
     total = Math.round(eurCents * rate / 100);
     if (!Number.isSafeInteger(total)) throw new Error('Ellenőrizd az ajánlat forintra átszámított értékét.');
   }
-  const hufSuffix = currency === 'EUR' ? ' Ft (ajánlati árfolyamon)' : (netOnly ? ' Ft nettó' : ' Ft + ÁFA');
+  const hufSuffix = currency !== 'HUF' ? ' Ft (ajánlati árfolyamon)' : (netOnly ? ' Ft nettó' : ' Ft + ÁFA');
   const hufLog = total ? ' – ' + String(Math.round(total)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + hufSuffix : '';
-  const eurLog = eurCents ? ' – ' + Math.floor(eurCents / 100) + '.' + String(eurCents % 100).padStart(2, '0') + ' EUR nettó' : '';
+  const eurLog = eurCents ? ' – ' + Math.floor(eurCents / 100) + '.' + String(eurCents % 100).padStart(2, '0') + ' ' + currency + ' nettó' : '';
   const fname = str_(a.fileName, 120).replace(/[\\/:*?"<>|]+/g, '-') || 'Arajanlat.pdf';
   const html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55">' + escapeHtml_(body).replace(/\n/g, '<br>') + '</div><br>' + r.sig.html;
   const opts = mailOptsFor_(r.owner, html); opts.attachments = [Utilities.newBlob(Utilities.base64Decode(b64), 'application/pdf', fname)];
@@ -875,7 +875,12 @@ function viesLookup_(u, a) {
 }
 
 /** Angol nyelvű levél aláírása (külföldi ügyfélnek küldött árajánlat): köszönés, beosztás, „Tel.” */
-function sigEn_(sig, name) {
+function sigEn_(sig, name, lang) {
+  if (lang === 'de') {   // német: köszönés és beosztás; a „Tel.:” marad
+    const TD = [[/ügyvezető igazgató/gi, 'Geschäftsführer'], [/ügyvezető/gi, 'Geschäftsführer'], [/értékesítési vezető/gi, 'Vertriebsleiter'], [/értékesítő/gi, 'Vertrieb'], [/termelési vezető/gi, 'Produktionsleiter'], [/produkciós vezető/gi, 'Produktionsleiter']];
+    const g = x => { let y = String(x || '').replace(/Üdvözlettel,/g, 'Mit freundlichen Grüßen'); TD.forEach(t => { y = y.replace(t[0], t[1]); }); const p = String(name || '').trim().split(/\s+/); if (p.length >= 2 && p.length <= 3) { const en = p.slice(1).concat(p[0]).join(' '); y = y.split(escapeHtml_(String(name).trim())).join(escapeHtml_(en)); } return y; };
+    return { html: g(sig && sig.html), text: g(sig && sig.text) };
+  }
   const T = [[/ügyvezető igazgató/gi, 'Managing Director'], [/ügyvezető/gi, 'Managing Director'], [/értékesítési vezető/gi, 'Head of Sales'], [/értékesítő/gi, 'Sales Manager'], [/termelési vezető/gi, 'Head of Production'], [/produkciós vezető/gi, 'Head of Production']];
   const f = x => { let y = String(x || '').replace(/Üdvözlettel,/g, 'Best regards,').replace(/Tel\.:/g, 'Phone:'); T.forEach(t => { y = y.replace(t[0], t[1]); }); const p = String(name || '').trim().split(/\s+/); if (p.length >= 2 && p.length <= 3) { const en = p.slice(1).concat(p[0]).join(' '); y = y.split(escapeHtml_(String(name).trim())).join(escapeHtml_(en)); } return y; };
   return { html: f(sig && sig.html), text: f(sig && sig.text) };

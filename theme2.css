@@ -3889,3 +3889,10 @@ html body #modalRoot .mbox-deal .mhead{padding-top:4px!important;padding-bottom:
 html body #modalRoot .mbox-deal .mhead h3{font-size:16px!important;line-height:1.25!important}
 html body #modalRoot .mbox-deal .mhead .btn{min-height:34px!important;height:auto!important;padding:5px 12px!important;font-size:13.5px!important}
 .dn-full-h{padding:8px 14px!important}.dn-full-h b{font-size:14px!important}.dn-full-b{padding:12px 14px!important}
+/* árajánlat: nyelv és deviza – két kompakt, szegmentált választó egymás mellett */
+.q-seg{display:flex;gap:4px;padding:3px;border:1px solid #d8dee6;border-radius:10px;background:#f6f8fb;flex-wrap:wrap}
+.q-seg label{flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;border-radius:7px;font-weight:600;font-size:13.5px;cursor:pointer;white-space:nowrap;color:#3d4753;margin:0}
+.q-seg label input{position:absolute;opacity:0;pointer-events:none}
+.q-seg label.on{background:#fff;box-shadow:0 1px 3px rgba(16,25,35,.14);color:#111}
+.q-seg label:focus-within{outline:2px solid #2f6fed;outline-offset:1px}
+.q-lc-hints{display:flex;flex-direction:column;gap:2px;margin-top:-6px}
