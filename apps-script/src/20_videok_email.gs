@@ -234,9 +234,13 @@ function clientMailGet_(u, a) {
   try { const h = C.get(ck); if (h) return JSON.parse(h); } catch (e) { }
   const p = readAll_('projects').find(x => String(x.id) === pid); if (!p) throw new Error('A projekt nem található.');
   const v = parseVideos_(p.videos).find(x => x.id === vid); if (!v) throw new Error('A videó nem található.');
-  const c = (v.cm || []).find(x => String(x.at || '').slice(0, 19) === at && /^(Ügyfélnek elküldve|TESZT: az ügyfélnek)/.test(String(x.t || ''))); if (!c) throw new Error('A küldés bejegyzése nem található.');
-  const m = /\(([^)]*@[^)]*)\)/.exec(String(c.t || '')), to = m ? m[1].split(/\s*,\s*/)[0] : '';
-  const t0 = Utilities.parseDate(String(c.at).slice(0, 16).replace('T', ' '), SHEET_TZ, 'yyyy-MM-dd HH:mm').getTime(), day = ms => Utilities.formatDate(new Date(ms), SHEET_TZ, 'yyyy/MM/dd');
+  const nrm = x => String(x || '').replace('T', ' ').slice(0, 16), SEND_RE = /^(Ügyfélnek elküldve|TESZT: az ügyfélnek)/;
+  /* a bejegyzés a videó (vagy egy korábbi változatának) hozzászólásai között; ha nincs meg pontosan, a megadott időpont és címzett alapján keresünk */
+  const all = [].concat(v.cm || [], ...((v.vers || []).map(r => (r && r.cm) || []))).filter(x => SEND_RE.test(String(x.t || '')));
+  const c = all.find(x => nrm(x.at) === nrm(at)) || all.sort((x, y) => Math.abs(new Date(nrm(x.at).replace(' ', 'T')) - new Date(nrm(at).replace(' ', 'T'))) - Math.abs(new Date(nrm(y.at).replace(' ', 'T')) - new Date(nrm(at).replace(' ', 'T'))))[0] || { at: at, t: 'Ügyfélnek elküldve (' + str_(a.to, 300) + ')' };
+  const m = /\(([^)]*@[^)]*)\)/.exec(String(c.t || '')), to = m ? m[1].split(/\s*,\s*/)[0] : String(a.to || '').split(/\s*,\s*/)[0];
+  if (!/^\S+@\S+$/.test(to) && !/^TESZT/.test(String(c.t))) throw new Error('A küldés címzettje nem állapítható meg.');
+  const t0 = Utilities.parseDate(nrm(at), SHEET_TZ, 'yyyy-MM-dd HH:mm').getTime(), day = ms => Utilities.formatDate(new Date(ms), SHEET_TZ, 'yyyy/MM/dd');
   const q = 'in:sent ' + (to && !/^TESZT/.test(String(c.t)) ? 'to:' + to + ' ' : '') + 'after:' + day(t0 - 864e5) + ' before:' + day(t0 + 2 * 864e5);
   let best = null, bd = Infinity;
   GmailApp.search(q, 0, 30).forEach(th => th.getMessages().forEach(msg => { const d = Math.abs(msg.getDate().getTime() - t0); if (d < bd && d <= 20 * 60000) { bd = d; best = msg; } }));

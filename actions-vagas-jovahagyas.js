@@ -852,7 +852,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 /* A kiküldött ügyfél-levél megtekintése a hozzászólásokból (Ervin, 2026-11-28): a háttér a küldő postafiókjából keresi elő (régebbi leveleknél is) */
 ACT['cl-mail-view']=async b=>{const vid=b.dataset.vid,at=b.dataset.at,p=(S.projects||[]).find(x=>(x.videos||[]).some(y=>y.id===vid));if(!p)return;
   const o=b.textContent;b.disabled=true;b.textContent='⏳ Levél betöltése…';
-  try{const r=await call('clientMailGet',{projectId:p.id,id:vid,at});const d=document.createElement('div');d.className='cl-mail-ov';
+  try{const it=b.closest('.vv-cm-i'),m=/Címzett:\s*([^\s,]+@[^\s,]+)/.exec(it?it.textContent:''),r=await call('clientMailGet',{projectId:p.id,id:vid,at,to:m?m[1]:''});const d=document.createElement('div');d.className='cl-mail-ov';
     d.innerHTML=`<div class="cl-mail-box" role="dialog" aria-modal="true"><div class="cl-mail-h"><div><b>${esc(r.subject||'')}</b><div class="muted">${esc(r.from||'')}${r.to?' → '+esc(r.to):''} · ${esc(r.date||'')}</div></div><button type="button" class="cl-mail-x" aria-label="Bezárás">✕</button></div><iframe class="cl-mail-f" sandbox="allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer"></iframe></div>`;
     document.body.appendChild(d);const fr=d.querySelector('iframe');fr.srcdoc='<!doctype html><meta charset="utf-8"><base target="_blank"><style>body{margin:16px;font-family:Arial,sans-serif;font-size:14px;color:#1d2a38}img{max-width:100%;height:auto}</style>'+String(r.html||'');
     const close=()=>{d.remove();document.removeEventListener('keydown',k,true);},k=e=>{if(e.key==='Escape'){e.stopPropagation();e.preventDefault();close();}};document.addEventListener('keydown',k,true);
