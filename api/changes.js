@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4f12556db0",
+"at": "2026-11-28T09:41:41+01:00",
+"msg": "Projektlista: lezárt projekt állapot-sávja is szürke"
+},
+{
 "id": "0b38c36812",
 "at": "2026-11-28T09:39:29+01:00",
 "msg": "Google-értékelés párosítása az értékelést kérő levél címzettje / megszólítása alapján is; mentetlen projektnél nem nyúlik meg a Szolgáltatások panel alja"
@@ -137,14 +142,9 @@ const ITEMS = [
 "msg": "Kártya húzása: tiszta fehér húzási kép (telefonon nem szürke, fekete sarkú), a halványítás utána jön"
 },
 {
-"id": "c954060cfd",
-"at": "2026-11-27T21:54:31+01:00",
-"msg": "Ablak alja mobilon (bal oldali gombbal): két egyforma mellékgomb, alatta a fő gomb teljes szélességben"
-},
-{
-"id": "9975f9f022",
-"at": "2026-11-27T21:53:35+01:00",
-"msg": "Fotógaléria: belső ellenőrzésben nincs megjegyzés gomb; elforgatáskor újraillesztés; fekvő telefonon nagyobb terület"
+"id": "d769aaf2c4",
+"at": "2026-11-27T20:54:46Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
