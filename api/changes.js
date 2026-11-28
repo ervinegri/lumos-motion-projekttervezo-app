@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "4eee905b55",
+"at": "2026-11-28T08:49:22+01:00",
+"msg": "Projekt megnyitása új lapon: jobb klikk menü a projektsoron és a naptárban, Ctrl/⌘+kattintás és középső gomb"
+},
+{
 "id": "931ef8e799",
 "at": "2026-11-28T08:48:29+01:00",
 "msg": "Projektlista: a videók és a fotók külön számolva (🎞️ 1 videó · 📷 fotók)"
@@ -140,11 +145,6 @@ const ITEMS = [
 "id": "b4cd97ddcf",
 "at": "2026-11-27T14:57:57+02:00",
 "msg": "Termelési vezető: a nézetváltóban csak a saját és a szakember nézet (az ügyvezetői és értékesítői sor ki sem kerül a listába)"
-},
-{
-"id": "e894131efc",
-"at": "2026-11-27T14:55:55+02:00",
-"msg": "Utómunka tábla: a fotók utómunkája nem vár a nyersanyag-feltöltésre (a fotós a saját képeit dolgozza fel) – a szakember azonnal mozgathatja"
 }
 ];
 const allowed = require('./_auth.js');
