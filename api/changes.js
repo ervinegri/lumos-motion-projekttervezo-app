@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "1b7d0f38ec",
+"at": "2026-11-28T10:48:51+01:00",
+"msg": "Szerződés: angol nyelvű változat külföldi ügyfélnek (Lumos sablonok _en, nyelvválasztó, angol szövegek, dátum, áfa-megjegyzés, levél)"
+},
+{
 "id": "e12ef9dd5c",
 "at": "2026-11-28T10:43:05+01:00",
 "msg": "Videótábla: húzás közben automatikus görgetés a szélek felé (telefonon a képen kívüli oszlopba is)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Fotógaléria: gépen 4 oszlop (telefonon 3), a fotók száma és a pCloud link a fejlécsorban"
 },
 {
-"id": "49dbc49a23",
-"at": "2026-11-28T09:13:34+01:00",
-"msg": "svcCanPost egyszerűsítése"
-},
-{
-"id": "180860b1d5",
-"at": "2026-11-28T08:13:27Z",
+"id": "9aee2e4884",
+"at": "2026-11-28T08:13:48Z",
 "msg": "Változásnapló frissítése"
 }
 ];
