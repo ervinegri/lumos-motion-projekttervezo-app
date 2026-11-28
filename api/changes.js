@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "45fd6f3dcf",
+"at": "2026-11-28T09:22:46+01:00",
+"msg": "Lezajlott rendezvény: a Szolgáltatások lakatjának feloldása a terepi feladatokat is szerkeszthetővé teszi (nem szürke)"
+},
+{
 "id": "dc3ac54d21",
 "at": "2026-11-28T09:18:50+01:00",
 "msg": "Lezajlott rendezvény: a helyszínen kért, teljesített terepi feladat utólag rögzíthető (csak a helyszíni stábhoz)"
@@ -137,13 +142,8 @@ const ITEMS = [
 "msg": "Fotógaléria: 3 oszlop, nagyításnál a kép a képernyő széléig ér, nagy léptető gombok"
 },
 {
-"id": "d3f9429998",
-"at": "2026-11-27T21:32:20+01:00",
-"msg": "Fotógaléria mobilon: tömörebb fejléc (nem ragad), érintésnél nem marad kint a fájlnév"
-},
-{
-"id": "cfc9196659",
-"at": "2026-11-27T20:28:14Z",
+"id": "c34472ec6f",
+"at": "2026-11-27T20:32:32Z",
 "msg": "Változásnapló frissítése"
 }
 ];
