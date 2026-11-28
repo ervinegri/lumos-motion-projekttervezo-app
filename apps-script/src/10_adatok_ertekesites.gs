@@ -173,6 +173,7 @@ function bootstrap_(u, light) {   // light: nézetváltáskor a karbantartó lé
   if (u.role === 'admin') { try { migNickNandi_(); } catch (e) { Logger.log('migNick: ' + e); } }
   if (u.role === 'admin') { try { migNoteHead_(); } catch (e) { Logger.log('migNoteHead: ' + e); } }
   if (u.role === 'admin') { try { migRecSumPurge_(); } catch (e) { Logger.log('migRecSumPurge: ' + e); } }
+  if (u.role === 'admin') { try { migVidNames_(); } catch (e) { Logger.log('migVidNames: ' + e); } }
   if (u.role === 'admin') { try { const r = migSelfAccept_(); if (r && r.fresh) MIG_NOTE_ = r.msg; } catch (e) { Logger.log('migSelfAccept: ' + e); } }
   if (MIG_NOTE_ && u.role === 'admin') out.migNote = MIG_NOTE_;
   return viewAsPick_(out, u);
@@ -533,6 +534,12 @@ function recSumPurge_(t) { const L = String(t || '').split('\n'), out = []; let 
   L.forEach(l => { if (DNOTE_HEAD_RE_.test(l)) { const m = /^\[(2026-11-26 \d{2}:\d{2})[^\]]*\] \u{1F399}\uFE0F? ?(.*)$/u.exec(l); skip = !!(m && m[1] < '2026-11-26 15:46' && /^(Beszélgetés összefoglalója|.* rögzítve \()/.test(m[2])); } if (!skip) out.push(l); });   // csak a bevezetés napi próbák (15:46 előtt): összefoglalók és „rögzítve” sorok
   return out.join('\n').replace(/(rögzítve \(\d+(?::\d+)+\)) – a beszélgetőpartner hozzájárult a rögzítéshez\./g, '$1'); }   // a rövidebb „rögzítve (3:15)” alak (az ügyvezető kérésére)
 function noteFixAll_(t, fb) { return recSumPurge_(noteHeadFix_(t, fb)); }
+/* egyszer: a meglévő projektek videóneveinek rendbetétele (vidNamesFix_) */
+function migVidNames_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_VID_NAMES_1'; if (P.getProperty(K)) return;
+  withLock_(() => { const sh = sheetFor_('projects'); let n = 0;
+    readAll_('projects').forEach(p => { if (p.status === 'atadva' || p.status === 'lemondva') return; const L = parseVideos_(p.videos); if (!L.length || !vidNamesFix_(L)) return; const row = findRow_(sh, p.id); if (!row) return; const x = readRow_('projects', sh, row); const L2 = parseVideos_(x.videos); if (!vidNamesFix_(L2)) return; x.videos = JSON.stringify(L2); putRow_('projects', sh, x, row); n++; });
+    if (n) { dataBump_(); dbFlush_(); } Logger.log('migVidNames: ' + n); });
+  P.setProperty(K, now_()); }
 function migRecSumPurge_() { const P = PropertiesService.getScriptProperties(), K = 'MIG_RECSUM_PURGE_3'; if (P.getProperty(K)) return;
   withLock_(() => { const sh = sheetFor_('deals'); let n = 0;
     readAll_('deals').forEach(d => { const t = String(d.note || ''); if (recSumPurge_(t) === t) return; const row = findRow_(sh, d.id); if (!row) return; const x = readRow_('deals', sh, row); x.note = recSumPurge_(String(x.note || '')); putRow_('deals', sh, x, row); n++; });

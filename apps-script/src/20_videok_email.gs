@@ -36,8 +36,12 @@ function videosEnsure_(p, cutters) {
   cur.forEach(x => { if (!ids[x.id] && (x.st !== 'vagasra' || x.link || (x.cm || []).length || (x.vers || []).length || x.fb || x.rvAt || x.okAt)) want.push(x); });   // a ténylegesen megkezdett munka megmarad; önmagában a kijelölt vágó nem tart fenn megszűnt feladatot
   const one = cutters && cutters.length === 1 ? cutters[0] : '';
   if (one) want.forEach(x => { if (!x.editor && x.k !== 'foto') x.editor = one; });   // a fotók nem a vágóé
+  vidNamesFix_(want);
   return want;
 }
+/** Videónevek rendbetétele (Ervin, 2026-11-28): ha egy fajtából csak egy videó maradt (pl. csökkentett darabszám után a „… 2”), sorszám nélküli nevet kap; ha több van, mindegyik a saját sorszámát (az azonosítóból). A kézzel átnevezett (cn) nevek nem változnak. */
+function vidNamesFix_(list) { const lbl = {}; VIDEO_KINDS_.forEach(k => { lbl[k[0]] = k[1]; }); const cnt = {}; list.forEach(x => { if (lbl[x.k]) cnt[x.k] = (cnt[x.k] || 0) + 1; });
+  let ch = false; list.forEach(x => { if (!lbl[x.k] || x.cn) return; const m = /-(\d+)$/.exec(String(x.id || '')), nm = lbl[x.k] + (cnt[x.k] > 1 && m ? ' ' + m[1] : ''); if (x.name !== nm) { x.name = nm; ch = true; } }); return ch; }
 /** Egy videó állapotának / vágójának módosítása. Vezetők mindent; a vágó csak a saját (vagy gazdátlan) sorainak vágási állapotát. a: {projectId, id, st?, editor?} */
 /** Videósorok a régebbi (a videókövetés előtt mentett) aktív projekteknek is: a megrendelt darabszámokból; a vágó a vágói feladatkiosztásból (vagy az egyetlen vágó). */
 /** Fiók nélküli értékesítő (munkatárs) jutalékai projektenként: kézi összeg, vagy kézi % × termelői alap. A szakember csak az összeget kapja meg. */
