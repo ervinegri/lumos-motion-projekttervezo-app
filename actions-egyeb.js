@@ -49,7 +49,7 @@ document.addEventListener('mouseout',e=>{const tp=e.target.closest&&e.target.clo
   const el=e.target.closest&&e.target.closest('.cal-chip');if(el&&!el.contains(e.relatedTarget)&&!(e.relatedTarget&&e.relatedTarget.closest&&e.relatedTarget.closest('#calTip'))){const t=$('calTip');setTimeout(()=>{if(t&&t.isConnected&&!t.matches(':hover')&&!el.matches(':hover')){el._tip=false;t.remove();}else if(!t)el._tip=false;},250);}});
 document.addEventListener('contextmenu',e=>{const el=e.target.closest&&e.target.closest('.cal-chip');if(!el)return;e.preventDefault();const t=$('calTip');if(t)t.remove();
   const id=el.dataset.tipid||el.dataset.id,isP=el.dataset.kind==='p'||el.dataset.kind==='cut';let m=$('calMenu');if(m)m.remove();m=document.createElement('div');m.id='calMenu';m.className='cal-menu';
-  m.innerHTML=isP?`<button type="button" data-action="open-project" data-id="${esc(id)}">Projekt megnyitása</button>`
+  m.innerHTML=isP?`<button type="button" data-action="open-project" data-id="${esc(id)}">Projekt megnyitása</button><button type="button" data-action="proj-newtab" data-id="${esc(id)}">↗ Megnyitás új lapon</button>`
     :`<button type="button" data-action="${el.dataset.kind==='v'?'cal-vevent':'cal-event'}" data-id="${esc(id)}">Részletek</button>${ro()?'':`<button type="button" class="bad-txt" data-action="cal-ctx-del" data-id="${esc(id)}" data-kind="${esc(el.dataset.kind||'g')}">🗑️ Törlés a naptárból</button>`}`;
   document.body.appendChild(m);m.style.left=Math.min(e.pageX,scrollX+innerWidth-200)+'px';m.style.top=e.pageY+'px';});
 document.addEventListener('click',e=>{const m=$('calMenu');if(m&&!e.target.closest('#calMenu'))m.remove();else if(m&&e.target.closest('button'))setTimeout(()=>{const x=$('calMenu');if(x)x.remove();},0);},true);
@@ -585,3 +585,14 @@ ACT['rev-mail']=()=>{const txt='Kedves …!\n\nKöszönjük, hogy minket válasz
       if(/Kedves …!/.test(text)&&!confirm('A megszólítás még „Kedves …!” – így küldöd el?'))return;if(!text.includes(REVIEW_URL)&&!confirm('A levélből kimaradt az értékelés linkje. Így is elküldöd?'))return;
       try{await call('reviewSend',{to,subject:String(fd.get('subject')||''),text});closeModal();toast('Elküldve: '+to);setTimeout(()=>{if(!$('mform'))ACT['gbp-open']();},50);}catch(e){handleErr(e);}}});
   rvMailWire('rm','m-rmTo','m-rmSubj','m-rmText');};
+
+/* Projekt megnyitása új lapon (Ervin, 2026-11-28): jobb klikk a projektsoron → menü; Ctrl/⌘ + kattintás vagy középső gomb → azonnal új lap */
+const projTabUrl=id=>{const p=projById(id);return location.origin+location.pathname+'#p='+(p?projSlug(p):id);};
+ACT['proj-newtab']=b=>{window.open(projTabUrl(b.dataset.id),'_blank','noopener');};
+document.addEventListener('contextmenu',e=>{const row=e.target.closest&&e.target.closest('.pt-row[data-action="open-project"][data-id]');if(!row||e.target.closest('a[href],input,textarea'))return;e.preventDefault();
+  let m=$('calMenu');if(m)m.remove();m=document.createElement('div');m.id='calMenu';m.className='cal-menu';const id=row.dataset.id;
+  m.innerHTML=`<button type="button" data-action="open-project" data-id="${esc(id)}">Projekt megnyitása</button><button type="button" data-action="proj-newtab" data-id="${esc(id)}">↗ Megnyitás új lapon</button>`;
+  document.body.appendChild(m);m.style.left=Math.min(e.pageX,scrollX+innerWidth-220)+'px';m.style.top=e.pageY+'px';});
+document.addEventListener('click',e=>{if(!(e.ctrlKey||e.metaKey))return;const row=e.target.closest&&e.target.closest('.pt-row[data-action="open-project"][data-id],.cal-chip[data-kind="p"]');if(!row)return;const inner=e.target.closest('button,a[href]');if(inner&&inner!==row)return;
+  const id=row.dataset.id||row.dataset.tipid;if(!id)return;e.preventDefault();e.stopPropagation();window.open(projTabUrl(id),'_blank','noopener');},true);
+document.addEventListener('auxclick',e=>{if(e.button!==1)return;const row=e.target.closest&&e.target.closest('.pt-row[data-action="open-project"][data-id],.cal-chip[data-kind="p"]');if(!row)return;const id=row.dataset.id||row.dataset.tipid;if(!id)return;e.preventDefault();window.open(projTabUrl(id),'_blank','noopener');});
