@@ -881,3 +881,9 @@ ACT['cl-mail-view']=async b=>{const vid=b.dataset.vid,at=b.dataset.at,p=(S.proje
     if(T.ax==='x'&&T.h){const want=T.hl-dx;if(Math.abs(T.h.scrollLeft-want)>3)T.h.scrollLeft=want;}
     else if(T.ax==='y'&&T.v){const want=T.vt-dy;if(Math.abs(T.v.scrollTop-want)>3)T.v.scrollTop=want;}},{passive:true});
   document.addEventListener('touchend',()=>{T=null;},{passive:true});document.addEventListener('dragstart',()=>{T=null;},true);}
+/* Húzás közben a tábla magától görget, ha a kártyát a szélére viszed (telefonon a cél oszlop gyakran képen kívül van – Ervin, 2026-11-28) */
+{let AS=null;const hScroller=el=>{for(let n=el;n&&n!==document.body;n=n.parentElement){const cs=getComputedStyle(n);if(/(auto|scroll)/.test(cs.overflowX)&&n.scrollWidth>n.clientWidth+2)return n;}return null;};
+  const tick=()=>{if(!AS||typeof BD_DRAG==='undefined'||!BD_DRAG){AS=null;return;}const {x,y,sc}=AS;if(sc){const r=sc.getBoundingClientRect(),E=Math.min(70,r.width*.18);if(x<r.left+E)sc.scrollLeft-=Math.ceil((r.left+E-x)/4);else if(x>r.right-E)sc.scrollLeft+=Math.ceil((x-(r.right-E))/4);}
+    const VE=70;if(y<VE)scrollBy(0,-Math.ceil((VE-y)/4));else if(y>innerHeight-VE)scrollBy(0,Math.ceil((y-(innerHeight-VE))/4));AS.raf=requestAnimationFrame(tick);};
+  document.addEventListener('dragover',e=>{if(typeof BD_DRAG==='undefined'||!BD_DRAG)return;const t=document.elementFromPoint(e.clientX,e.clientY),sc=(t&&(t.closest('.bd-proj')||hScroller(t)))||document.querySelector('.bd-proj,.bd-modal .bl');const was=!!AS;AS=Object.assign(AS||{},{x:e.clientX,y:e.clientY,sc:sc&&sc.scrollWidth>sc.clientWidth+2?sc:hScroller(sc)});if(!was)AS.raf=requestAnimationFrame(tick);},true);
+  const stop=()=>{if(AS&&AS.raf)cancelAnimationFrame(AS.raf);AS=null;};document.addEventListener('dragend',stop,true);document.addEventListener('drop',stop,true);}
