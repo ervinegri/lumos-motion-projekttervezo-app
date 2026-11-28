@@ -3846,3 +3846,8 @@ html body .intl-badge{display:inline-flex;align-items:center;gap:4px;font-size:1
 html body .intl-badge.noneu{color:#6b3f00;background:#fff3dc;border-color:#f0d9a8}
 html body #mform .tax-lbl-fr{display:none}html body #mform.frn-on .tax-lbl-fr{display:inline}html body #mform.frn-on .tax-lbl-hu{display:none}
 html body #mform.frn-on .tax-nav{display:none!important}
+/* „Külföldi cég” kapcsoló az adószám címkéje mellett (nem nyújtja meg a mezőt) */
+html body #mform .tax-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+html body #mform .tax-hd>label[for]{font-size:12px;font-weight:600;color:var(--fg-2);flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body #mform .tax-hd .frn-chk{display:inline-flex;align-items:center;gap:5px;margin:0;font-size:12px;font-weight:600;color:#5b6573;text-transform:none;letter-spacing:0;white-space:nowrap;cursor:pointer;flex:0 0 auto}
+html body #mform .tax-hd .frn-chk input{width:14px;height:14px;margin:0}

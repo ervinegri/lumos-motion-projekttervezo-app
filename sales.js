@@ -249,7 +249,7 @@ function dealModal(d0,preset){const d=Object.assign({stage:'uj'},d0||{},preset||
     ${isNew?'':dealQuotesBox(d)}
     ${won?'':`<div class="field full"><div class="q-evsel dl-kind" role="radiogroup" aria-label="Az érdeklődés tárgya"><label class="${dealGen(d)?'':'on'}"><input type="radio" name="dKind" value="ev"${dealGen(d)?'':' checked'}> 🎉 Konkrét rendezvény <small>van időpont, helyszín vagy konkrét esemény</small></label><label class="${dealGen(d)?'on':''}"><input type="radio" name="dKind" value="gen"${dealGen(d)?' checked':''}> 📄 Általános ajánlat <small>árlista igények alapján, rendezvény nélkül</small></label></div></div>`}
     ${mf('dTitle','Megnevezés',{v:d.title,full:true,ph:'pl. Mlinárik – tavaszi konferencia felvétele',max:160})}
-    <div class="field"><label for="m-dClient">Cég</label><input class="inp" id="m-dClient" name="dClient" value="${esc(d.client||'')}" maxlength="160" autocomplete="off" placeholder="Kezdd el gépelni a cégnevet…"></div>
+    <div class="field"><label for="m-dClient">Cég <button type="button" class="linkbtn dl-mkcl" data-action="deal-mk-client" style="font-size:12px;margin-left:6px"${dealClKnown(d.client)?' hidden':''}>+ Felvétel ügyfélként</button></label><input class="inp" id="m-dClient" name="dClient" value="${esc(d.client||'')}" maxlength="160" autocomplete="off" placeholder="Kezdd el gépelni a cégnevet…"></div>
     <div class="field"><label for="m-dCName">Kapcsolattartó <span class="muted" style="font-weight:500;font-size:12px">– keresés a HubSpotban</span>${d.contactName?` <button type="button" class="linkbtn" data-action="hs-contact" style="font-size:12px;margin-left:6px">↗ Megnyitás a HubSpotban</button>`:''}</label><input class="inp" id="m-dCName" name="dCName" value="${esc(d.contactName||'')}" maxlength="120" autocomplete="off" placeholder="kezdd el gépelni a nevet vagy a céget"></div>
     ${mf('dCEmail','E-mail',{v:d.contactEmail,type:'email',max:160})}
     ${phoneField({name:'dCPhone',value:d.contactPhone||'',after:'<button class="btn ghost small vcf-btn" type="button" data-action="deal-vcf" title="Névjegy a telefonra (QR-kód)" aria-label="Névjegy a telefonra">📇</button>'})}
@@ -739,3 +739,22 @@ function geminiPanel(){if(!isAdmin()||!S.gemini)return '';const g=S.gemini;
     <div class="dwd-body">${g.on?`<div class="btns"><button type="button" class="btn ghost small" data-action="gem-clear">Kikapcsolás</button></div>`:`<div class="btns"><input class="inp" id="gem-key" type="password" autocomplete="off" spellcheck="false" placeholder="AIza… vagy AQ.…" style="max-width:340px"><button type="button" class="btn primary small" data-action="gem-save">Mentés és ellenőrzés</button></div>`}</div></div>`;}
 ACT['gem-save']=async b=>{const t=document.getElementById('gem-key'),v=t?t.value.trim():'';if(!v){toast('Másold be a kulcsot.',true);return;}b.disabled=true;try{S.gemini=await call('geminiSet',{key:v});render(true);toast('✓ A kulcs működik – mostantól készül az átirat');}catch(e){handleErr(e);}finally{b.disabled=false;}};
 ACT['gem-clear']=async()=>{try{S.gemini=await call('geminiSet',{clear:true});render(true);toast('Kikapcsolva');}catch(e){handleErr(e);}};
+
+/* Lehetőségből ügyfél (Ervin, 2026-11-28): a „Cég” mező mellett „+ Felvétel ügyfélként”, ha a cég még nincs az Ügyfelek között.
+   A lehetőség ablaka félreteszi magát (változatlanul visszajön), az Új ügyfél ablak a lehetőség adataival (cégnév, kapcsolattartó, e-mail, telefon) töltődik ki;
+   külföldi hívószámnál (pl. +32) a „Külföldi cég” is be van jelölve a megfelelő országgal. */
+function dealClKnown(n){const k=String(n||'').trim().toLowerCase();return !k||(S.clients||[]).some(c=>String(c.name||'').trim().toLowerCase()===k);}
+function dealMkClSync(){const f=$('mform'),b=f&&f.querySelector('.dl-mkcl'),i=$('m-dClient');if(b&&i)b.hidden=dealClKnown(i.value);}
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='m-dClient')dealMkClSync();});
+document.addEventListener('focusout',e=>{if(e.target&&e.target.id==='m-dClient')setTimeout(dealMkClSync,250);});
+ACT['deal-mk-client']=()=>{const f=$('mform');if(!f)return;const v=id=>{const e=$(id);return e?String(e.value||'').trim():'';};
+  const name=v('m-dClient');if(name.length<2){toast('Előbb írd be a cég nevét.',true);return;}
+  const prow=f.querySelector('.phone-row[data-ph="n:dCPhone"]'),ph=prow?{cc:prow.querySelector('.ph-cc').dataset.cc||'+36',html:prow.querySelector('.ph-cc').innerHTML,n:prow.querySelector('.ph-num').value.trim()}:null;
+  const pre={contactName:v('m-dCName'),contactEmail:v('m-dCEmail')};
+  if(!modalStash()){toast('Nem sikerült megnyitni az ügyfél ablakát.',true);return;}
+  newClientModal(name,null,true);
+  setTimeout(()=>{[['m-contactName',pre.contactName],['m-contactEmail',pre.contactEmail]].forEach(([id,x])=>{const e=$(id);if(e&&x&&!e.value)e.value=x;});
+    const dst=document.querySelector('#mform .phone-row[data-ph="n:contactPhone"]');
+    if(dst&&ph&&ph.n){const dc=dst.querySelector('.ph-cc');dc.dataset.cc=ph.cc;dc.innerHTML=ph.html;dst.querySelector('.ph-num').value=ph.n;try{phSync(dst,false);}catch(e){}}
+    if(ph&&ph.n&&ph.cc!=='+36'){const iso=((typeof PH_CC!=='undefined'?PH_CC:[]).find(x=>x[2]===ph.cc)||[])[0];if(iso&&iso!=='HU')frnApply(true,iso);}
+    window.MODAL_BEFORE_CLOSE=()=>()=>setTimeout(dealMkClSync,60);},0);};
