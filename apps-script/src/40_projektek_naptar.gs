@@ -828,15 +828,24 @@ function hsStages_() {
   return st;
 }
 function hsSplitName_(n) { const w = String(n || '').trim().split(/\s+/).filter(Boolean); return w.length < 2 ? { firstname: w[0] || '' } : { lastname: w[0], firstname: w.slice(1).join(' ') }; }   // magyar sorrend: vezetéknév elöl
+/* GDPR-jogalap (Ervin, 2026-11-28): mentéskor a kapcsolattartónál mindig be legyen pipálva a „Legitimate interest – Lead” (a meglévő jelölések megmaradnak).
+   Az opció belső értékét a HubSpot tulajdonságából olvassuk (címke alapján), és 6 órára megjegyezzük. */
+function hsLeadBasis_() { const c = CacheService.getScriptCache(); let v = c.get('hs_legal_lead'); if (v !== null) return v;
+  v = ''; try { const pr = hubspot_('get', '/crm/v3/properties/contacts/hs_legal_basis') || {}; const o = (pr.options || []).find(x => /legitimate\s+interest/i.test(x.label || '') && /lead|prospect/i.test(x.label || '')); v = o ? String(o.value) : ''; } catch (e) { v = ''; }
+  try { c.put('hs_legal_lead', v, 21600); } catch (e) {} return v; }
+function hsLegalMerge_(cur) { const v = hsLeadBasis_(); if (!v) return ''; const L = String(cur || '').split(';').map(x => x.trim()).filter(Boolean); if (L.indexOf(v) >= 0) return ''; L.push(v); return L.join(';'); }
+function hsContactLegal_(cid) { if (!cid) return; try { const r = hubspot_('get', '/crm/v3/objects/contacts/' + cid + '?properties=hs_legal_basis') || {}; const nv = hsLegalMerge_((r.properties || {}).hs_legal_basis); if (nv) hubspot_('patch', '/crm/v3/objects/contacts/' + cid, { properties: { hs_legal_basis: nv } }); } catch (e) { Logger.log('hs_legal_basis: ' + e); } }
 function hsEnsureContact_(email, name, phone, company) {
   email = String(email || '').trim().toLowerCase(); if (!email) return '';
   const hit = ((hubspot_('post', '/crm/v3/objects/contacts/search', { filterGroups: [{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }], properties: ['email'], limit: 1 }).results) || [])[0];
   if (hit) {   /* meglévő kapcsolattartó: az appban megadott (nem üres) név, telefon, cég a HubSpotban is frissül */
     const up = {}, nm = hsSplitName_(name); if (nm.firstname) up.firstname = nm.firstname; if (nm.lastname) up.lastname = nm.lastname; if (phone) up.phone = String(phone); if (company) up.company = String(company);
     if (Object.keys(up).length) { try { hubspot_('patch', '/crm/v3/objects/contacts/' + hit.id, { properties: up }); } catch (e) { hsErr_(e); } }
+    hsContactLegal_(hit.id);
     return String(hit.id);
   }
   const props = Object.assign({ email: email }, hsSplitName_(name)); if (phone) props.phone = String(phone); if (company) props.company = String(company);
+  { const lb = hsLeadBasis_(); if (lb) props.hs_legal_basis = lb; }
   return String((hubspot_('post', '/crm/v3/objects/contacts', { properties: props }) || {}).id || '');
 }
 /* Cég a HubSpotban: pontos név → hasonló név (a cégforma nélküli szavak egyezése) → a kapcsolattartó e-mail-domainje; újat csak akkor hozunk létre, ha egyik sincs. */
@@ -943,7 +952,7 @@ function hsClientSync_(c) {
     if (coid) { const ad = hsAddrSplit_(c.address), pr = { name: c.name }; if (c.address) { pr.address = ad.address || ''; if (ad.zip) pr.zip = ad.zip; if (ad.city) pr.city = ad.city; }
       try { hubspot_('patch', '/crm/v3/objects/companies/' + coid, { properties: pr }); } catch (e) { if (/HTTP 404/.test(String(e))) coid = hsEnsureCompany_(c.name, c.contactEmail); else throw e; } }
     if (cid) { const nm = hsSplitName_(c.contactName), pr = {}; if (c.contactName) { pr.firstname = nm.firstname || ''; pr.lastname = nm.lastname || ''; } if (c.contactPhone) pr.phone = String(c.contactPhone); if (c.contactTitle) pr.jobtitle = String(c.contactTitle); pr.company = c.name;
-      try { hubspot_('patch', '/crm/v3/objects/contacts/' + cid, { properties: pr }); } catch (e) { if (/HTTP 404/.test(String(e))) cid = hsEnsureContact_(c.contactEmail, c.contactName, c.contactPhone, c.name); else throw e; }
+      try { hubspot_('patch', '/crm/v3/objects/contacts/' + cid, { properties: pr }); hsContactLegal_(cid); } catch (e) { if (/HTTP 404/.test(String(e))) cid = hsEnsureContact_(c.contactEmail, c.contactName, c.contactPhone, c.name); else throw e; }
       if (c.contactEmail) { try { hubspot_('patch', '/crm/v3/objects/contacts/' + cid, { properties: { email: String(c.contactEmail).trim().toLowerCase() } }); } catch (e) {} } }   // e-mail ütközésnél (már létező HubSpot-kontakt) marad a régi
     hsAssoc_('contacts', cid, 'companies', coid);
     hsLinkPut_(Object.assign(L, { hsContact: cid, hsCompany: coid }));
