@@ -776,7 +776,7 @@ function quoteDraft_(u, a) {
   qPut_(k, JSON.parse(json)); try { dataBump_(); } catch (e) {} return { ok: true, at: now_() };
 }
 function dealQuoteSend_(u, a) {
-  a = a || {}; const r = dealQuoteSender_(u, a), d = r.d;
+  a = a || {}; const r = dealQuoteSender_(u, a), d = r.d; if (a.lang === 'en') r.sig = sigEn_(r.sig, r.f && r.f.name);   // angol ajánlat: az aláírás is angol
   const tos = str_(a.to, 600).split(/\s*,\s*/).filter(Boolean).slice(0, 8); if (!tos.length || !tos.every(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))) throw new Error('Adj meg érvényes e-mail címet.');
   const b64 = String(a.pdf || ''); if (!b64 || b64.length > 12 * 1024 * 1024) throw new Error('Hiányzik az ajánlat PDF-je.');
   const subj = str_(a.subject, 200).trim() || ('Árajánlat – ' + d.title), body = str_(a.body, 6000);
@@ -852,4 +852,11 @@ function viesLookup_(u, a) {
   const j = JSON.parse(r.getContentText() || '{}'), clean = x => { x = String(x || '').replace(/\s*\n\s*/g, ', ').replace(/\s+/g, ' ').trim(); return x === '---' ? '' : x; };
   if (j.userError && j.userError !== 'VALID' && j.userError !== 'INVALID') throw new Error('A VIES nem tudta ellenőrizni (' + j.userError + ') – próbáld újra később.');
   return { valid: !!j.isValid, name: clean(j.name), address: clean(j.address), country: cc === 'EL' ? 'GR' : cc, vat: cc + v };
+}
+
+/** Angol nyelvű levél aláírása (külföldi ügyfélnek küldött árajánlat): köszönés, beosztás, „Tel.” */
+function sigEn_(sig, name) {
+  const T = [[/ügyvezető igazgató/gi, 'Managing Director'], [/ügyvezető/gi, 'Managing Director'], [/értékesítési vezető/gi, 'Head of Sales'], [/értékesítő/gi, 'Sales Manager'], [/termelési vezető/gi, 'Head of Production'], [/produkciós vezető/gi, 'Head of Production']];
+  const f = x => { let y = String(x || '').replace(/Üdvözlettel,/g, 'Best regards,').replace(/Tel\.:/g, 'Phone:'); T.forEach(t => { y = y.replace(t[0], t[1]); }); const p = String(name || '').trim().split(/\s+/); if (p.length >= 2 && p.length <= 3) { const en = p.slice(1).concat(p[0]).join(' '); y = y.split(escapeHtml_(String(name).trim())).join(escapeHtml_(en)); } return y; };
+  return { html: f(sig && sig.html), text: f(sig && sig.text) };
 }
