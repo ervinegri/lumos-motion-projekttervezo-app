@@ -630,3 +630,14 @@ function crewRoleRemove(cid){const d=S.draft;if(!d||eqLockGuard_(d))return;const
 function unlockAll(){try{return JSON.parse(localStorage.getItem('lm_unlocked')||'{}')||{};}catch(e){return S._unl||{};}}
 function unlockGet(id){return unlockAll()[id]||null;}
 function unlockMark(id,v){const m=unlockAll();if(v)m[id]=v;else delete m[id];S._unl=m;try{localStorage.setItem('lm_unlocked',JSON.stringify(m));}catch(e){}}
+/* Országhívószám választása (Ervin, 2026-11-28): a zászlóra kattintva kereshető lista (ország neve, kód, hívószám) */
+{const ccName=c=>{try{return new Intl.DisplayNames(['hu'],{type:'region'}).of(c)||c;}catch(e){return c;}};let CC_ROW=null;
+  const ccList=q=>{const Q=String(q||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/^\+/,'');
+    const L=PH_CC.map(([c,f,d])=>({c,f,d,n:ccName(c)})).filter(x=>!Q||(x.n+' '+x.c+' '+x.d).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(Q)||x.d.slice(1).startsWith(Q));
+    return L.map(x=>`<button type="button" class="addr-item cc-item" data-cc="${x.d}"><b>${x.f} ${esc(x.n)}</b><small>${x.d}</small></button>`).join('')||'<div class="hs-empty">Nincs ilyen ország.</div>';};
+  const open=row=>{CC_ROW=row;const sp=row.querySelector('.ph-cc');pickShow(sp,`<div class="cc-q-wrap"><input class="inp cc-q" type="text" placeholder="Ország vagy hívószám…" autocomplete="off"></div><div class="cc-l">${ccList('')}</div>`);
+    const b=$('hsBox');if(b){b.style.width=Math.max(260,sp.getBoundingClientRect().width)+'px';b.classList.add('cc-box');const q=b.querySelector('.cc-q');if(q){q.focus();q.addEventListener('input',()=>{b.querySelector('.cc-l').innerHTML=ccList(q.value);});q.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();pickClose();}if(e.key==='Enter'){e.preventDefault();const f=b.querySelector('.cc-item');if(f)f.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));}});}}};
+  document.addEventListener('click',e=>{const sp=e.target.closest&&e.target.closest('.phone-row .ph-cc');if(!sp)return;const row=sp.closest('.phone-row'),num=row.querySelector('.ph-num');if(num&&num.disabled)return;e.preventDefault();setTimeout(()=>open(row),0);},true);   // a kattintás lefutása után (más „kívülre kattintás” bezáró ne zárja be rögtön)
+  document.addEventListener('mousedown',e=>{const it=e.target.closest&&e.target.closest('.cc-item');if(!it||!CC_ROW)return;e.preventDefault();e.stopPropagation();const row=CC_ROW,sp=row.querySelector('.ph-cc'),d=it.dataset.cc;
+    sp.dataset.cc=d;sp.innerHTML=((PH_CC.find(x=>x[2]===d)||['',''])[1])+' '+d;pickClose();CC_ROW=null;const num=row.querySelector('.ph-num');if(num){num.placeholder=d==='+36'?'20 123 4567':'szám';num.focus();}phSync(row,true);},true);
+  document.addEventListener('mousedown',e=>{if(!CC_ROW)return;if(e.target.closest&&(e.target.closest('#hsBox')||e.target.closest('.ph-cc')))return;pickClose();CC_ROW=null;},true);}
