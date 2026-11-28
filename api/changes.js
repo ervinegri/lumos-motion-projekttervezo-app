@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "52c56c3fe5",
+"at": "2026-11-28T14:15:06+01:00",
+"msg": "Árajánlat: külön nyelv (magyar / angol / német) és deviza (forint / euró / dollár / font) választó; német PDF, levél és aláírás; USD/GBP MNB-árfolyam"
+},
+{
 "id": "580a2fd334",
 "at": "2026-11-28T14:10:19+01:00",
 "msg": "Kompakt fejléc a lehetőség ablakában és a jegyzetek teljes képernyős nézetében; az ajánlatsorban nincs külön „Ajánlat kiküldve” szakasz"
@@ -132,9 +137,9 @@ const ITEMS = [
 "msg": "Tablet: a szél nélküli nézet csak a projektoldalon (a pénzügyi táblázatok nem csúsznak szét)"
 },
 {
-"id": "d270677a1b",
-"at": "2026-11-28T10:07:56+01:00",
-"msg": "Csengő betöltés közben is látszik; Fizetések táblázat kerete pontosan a képernyő aljáig (iPad)"
+"id": "a4536f25bc",
+"at": "2026-11-28T09:08:05Z",
+"msg": "Változásnapló frissítése"
 }
 ];
 const allowed = require('./_auth.js');
