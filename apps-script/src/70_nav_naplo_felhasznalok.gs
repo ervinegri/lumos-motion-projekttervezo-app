@@ -721,12 +721,18 @@ function quoteMails_(d) { const em = quoteClientEmails_(d); if (!em.length) retu
 /* Az ügyfél ÖSSZES kiküldött ajánlata, tartósan elmentve. Minden megnyitáskor: az ügyfél címeire a postafiókból kiment, PDF-et tartalmazó
    levelek közül amelyik még nincs elmentve, annak a PDF-je a Drive mappába kerül és a lehetőség előzményei közé (QSH_) – így a régebbi,
    a funkció előtt vagy felülírva küldött ajánlatok is megmaradnak, és a lista nem a levelekből, hanem a mentett adatokból áll. */
+/* csak ajánlat-levél kerülhet be (Ervin, 2026-11-28: a számlák is bekerültek): a tárgyban vagy a PDF nevében „ajánlat / quotation / angebot / offer”, és nem számla / díjbekérő / szerződés */
+function quoteLike_(subj, file) { const t = (String(subj || '') + ' ' + String(file || '')).toLowerCase();
+  if (/sz[aá]mla|invoice|rechnung|d[ií]jbek[eé]r|proforma|szerz[oő]d[eé]s|contract|vertrag|teljes[ií]t[eé]s|nyugta|receipt|fizet[eé]si|payment/.test(t)) return false;
+  return /[aá]raj[aá]nlat|aj[aá]nlat|quotation|\bquote\b|angebot|\boffer\b|offerte/.test(t); }
+/* a korábban tévesen elmentett (nem ajánlat) levelek kiszűrése az előzményekből – egyszer, majd tartósan */
+function quotePrune_(x) { const H = qGet_('QSH_' + x.id); if (!H || !Array.isArray(H.list)) return; const L = H.list.filter(r => !r || !r.imported || quoteLike_(r.subject, r.file)); if (L.length !== H.list.length) qPut_('QSH_' + x.id, { at: now_(), list: L }); }
 function quoteAll_(u, d, extra) {
   const k = String(d.client || '').trim().toLowerCase(), deals = readAll_('deals').filter(x => x.id === d.id || (k && String(x.client || '').trim().toLowerCase() === k));
   const S0 = new Set(quoteClientEmails_(d));
   if (u.role === 'admin') (Array.isArray(extra) ? extra : []).slice(0, 6).forEach(e => { e = String(e || '').trim().toLowerCase(); if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) S0.add(e); });
   const em = [...S0].slice(0, 8), diag = { em: em, n: 0, imp: 0, me: '' }; try { diag.me = Session.getEffectiveUser().getEmail(); } catch (e) {}
-  const store = {}; deals.forEach(x => { store[x.id] = quoteStore_(x); });
+  const store = {}; deals.forEach(x => { try { quotePrune_(x); } catch (e) {} store[x.id] = quoteStore_(x); });
   const tm = s => new Date(String(s || '').slice(0, 16).replace(' ', 'T') + ':00').getTime();
   if (em.length) { try {
     const th = GmailApp.search('(' + em.map(e => 'to:' + e + ' OR cc:' + e).join(' OR ') + ') has:attachment filename:pdf', 0, 50); diag.n = th.length;
@@ -737,11 +743,12 @@ function quoteAll_(u, d, extra) {
       if (!em.some(e => to.indexOf(e) >= 0) || em.some(e => fr.indexOf(e) >= 0)) return;   // csak a nekik küldött levelek (az ő válaszaik nem)
       const att = m.getAttachments().find(x => /\.pdf$/i.test(x.getName()) || x.getContentType() === 'application/pdf'); if (!att) return;
       const at = Utilities.formatDate(m.getDate(), SHEET_TZ, 'yyyy-MM-dd HH:mm'), t0 = tm(at), subj = String(m.getSubject() || '').replace(/^((Fwd?|Re|Vá|Továbbítás):\s*)+/i, '');
+      if (!quoteLike_(subj, att.getName())) return;   // számla, szerződés stb. nem ajánlat
       const sl = subj.toLowerCase(), tgt = deals.filter(x => x.title && sl.indexOf(String(x.title).toLowerCase()) >= 0).sort((a, b) => String(b.title).length - String(a.title).length)[0] || deals.find(x => quoteSends_(x).some(y => Math.abs(tm(y.at) - t0) < 15 * 60e3)) || d;
       const L0 = store[tgt.id] || []; if (L0.some(r => r.fileId && Math.abs(tm(r.at) - t0) < 10 * 60e3)) return;   // az alkalmazásból küldött – már megvan
       const sd = quoteSends_(tgt).filter(y => Math.abs(tm(y.at) - t0) < 15 * 60e3)[0];
       const fid = quoteFolder_().createFile(att.copyBlob().setName(at.slice(0, 10) + ' ' + att.getName())).getId();
-      const meta = { at: at, by: sd ? sd.by : '', to: String(m.getTo() || ''), subject: subj, total: sd ? sd.total : 0, currency: sd && sd.currency, eurCents: sd && sd.eurCents, netOnly: !!(sd && sd.netOnly), fileId: fid, q: null, msgId: m.getId(), imported: true };
+      const meta = { at: at, by: sd ? sd.by : '', to: String(m.getTo() || ''), subject: subj, total: sd ? sd.total : 0, currency: sd && sd.currency, eurCents: sd && sd.eurCents, netOnly: !!(sd && sd.netOnly), fileId: fid, file: att.getName(), q: null, msgId: m.getId(), imported: true };
       const H = qGet_('QSH_' + tgt.id), L = (H && H.list) || []; L.push(meta); L.sort((a, b) => String(b.at).localeCompare(String(a.at))); qPut_('QSH_' + tgt.id, { at: now_(), list: L.slice(0, 40) });
       store[tgt.id] = L0.concat([meta]); known.add(m.getId()); diag.imp++;
     }));
