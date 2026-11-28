@@ -2,6 +2,11 @@
 // A GitHub Action generálja – ne szerkeszd kézzel. A lista nem nyilvános: érzékeny részletek is lehetnek benne.
 const ITEMS = [
 {
+"id": "ff13088044",
+"at": "2026-11-28T13:41:48+02:00",
+"msg": "Fizetendő forintösszeg és fizetési feltételek az eurós ajánlat PDF-jén"
+},
+{
 "id": "cfb2cf48f3",
 "at": "2026-11-28T13:28:51+02:00",
 "msg": "Közvetlen EUR-ár, automatikus MNB-árfolyam és nettó nézet a külföldi ajánlatokhoz"
@@ -127,13 +132,8 @@ const ITEMS = [
 "msg": "Helyszínen kért feladat rögzítése: megerősítő ablak nélkül"
 },
 {
-"id": "0cff8d0bbe",
-"at": "2026-11-28T09:30:25+01:00",
-"msg": "Lezajlott rendezvény feloldva: nem szürke, az operatőr kiválasztható; Szolgáltatások zöld; a táblán a videó neve terjedelem nélkül"
-},
-{
-"id": "478795cb16",
-"at": "2026-11-28T08:26:40Z",
+"id": "7cce3b8e7d",
+"at": "2026-11-28T08:30:34Z",
 "msg": "Változásnapló frissítése"
 }
 ];
